@@ -1,8 +1,8 @@
 import { colors } from '@/themes/colors';
-import { STUDENT_ACCOUNT_PATH } from '../routes/config';
 import { JSX } from 'react';
 import SvgColor from '@/components/SvgColor';
 import { DRAWER_USER_IC } from '@/utils/constants/icon';
+import { USER_PATH } from '@/routes/config';
   
 export const DRAWER_WIDTH: number = 240;
 export const APP_BAR_HEIGHT: number = 80;
@@ -25,10 +25,10 @@ export const MAIN_MENU_ITEMS: GroupMenuModel[] = [
     label: 'General',
     menu: [
       {
-        label: 'Students',
-        path: STUDENT_ACCOUNT_PATH,
+        label: 'User Management',
+        path: USER_PATH,
         icon: <SvgColor src={DRAWER_USER_IC} />,
-      }
+      },
     ],
   },
 ];

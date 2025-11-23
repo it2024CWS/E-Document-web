@@ -37,23 +37,13 @@ export const getErrorAlert = async (error: unknown | string, onSubmit?: () => vo
 };
 
 export const getSuccessAlert = async (message?: string): Promise<void> => {
-  Swal.fire({
-    title: `<span style="font-size: 22px; color: #1DA243; font-weight: bold; margin-bottom: 64px;">${message ?? 'ສຳເລັດແລ້ວ'}</span>`,
+  await Swal.fire({
+    title: isEnglish ? 'Success' : 'ສຳເລັດ',
+    icon: 'success',
+    html: message || null!,
     confirmButtonText: isEnglish ? 'OK' : 'ຕົກລົງ',
-    confirmButtonColor: colors.primary.main,
-    timer: 1000000,
-    // imageUrl: SUCCESS_IC,
-    showConfirmButton: false,
-    customClass: {
-      ...defaultCustomClass,
-      title: 'swal2-custom-title',
-    },
-    showClass: {
-      popup: 'swal2-show',
-    },
-    hideClass: {
-      popup: 'swal2-hide swal2-fade',
-    },
+    confirmButtonColor: 'green',
+    customClass: defaultCustomClass,
   });
 };
 
