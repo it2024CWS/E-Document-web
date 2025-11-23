@@ -1,0 +1,52 @@
+@font-face {
+  font-family: 'Inter';
+  src: url('@/assets/fonts/Inter_18pt-Regular.ttf') format('truetype');
+  font-weight: 400;
+  unicode-range: U+0030-0039, U+0020-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+0000-00FF;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('@/assets/fonts/Inter_18pt-Medium.ttf') format('truetype');
+  font-weight: 500;
+  unicode-range: U+0030-0039, U+0020-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+0000-00FF;
+}
+
+@font-face {
+  font-family: 'Inter';
+  src: url('@/assets/fonts/Inter_18pt-Bold.ttf') format('truetype');
+  font-weight: 700;
+  unicode-range: U+0030-0039, U+0020-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+0000-00FF;
+}
+
+@font-face {
+  font-family: 'Noto Sans Lao';
+  src: url('@/assets/fonts/NotoSansLao-Regular.ttf') format('truetype');
+  font-weight: 400;
+  unicode-range: U+0E80- U+0EFF;
+}
+
+@font-face {
+  font-family: 'Noto Sans Lao';
+  src: url('@/assets/fonts/NotoSansLao-Medium.ttf') format('truetype');
+  font-weight: 500;
+  unicode-range: U+0E80- U+0EFF;
+}
+
+@font-face {
+  font-family: 'Noto Sans Lao';
+  src: url('@/assets/fonts/NotoSansLao-Bold.ttf') format('truetype');
+  font-weight: 700;
+  unicode-range: U+0E80- U+0EFF;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  font-family: 'Inter', 'Noto Sans Lao', sans-serif;
+}
+
+html,
+body {
+  font-family: 'Inter', 'Noto Sans Lao', sans-serif;
+}

@@ -1,0 +1,91 @@
+.swal2-custom-title {
+  text-align: center;
+  font-weight: bold;
+  color: #021016;
+  font-size: 22px;
+  padding: 0;
+  margin-top: 30px;
+  padding-bottom: 32px;
+  max-width: 469px;
+  font-family: 'Lato', 'Boonhome', sans-serif;
+}
+
+/* Adjust popup style with rounded corners */
+.swal2-custom-popup {
+  min-height: 250px;
+  padding: 32px;
+  border-radius: 18px;
+}
+
+/* Align buttons to the bottom-right */
+.swal2-custom-actions {
+  display: flex;
+  justify-content: flex-end;
+  width: 100%;
+  gap: 16px;
+}
+
+.swal2-custom-description {
+  text-align: left;
+  font-size: 16px;
+  color: #838383;
+}
+
+#swal2-html-container {
+  padding: 0;
+}
+
+.swal2-container {
+  z-index: 9999 !important;
+}
+
+.custom-confirm-button {
+  background-color: '#8D191B' !important;
+  color: white;
+  font-size: 16px;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-weight: bold;
+  min-width: 180px;
+  font-family: 'Lato', 'Boonhome', sans-serif;
+}
+
+.custom-cancel-button {
+  outline: 1px solid #d0cfcf;
+  background-color: #fff !important;
+  color: #746e6e;
+  font-size: 16px;
+  border-radius: 12px;
+  padding: 16px 20px;
+  font-weight: bold;
+  min-width: 180px;
+  font-family: 'Lato', 'Boonhome', sans-serif;
+
+  &:hover {
+    background-color: '#8D191B40' !important;
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.swal2-hide {
+  animation: fadeOut 0.3s ease-out !important;
+}
+
+.swal2-fade-in {
+  opacity: 1;
+  transition: opacity 225ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.swal2-actions {
+  display: flex !important;
+  flex-direction: row-reverse !important;
+  gap: 8px !important;
+}
