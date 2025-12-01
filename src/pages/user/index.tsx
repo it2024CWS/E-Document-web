@@ -8,9 +8,13 @@ import { FormCreateControllerProvider } from './context/FormCreateControllerProv
 import { Box, Typography, CircularProgress } from '@mui/material';
 import Toolbar from './components/Toolbar';
 import Table from './components/Table';
+import { useMemo } from 'react';
 
 const Content = () => {
   const ctrl = useMainControllerContext();
+
+  // Extract only the data we need to prevent unnecessary re-renders
+  const users = useMemo(() => ctrl.data?.info || [], [ctrl.data?.info]);
 
   switch (ctrl.currentForm) {
     case FormEnum.DETAIL:
@@ -34,14 +38,18 @@ const Content = () => {
             User Management
           </Typography>
 
-          <Toolbar />
+          <Toolbar
+            onChangeForm={ctrl.handleChangeForm}
+            onSearch={ctrl.handleChangeSearchQuery}
+            initialSearchQuery={ctrl.searchQuery}
+          />
 
           {ctrl.loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '400px' }}>
               <CircularProgress />
             </Box>
           ) : (
-            <Table sx={{ mt: 3 }} />
+            <Table users={users} onSelectUser={ctrl.handleChangeSelectedItem} sx={{ mt: 3 }} />
           )}
         </Box>
       );

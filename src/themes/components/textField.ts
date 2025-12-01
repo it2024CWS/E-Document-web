@@ -11,7 +11,7 @@ export const MuiTextField: Components<Omit<Theme, 'components'>>['MuiTextField']
       display: 'flex',
       alignItems: 'center',
       alignSelf: 'stretch',
-      borderRadius: radius[2],
+      borderRadius: radius[4],
       background: '#F6F6F6',
       '& .MuiFilledInput-root': {
         width: '100%',
@@ -39,7 +39,7 @@ export const MuiTextField: Components<Omit<Theme, 'components'>>['MuiTextField']
         },
       },
       '& .MuiOutlinedInput-root': {
-        borderRadius: radius[2], // or your desired value
+        borderRadius: radius[4], // or your desired value
         backgroundColor: '#fff', // if you want a background
         // ...other styles
       },

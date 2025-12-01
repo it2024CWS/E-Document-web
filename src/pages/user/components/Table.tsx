@@ -6,12 +6,16 @@ import TableHeadCell from '@/components/Table/TableHeadCell';
 import TablePaginationCustom from '@/components/Table/TablePaginationCustom';
 import { radius } from '@/themes/radius';
 import { TableContainer, TableHead, TableRow, BoxProps, Box, Chip } from '@mui/material';
-import useMainControllerContext from '../context';
 import { UserRoleLabels } from '@/enums/userRoleEnum';
+import { UserModel } from '@/models/userModel';
+import { memo } from 'react';
 
-const Table = (props?: BoxProps) => {
-  const ctrl = useMainControllerContext();
+interface TableProps extends BoxProps {
+  users: UserModel[];
+  onSelectUser: (user: UserModel) => void;
+}
 
+const Table = memo(({ users, onSelectUser, ...props }: TableProps) => {
   const headLists: { label: string; align?: 'right' | 'left' | 'center' | 'inherit' | 'justify' }[] = [
     { label: 'Username' },
     { label: 'Email' },
@@ -37,7 +41,7 @@ const Table = (props?: BoxProps) => {
             </TableRow>
           </TableHead>
           <TableBodyCustom>
-            {ctrl?.data?.info?.map((item) => (
+            {users?.map((item) => (
               <TableRow key={item?.id}>
                 <TableBodyCell>{item.username}</TableBodyCell>
                 <TableBodyCell>{item.email}</TableBodyCell>
@@ -60,7 +64,7 @@ const Table = (props?: BoxProps) => {
                 </TableBodyCell>
                 <TableBodyCell>{item.phone || '-'}</TableBodyCell>
                 <TableBodyCell align="right">
-                  <ButtonDetail onClick={() => ctrl.handleChangeSelectedItem(item)} />
+                  <ButtonDetail onClick={() => onSelectUser(item)} />
                 </TableBodyCell>
               </TableRow>
             ))}
@@ -70,6 +74,8 @@ const Table = (props?: BoxProps) => {
       <TablePaginationCustom />
     </Box>
   );
-};
+});
+
+Table.displayName = 'Table';
 
 export default Table;

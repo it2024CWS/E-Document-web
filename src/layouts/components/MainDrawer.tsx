@@ -2,10 +2,10 @@ import { Box, CSSObject, List, ListItem, ListItemButton, ListItemIcon, ListItemT
 import MuiDrawer from '@mui/material/Drawer';
 import { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { colors } from '@/themes/colors';
-import { DRAWER_WIDTH, APP_BAR_HEIGHT, MAIN_MENU_ITEMS, APP_BAR_COLOR, GroupMenuModel } from '../config';
+import { DRAWER_WIDTH, MAIN_MENU_ITEMS, APP_BAR_COLOR, GroupMenuModel } from '../config';
 import ListMenuItem from './ListMenuItem';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BOOK_LOGO } from '@/utils/constants/logo';
+import { LAOALSY_LOGO } from '@/utils/constants/logo';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '@/contexts/auth';
 import { LOGIN_PATH } from '@/routes/config';
@@ -79,11 +79,11 @@ const MainDrawer = ({ open }: AppBarProps) => {
         {/* Logo Section */}
         <Box
           sx={{
-            height: open ? '120px' : 0,
+            height: open ? '80px' : 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            bgcolor: APP_BAR_COLOR,
+            bgcolor: colors.primary.main,
             overflow: 'hidden',
             transition: (theme) =>
               theme.transitions.create('height', {
@@ -92,7 +92,7 @@ const MainDrawer = ({ open }: AppBarProps) => {
               }),
           }}
         >
-          <img src={BOOK_LOGO} alt="main_logo" width={170} height={50} />
+          <img src={LAOALSY_LOGO} alt="main_logo" width={75} height={65} />
         </Box>
 
         {/* Menu Items */}

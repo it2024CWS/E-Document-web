@@ -14,7 +14,7 @@ export const MuiButton: Components<Omit<Theme, 'components'>>['MuiButton'] = {
   },
   styleOverrides: {
     root: {
-      borderRadius: radius[2],
+      borderRadius: radius[4],
       textTransform: 'none',
       fontWeight: 700,
       fontSize: '14px',

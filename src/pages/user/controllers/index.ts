@@ -3,7 +3,7 @@ import { UserModel } from '@/models/userModel';
 import { PaginationModel } from '@/models/paginationModel';
 import { getUsersService } from '@/services/userService';
 import { getErrorAlert } from '@/utils/functions/sweetAlert/sweetAlert';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 
 const useMainController = () => {
@@ -16,7 +16,7 @@ const useMainController = () => {
   const rowPerPage = parseInt(searchParams.get('rowPerPage') ?? '10');
   const searchQuery = searchParams.get('query') ?? undefined;
 
-  const handleGetData = async () => {
+  const handleGetData = useCallback(async () => {
     try {
       setLoading(true);
       const result = await getUsersService(page, rowPerPage, searchQuery);
@@ -26,7 +26,7 @@ const useMainController = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, rowPerPage, searchQuery]);
 
   useEffect(() => {
     const id = searchParams.get('id');
@@ -38,6 +38,57 @@ const useMainController = () => {
     }
   }, [searchParams, page, rowPerPage, searchQuery]);
 
+  const handleChangeSelectedItem = useCallback((value: UserModel) => {
+    if (!value?.id) {
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.delete('id');
+        return newParams;
+      });
+      setCurrentForm(null!);
+    } else {
+      setSearchParams(prev => {
+        const newParams = new URLSearchParams(prev);
+        newParams.set('id', value?.id);
+        return newParams;
+      });
+      setCurrentForm(FormEnum.DETAIL);
+    }
+  }, [setSearchParams]);
+
+  const handleChangeSearchQuery = useCallback((value: string) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      if (!value) newParams.delete('query');
+      else newParams.set('query', value);
+      return newParams;
+    });
+  }, [setSearchParams]);
+
+  const handleChangeForm = useCallback((value: FormEnum) => {
+    setCurrentForm(value);
+  }, []);
+
+  const handleChangePage = useCallback((value: number) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('page', value.toString());
+      return newParams;
+    });
+  }, [setSearchParams]);
+
+  const handleChangeRowPerPage = useCallback((value: number) => {
+    setSearchParams(prev => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set('rowPerPage', value.toString());
+      return newParams;
+    });
+  }, [setSearchParams]);
+
+  const handleRefresh = useCallback(() => {
+    handleGetData();
+  }, [handleGetData]);
+
   return {
     data,
     loading,
@@ -46,32 +97,12 @@ const useMainController = () => {
     page,
     rowPerPage,
     searchQuery,
-    handleChangeSelectedItem: (value: UserModel) => {
-      if (!value?.id) {
-        searchParams.delete('id');
-        setSearchParams(searchParams);
-        setCurrentForm(null!);
-      } else {
-        searchParams.set('id', value?.id);
-        setSearchParams(searchParams);
-        setCurrentForm(FormEnum.DETAIL);
-      }
-    },
-    handleChangeSearchQuery: (value: string) => {
-      if (!value) searchParams.delete('query');
-      else searchParams.set('query', value);
-      setSearchParams(searchParams);
-    },
-    handleChangeForm: (value: FormEnum) => setCurrentForm(value),
-    handleChangePage: (value: number) => {
-      searchParams.set('page', value.toString());
-      setSearchParams(searchParams);
-    },
-    handleChangeRowPerPage: (value: number) => {
-      searchParams.set('rowPerPage', value.toString());
-      setSearchParams(searchParams);
-    },
-    handleRefresh: () => handleGetData(),
+    handleChangeSelectedItem,
+    handleChangeSearchQuery,
+    handleChangeForm,
+    handleChangePage,
+    handleChangeRowPerPage,
+    handleRefresh,
   };
 };
 

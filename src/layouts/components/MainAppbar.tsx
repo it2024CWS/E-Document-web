@@ -1,4 +1,4 @@
-import { Avatar, Box, Button, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { Avatar, Box, IconButton, Menu, MenuItem, Stack, Typography } from '@mui/material';
 import { APP_BAR_COLOR, APP_BAR_HEIGHT } from '../config';
 import { colors } from '@/themes/colors';
 import useMainDrawerControllerContext from '../context';
@@ -42,7 +42,7 @@ const MainAppBar = () => {
         height: '100%',
         bgcolor: APP_BAR_COLOR,
         p: '16px',
-        borderBottom: `1px solid ${colors.secondary.gray1}`,
+        borderBottom: `1px solid ${colors.secondary.gray1}`,  
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -61,13 +61,12 @@ const MainAppBar = () => {
       </IconButton>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 3 }}>
         <SectionCurrentTime />
-        <Button
+        <Box
           onClick={handleClick}
           sx={{
-            textTransform: 'none',
-            p: 0,
+            cursor: 'pointer',
             '&:hover': {
-              bgcolor: 'transparent',
+              opacity: 0.9,
             },
           }}
         >
@@ -76,7 +75,7 @@ const MainAppBar = () => {
             spacing={1}
             sx={{
               borderRadius: radius[5],
-              bgcolor: colors.dominant.white3,
+              bgcolor: colors.dominant.white1,
               p: '6px 8px',
               minWidth: '160px',
             }}
@@ -89,7 +88,7 @@ const MainAppBar = () => {
               <Typography sx={{ fontSize: '12px', color: colors.secondary.gray2 }}>{user?.role || 'User'}</Typography>
             </Stack>
           </Stack>
-        </Button>
+        </Box>
         <Menu
           anchorEl={anchorEl}
           open={open}
