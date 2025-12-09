@@ -20,7 +20,9 @@ const useFormCreateController = () => {
     last_name: '',
     department_id: '',
     sector_id: '',
+    profile_picture: null,
   });
+  const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(null);
 
   const userId = searchParams.get('id');
   const isEditMode = mainCtrl.currentForm === FormEnum.EDIT;
@@ -41,7 +43,10 @@ const useFormCreateController = () => {
         last_name: user.last_name || '',
         department_id: user.department_id || '',
         sector_id: user.sector_id || '',
+        profile_picture: null,
       });
+      // Set current profile picture URL for display
+      setCurrentProfilePicture(user.profile_picture || null);
     } catch (error) {
       getErrorAlert(error);
     } finally {
@@ -51,6 +56,10 @@ const useFormCreateController = () => {
 
   const handleChange = (field: keyof CreateUserRequest, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleProfilePictureChange = (file: File | null) => {
+    setFormData((prev) => ({ ...prev, profile_picture: file }));
   };
 
   const handleSubmit = async () => {
@@ -111,7 +120,9 @@ const useFormCreateController = () => {
     formData,
     loading,
     isEditMode,
+    currentProfilePicture,
     handleChange,
+    handleProfilePictureChange,
     handleSubmit,
     handleCancel,
   };

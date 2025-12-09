@@ -8,6 +8,7 @@ export interface UserModel {
   last_name: string;
   department_id: string;
   sector_id: string;
+  profile_picture?: string;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +23,7 @@ export interface CreateUserRequest {
   last_name?: string;
   department_id?: string;
   sector_id?: string;
+  profile_picture?: File | null;
 }
 
 export interface UpdateUserRequest {
@@ -34,4 +36,5 @@ export interface UpdateUserRequest {
   last_name?: string;
   department_id?: string;
   sector_id?: string;
+  profile_picture?: File | null;
 }

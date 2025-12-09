@@ -14,6 +14,7 @@ const useMainController = () => {
     usernameOrEmail: '',
     password: '',
   });
+  const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [errors, setErrors] = useState({
     usernameOrEmail: '',
     password: '',
@@ -84,6 +85,8 @@ const useMainController = () => {
     loading,
     formData,
     errors,
+    rememberMe,
+    setRememberMe,
     handleChange,
     handleLogin,
     handleKeyPress,

@@ -1,4 +1,15 @@
-import { Box, Button, CircularProgress, Container, Paper, Stack, TextField, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Checkbox,
+  CircularProgress,
+  Container,
+  FormControlLabel,
+  Paper,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import useMainControllerContext from './context';
 import { MainControllerProvider } from './context/MainControllerProvider';
 import { colors } from '@/themes/colors';
@@ -21,14 +32,14 @@ const Content = () => {
         <Paper
           elevation={10}
           sx={{
-            p: 4,
+            p: 5,
             borderRadius: 3,
             backgroundColor: colors.dominant.white1,
           }}
         >
           <Stack spacing={3}>
             {/* Logo & Title */}
-            <Box sx={{ textAlign: 'center' }}>
+            <Box sx={{ textAlign: 'center', mb: 1 }}>
               <Typography variant="h4" fontWeight="bold" color={colors.primary.main} gutterBottom>
                 E-Document System
               </Typography>
@@ -71,6 +82,25 @@ const Content = () => {
               disabled={ctrl.loading}
               autoComplete="current-password"
             />
+
+            {/* Remember Me */}
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={ctrl.rememberMe}
+                    onChange={(e) => ctrl.setRememberMe(e.target.checked)}
+                    sx={{
+                      color: colors.primary.main,
+                      '&.Mui-checked': {
+                        color: colors.primary.main,
+                      },
+                    }}
+                  />
+                }
+                label={<Typography variant="body2">Remember me</Typography>}
+              />
+            </Box>
 
             {/* Login Button */}
             <Button
