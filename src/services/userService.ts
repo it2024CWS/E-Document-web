@@ -107,9 +107,9 @@ export const createUserService = async (data: CreateUserRequest): Promise<UserMo
       formData.append('profile_picture', data.profile_picture);
     }
 
+    // Let axios set the correct multipart boundary header automatically
     const res = await axiosInstance.post<UserResponse>('/v1/users', formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
         'ngrok-skip-browser-warning': 'true',
       },
     });
@@ -148,9 +148,9 @@ export const updateUserService = async (id: string, data: UpdateUserRequest): Pr
       formData.append('profile_picture', data.profile_picture);
     }
 
+    // Let axios set the correct multipart boundary header automatically
     const res = await axiosInstance.put<UserResponse>(`/v1/users/${id}`, formData, {
       headers: {
-        'Content-Type': 'multipart/form-data',
         'ngrok-skip-browser-warning': 'true',
       },
     });

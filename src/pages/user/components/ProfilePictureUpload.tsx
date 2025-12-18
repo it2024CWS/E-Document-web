@@ -1,6 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { getErrorAlert } from '@/utils/functions/sweetAlert/sweetAlert';
 
 interface ProfilePictureUploadProps {
@@ -14,6 +14,23 @@ const ProfilePictureUpload = ({ value, onChange, disabled, readOnly }: ProfilePi
   const [imagePreview, setImagePreview] = useState<string | null>(
     typeof value === 'string' ? value : null
   );
+
+  // Sync imagePreview with value prop when it changes (fixes issue where profile picture
+  // doesn't show in edit mode because the URL loads after initial mount)
+  useEffect(() => {
+    if (typeof value === 'string' && value) {
+      setImagePreview(value);
+    } else if (value instanceof File) {
+      // If value is a File, create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(value);
+    } else if (!value) {
+      setImagePreview(null);
+    }
+  }, [value]);
 
   const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
   const isEditable = !readOnly && !disabled;

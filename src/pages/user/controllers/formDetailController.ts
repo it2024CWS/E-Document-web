@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { UserModel } from '@/models/userModel';
 import { getUserByIdService, deleteUserService } from '@/services/userService';
+import { getUserProfilePictureUrl } from '@/services/fileService';
 import { getErrorAlert, getSuccessAlert, getConfirmAlert } from '@/utils/functions/sweetAlert/sweetAlert';
 import { FormEnum } from '@/enums/formEnum';
 import useMainControllerContext from '../context';
@@ -20,7 +21,21 @@ const useFormDetailController = () => {
     try {
       setLoading(true);
       const result = await getUserByIdService(userId);
-      setUser(result);
+
+      // If user has profile picture path, get presigned URL and cache it by user id
+      let profilePictureUrl: string | null = null;
+      if (result.profile_picture) {
+        try {
+          profilePictureUrl = await getUserProfilePictureUrl(userId, result.profile_picture);
+        } catch (error) {
+          console.error('Failed to load profile picture URL', error);
+        }
+      }
+
+      setUser({
+        ...result,
+        profile_picture: profilePictureUrl ?? result.profile_picture,
+      });
     } catch (error) {
       getErrorAlert(error);
     } finally {

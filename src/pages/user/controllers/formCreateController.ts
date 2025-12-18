@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CreateUserRequest, UpdateUserRequest } from '@/models/userModel';
 import { createUserService, updateUserService, getUserByIdService } from '@/services/userService';
+import { getUserProfilePictureUrl, clearCachedProfilePicture } from '@/services/fileService';
 import { getErrorAlert, getSuccessAlert } from '@/utils/functions/sweetAlert/sweetAlert';
 import { FormEnum } from '@/enums/formEnum';
 import useMainControllerContext from '../context';
@@ -33,6 +34,17 @@ const useFormCreateController = () => {
     try {
       setLoading(true);
       const user = await getUserByIdService(userId);
+
+      // Load presigned URL for existing profile picture and cache by user id
+      let profilePictureUrl: string | null = null;
+      if (user.profile_picture) {
+        try {
+          profilePictureUrl = await getUserProfilePictureUrl(userId, user.profile_picture);
+        } catch (error) {
+          console.error('Failed to load profile picture URL', error);
+        }
+      }
+
       setFormData({
         username: user.username,
         email: user.email,
@@ -46,7 +58,7 @@ const useFormCreateController = () => {
         profile_picture: null,
       });
       // Set current profile picture URL for display
-      setCurrentProfilePicture(user.profile_picture || null);
+      setCurrentProfilePicture(profilePictureUrl ?? user.profile_picture ?? null);
     } catch (error) {
       getErrorAlert(error);
     } finally {
@@ -81,6 +93,12 @@ const useFormCreateController = () => {
         if (!updateData.password) {
           delete updateData.password; // Don't update password if not provided
         }
+
+        // Clear cached profile picture if a new one is being uploaded
+        if (formData.profile_picture) {
+          clearCachedProfilePicture(userId);
+        }
+
         await updateUserService(userId, updateData);
         await getSuccessAlert('User updated successfully');
         mainCtrl.handleChangeForm(FormEnum.DETAIL);

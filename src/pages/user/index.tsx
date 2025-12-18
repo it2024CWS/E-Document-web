@@ -38,7 +38,7 @@ const Content = () => {
             User Management
           </Typography>
 
-          <Toolbar
+          <Toolbar sx={{ mb: 3 }}
             onChangeForm={ctrl.handleChangeForm}
             onSearch={ctrl.handleChangeSearchQuery}
             initialSearchQuery={ctrl.searchQuery}
@@ -49,7 +49,11 @@ const Content = () => {
               <CircularProgress />
             </Box>
           ) : (
-            <Table users={users} onSelectUser={ctrl.handleChangeSelectedItem} sx={{ mt: 3 }} />
+            <Table
+              users={users}
+              onSelectUser={ctrl.handleChangeSelectedItem}
+              totalUsers={ctrl.data?.pagination?.total}
+            />
           )}
         </Box>
       );
