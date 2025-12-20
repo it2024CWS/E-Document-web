@@ -9,6 +9,7 @@ import { LAOALSY_LOGO } from '@/utils/constants/logo';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '@/contexts/auth';
 import { LOGIN_PATH } from '@/routes/config';
+import UploadButton from '@/components/UploadButton';
 
 const drawerWidth = DRAWER_WIDTH;
 
@@ -93,6 +94,24 @@ const MainDrawer = ({ open }: AppBarProps) => {
           }}
         >
           <img src={LAOALSY_LOGO} alt="main_logo" width={75} height={65} />
+        </Box>
+
+        {/* Upload Button */}
+        <Box
+          sx={{
+            px: 2,
+            py: 2,
+            opacity: open ? 1 : 0,
+            height: open ? 'auto' : 0,
+            overflow: 'hidden',
+            transition: (theme) =>
+              theme.transitions.create(['opacity', 'height'], {
+                easing: theme.transitions.easing.sharp,
+                duration: theme.transitions.duration.leavingScreen,
+              }),
+          }}
+        >
+          <UploadButton />
         </Box>
 
         {/* Menu Items */}

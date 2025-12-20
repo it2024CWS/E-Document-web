@@ -8,12 +8,12 @@ interface GetUsersResponse {
   error_code: string;
   data: {
     items: UserModel[];
-    pagination: {
-      currentPage: number;
-      totalPages: number;
-      totalItems: number;
-      itemsPerPage: number;
-    };
+  };
+  pagination: {
+    currentPage: number;
+    totalPages: number;
+    totalItems: number;
+    itemsPerPage: number;
   };
 }
 
@@ -49,7 +49,7 @@ export const getUsersService = async (
     return {
       items: res.data.data.items,
       pagination: {
-        total: res.data.data.pagination.totalItems,
+        total: res.data.pagination.totalItems,
       },
     };
   } catch (error: any) {
