@@ -22,7 +22,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
-          setUser(JSON.parse(storedUser));
+          const parsedUser = JSON.parse(storedUser);
+          // Simple validation to ensure data matches new model
+          if (parsedUser && parsedUser.role_id) {
+            setUser(parsedUser);
+          } else {
+            // If data is old format (missing role_id), clear it
+            localStorage.removeItem('user');
+          }
         }
       } catch (error) {
         console.error('Failed to parse user data:', error);

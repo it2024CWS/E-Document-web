@@ -1,8 +1,8 @@
 import axiosInstance from '@/configs/axios';
 import { AUTH_ENDPOINT } from '@/configs/endpoint';
-import { AuthModel, RefreshTokenModel, ProfileModel, LoginResponseModel, UserDataModel } from '@/models/authModel';
+import { RefreshTokenModel, ProfileModel, LoginResponseModel, UserDataModel } from '@/models/authModel';
 import { AUTH_TOKEN_STORAGE } from '@/utils/constants/localStorage';
-import { encode, decode } from '@/utils/functions/hashString';
+import { decode } from '@/utils/functions/hashString';
 import api from "@/configs/axios";
 
 export const loginService = async (usernameOrEmail: string, password: string): Promise<UserDataModel> => {

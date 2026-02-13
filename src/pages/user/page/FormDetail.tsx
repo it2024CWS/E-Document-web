@@ -4,7 +4,6 @@ import useMainControllerContext from '../context';
 import { radius } from '@/themes/radius';
 import FieldData from '@/components/FieldData';
 import { useFormDetailControllerContext } from '../context/FormDetailControllerProvider';
-import { UserRoleLabels } from '@/enums/userRoleEnum';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ProfilePictureUpload from '../components/ProfilePictureUpload';
@@ -81,21 +80,17 @@ const FormDetail = () => {
             <Grid size={{ md: 6, xs: 12 }}>
               <FieldData
                 label="Role"
-                value={
-                  detailCtrl.user.role
-                    ? UserRoleLabels[detailCtrl.user.role as keyof typeof UserRoleLabels] || detailCtrl.user.role
-                    : '-'
-                }
+                value={detailCtrl.user.role_name || '-'}
               />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
               <FieldData label="Phone" value={detailCtrl.user.phone || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Department ID" value={detailCtrl.user.department_id || '-'} />
+              <FieldData label="Department" value={detailCtrl.user.department_name || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Sector ID" value={detailCtrl.user.sector_id || '-'} />
+              <FieldData label="Sector" value={detailCtrl.user.sector_name || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
               <FieldData

@@ -16,7 +16,7 @@ interface TabZoneProps {
 const TabComponent = ({ tabs, onTabChange, defaultTab }: TabZoneProps) => {
   const [activeTab, setActiveTab] = useState<string>(defaultTab || tabs[0]?.value || '');
 
-  const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
+  const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
     setActiveTab(newValue);
     onTabChange?.(newValue);
   };

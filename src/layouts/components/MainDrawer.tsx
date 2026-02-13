@@ -1,8 +1,8 @@
-import { Box, CSSObject, List, ListItem, ListItemButton, ListItemIcon, ListItemText, styled, Theme, Typography } from '@mui/material';
+import { Box, CSSObject, List, ListItem, ListItemButton, ListItemIcon, ListItemText, styled, Theme } from '@mui/material';
 import MuiDrawer from '@mui/material/Drawer';
 import { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { colors } from '@/themes/colors';
-import { DRAWER_WIDTH, MAIN_MENU_ITEMS, APP_BAR_COLOR, GroupMenuModel } from '../config';
+import { DRAWER_WIDTH, MAIN_MENU_ITEMS, GroupMenuModel } from '../config';
 import ListMenuItem from './ListMenuItem';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { LAOALSY_LOGO } from '@/utils/constants/logo';

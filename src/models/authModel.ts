@@ -12,7 +12,15 @@ export interface UserDataModel {
   id: string;
   username: string;
   email: string;
-  role: string;
+  role_id: number;
+  role_name?: string;
+  first_name?: string;
+  last_name?: string;
+  department_id?: number | null;
+  department_name?: string;
+  sector_id?: number | null;
+  sector_name?: string;
+  profile_picture?: string;
   created_at: string;
   updated_at: string;
 }

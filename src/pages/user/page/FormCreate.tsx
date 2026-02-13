@@ -12,17 +12,15 @@ import {
   CircularProgress,
   Divider,
 } from '@mui/material';
-import useMainControllerContext from '../context';
 import { radius } from '@/themes/radius';
 import { useFormCreateControllerContext } from '../context/FormCreateControllerProvider';
-import { UserRoleEnum, UserRoleLabels } from '@/enums/userRoleEnum';
 import SaveIcon from '@mui/icons-material/Save';
 import CancelIcon from '@mui/icons-material/Cancel';
 import TextFieldPassword from '@/components/TextField/TextFieldPassword';
 import ProfilePictureUpload from '../components/ProfilePictureUpload';
 
 const FormCreate = () => {
-  const mainCtrl = useMainControllerContext();
+  // const mainCtrl = useMainControllerContext();
   const createCtrl = useFormCreateControllerContext();
 
   return (
@@ -106,14 +104,17 @@ const FormCreate = () => {
               <FormControl fullWidth>
                 <InputLabel>Role</InputLabel>
                 <Select
-                  value={createCtrl.formData.role}
+                  value={createCtrl.formData.role_id || ''}
                   label="Role"
-                  onChange={(e) => createCtrl.handleChange('role', e.target.value)}
+                  onChange={(e) => createCtrl.handleChange('role_id', Number(e.target.value))}
                   disabled={createCtrl.loading}
                 >
-                  {Object.values(UserRoleEnum).map((role) => (
-                    <MenuItem key={role} value={role}>
-                      {UserRoleLabels[role]}
+                  <MenuItem value="">
+                    <em>Select Role</em>
+                  </MenuItem>
+                  {createCtrl.roles.map((role: any) => (
+                    <MenuItem key={role.id} value={role.id}>
+                      {role.name}
                     </MenuItem>
                   ))}
                 </Select>
@@ -129,22 +130,43 @@ const FormCreate = () => {
               />
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                label="Department ID"
-                value={createCtrl.formData.department_id}
-                onChange={(e) => createCtrl.handleChange('department_id', e.target.value)}
-                disabled={createCtrl.loading}
-              />
+              <FormControl fullWidth>
+                <InputLabel>Department</InputLabel>
+                <Select
+                  value={createCtrl.formData.department_id}
+                  label="Department"
+                  onChange={(e) => createCtrl.handleChange('department_id', e.target.value)}
+                  disabled={createCtrl.loading}
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  {createCtrl.departments.map((dept: any) => (
+                    <MenuItem key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
             <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                label="Sector ID"
-                value={createCtrl.formData.sector_id}
-                onChange={(e) => createCtrl.handleChange('sector_id', e.target.value)}
-                disabled={createCtrl.loading}
-              />
+              <FormControl fullWidth disabled={!createCtrl.formData.department_id || createCtrl.loading}>
+                <InputLabel>Sector</InputLabel>
+                <Select
+                  value={createCtrl.formData.sector_id}
+                  label="Sector"
+                  onChange={(e) => createCtrl.handleChange('sector_id', e.target.value)}
+                >
+                  <MenuItem value="">
+                    <em>None</em>
+                  </MenuItem>
+                  {createCtrl.sectors.map((sector: any) => (
+                    <MenuItem key={sector.id} value={sector.id}>
+                      {sector.name}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
             </Grid>
           </Grid>
 

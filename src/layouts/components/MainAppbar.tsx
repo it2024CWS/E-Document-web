@@ -42,7 +42,7 @@ const MainAppBar = () => {
         height: '100%',
         bgcolor: APP_BAR_COLOR,
         p: '16px',
-        borderBottom: `1px solid ${colors.secondary.gray1}`,  
+        borderBottom: `1px solid ${colors.secondary.gray1}`,
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -85,7 +85,7 @@ const MainAppBar = () => {
               <Typography variant="body2" fontWeight="bold" color="text.primary">
                 {user?.username || 'User'}
               </Typography>
-              <Typography sx={{ fontSize: '12px', color: colors.secondary.gray2 }}>{user?.role || 'User'}</Typography>
+              <Typography sx={{ fontSize: '12px', color: colors.secondary.gray2 }}>{user?.role_name || 'User'}</Typography>
             </Stack>
           </Stack>
         </Box>

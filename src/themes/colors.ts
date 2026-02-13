@@ -4,6 +4,7 @@ export const colors = {
   },
   dominant: {
     white1: '#ffffff',
+    white2: '#fafafa',
     white3: '#f6f6f6',
     white25: 'rgba(255, 255, 255, 0.25)',
     white50: 'rgba(255, 255, 255, 0.5)',

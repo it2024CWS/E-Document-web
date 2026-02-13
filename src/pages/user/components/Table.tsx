@@ -6,7 +6,6 @@ import TableHeadCell from '@/components/Table/TableHeadCell';
 import TablePaginationCustom from '@/components/Table/TablePaginationCustom';
 import { radius } from '@/themes/radius';
 import { TableContainer, TableHead, TableRow, BoxProps, Box, Chip, Avatar, Typography, Divider } from '@mui/material';
-import { UserRoleLabels } from '@/enums/userRoleEnum';
 import { UserModel } from '@/models/userModel';
 import { memo } from 'react';
 
@@ -73,9 +72,9 @@ const Table = memo(({ users, onSelectUser, totalUsers, ...props }: TableProps) =
                       : '-'}
                   </TableBodyCell>
                   <TableBodyCell>
-                    {item.role ? (
+                    {item.role_name ? (
                       <Chip
-                        label={UserRoleLabels[item.role as keyof typeof UserRoleLabels] || item.role}
+                        label={item.role_name}
                         size="small"
                         color="primary"
                         variant="outlined"

@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { UserModel } from '@/models/userModel';
 import { getUserByIdService, deleteUserService } from '@/services/userService';
 import { getUserProfilePictureUrl } from '@/services/fileService';
-import { getErrorAlert, getSuccessAlert, getConfirmAlert } from '@/utils/functions/sweetAlert/sweetAlert';
+import { getErrorAlert, getConfirmAlert } from '@/utils/functions/sweetAlert/sweetAlert';
 import { FormEnum } from '@/enums/formEnum';
 import useMainControllerContext from '../context';
 

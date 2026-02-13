@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { CreateUserRequest, UpdateUserRequest } from '@/models/userModel';
+import { CreateUserRequest } from '@/models/userModel';
 import { createUserService, updateUserService, getUserByIdService } from '@/services/userService';
+import { departmentService } from '@/services/departmentService';
+import { sectorService } from '@/services/sectorService';
+import { roleService } from '@/services/roleService';
 import { getUserProfilePictureUrl, clearCachedProfilePicture } from '@/services/fileService';
 import { getErrorAlert, getSuccessAlert } from '@/utils/functions/sweetAlert/sweetAlert';
 import { FormEnum } from '@/enums/formEnum';
@@ -11,11 +14,11 @@ const useFormCreateController = () => {
   const mainCtrl = useMainControllerContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState<CreateUserRequest>({
+  const [formData, setFormData] = useState<CreateUserRequest & { password?: string }>({
     username: '',
     email: '',
     password: '',
-    role: 'Employee',
+    role_id: 0, // Default or empty
     phone: '',
     first_name: '',
     last_name: '',
@@ -25,8 +28,54 @@ const useFormCreateController = () => {
   });
   const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(null);
 
+  // Master Data States
+  const [departments, setDepartments] = useState<any[]>([]);
+  const [sectors, setSectors] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+
   const userId = searchParams.get('id');
   const isEditMode = mainCtrl.currentForm === FormEnum.EDIT;
+
+  useEffect(() => {
+    fetchDepartments();
+    fetchRoles();
+  }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      const resp = await departmentService.getAllDepartments();
+      if (resp.success) {
+        setDepartments(resp.data);
+      }
+    } catch (error) {
+      console.error("Failed to load departments", error);
+    }
+  };
+
+  const fetchRoles = async () => {
+    try {
+      const resp = await roleService.getAllRoles();
+      if (resp.success) {
+        setRoles(resp.data);
+      }
+    } catch (error) {
+      console.error("Failed to load roles", error);
+    }
+  };
+
+  const fetchSectors = async (deptId: number) => {
+    try {
+      const resp = await sectorService.getSectorsByDepartment(deptId);
+      if (resp.success) {
+        setSectors(resp.data);
+      } else {
+        setSectors([]);
+      }
+    } catch (error) {
+      console.error("Failed to load sectors", error);
+      setSectors([]);
+    }
+  };
 
   const handleLoadUserForEdit = async () => {
     if (!userId || !isEditMode) return;
@@ -49,14 +98,21 @@ const useFormCreateController = () => {
         username: user.username,
         email: user.email,
         password: '', // Don't load password
-        role: user.role,
+        role_id: user.role_id,
         phone: user.phone || '',
         first_name: user.first_name || '',
         last_name: user.last_name || '',
-        department_id: user.department_id || '',
-        sector_id: user.sector_id || '',
+        department_id: user.department_id ? user.department_id.toString() : '',
+        sector_id: user.sector_id ? user.sector_id.toString() : '',
         profile_picture: null,
       });
+
+      // Load sectors if department is present
+      if (user.department_id) {
+        // Ensure department_id is treated as number if it's stored as string in user model but we need number for API
+        fetchSectors(Number(user.department_id));
+      }
+
       // Set current profile picture URL for display
       setCurrentProfilePicture(profilePictureUrl ?? user.profile_picture ?? null);
     } catch (error) {
@@ -66,8 +122,22 @@ const useFormCreateController = () => {
     }
   };
 
-  const handleChange = (field: keyof CreateUserRequest, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof CreateUserRequest | 'password', value: any) => {
+    setFormData((prev) => {
+      const newData = { ...prev, [field]: value };
+
+      // If department changes, clear sector and fetch new sectors
+      if (field === 'department_id') {
+        newData.sector_id = '';
+        if (value) {
+          fetchSectors(parseInt(value));
+        } else {
+          setSectors([]);
+        }
+      }
+
+      return newData;
+    });
   };
 
   const handleProfilePictureChange = (file: File | null) => {
@@ -83,15 +153,33 @@ const useFormCreateController = () => {
         throw new Error('Username and email are required');
       }
 
+      if (!formData.role_id) {
+        throw new Error('Role is required');
+      }
+
+      if (formData.department_id && !formData.sector_id) {
+        // Optional: Enforce sector selection if department is selected
+      }
+
       if (!isEditMode && !formData.password) {
         throw new Error('Password is required');
       }
 
+      // Convert string IDs to numbers for submission if needed, 
+      // but the API might expect numbers. The formData has them as string from inputs.
+      // Let's ensure we send what API expects.
+
+      const submitData: any = { ...formData };
+
+      // Convert IDs to numbers or null
+      submitData.department_id = formData.department_id ? parseInt(formData.department_id as string) : null;
+      submitData.sector_id = formData.sector_id ? parseInt(formData.sector_id as string) : null;
+      submitData.role_id = parseInt(formData.role_id as any);
+
       if (isEditMode && userId) {
         // Edit mode
-        const updateData: UpdateUserRequest = { ...formData };
-        if (!updateData.password) {
-          delete updateData.password; // Don't update password if not provided
+        if (!submitData.password) {
+          delete submitData.password; // Don't update password if not provided
         }
 
         // Clear cached profile picture if a new one is being uploaded
@@ -99,12 +187,12 @@ const useFormCreateController = () => {
           clearCachedProfilePicture(userId);
         }
 
-        await updateUserService(userId, updateData);
+        await updateUserService(userId, submitData);
         await getSuccessAlert('User updated successfully');
         mainCtrl.handleChangeForm(FormEnum.DETAIL);
       } else {
         // Create mode
-        await createUserService(formData);
+        await createUserService(submitData);
         await getSuccessAlert('User created successfully');
         searchParams.delete('id');
         setSearchParams(searchParams);
@@ -139,6 +227,9 @@ const useFormCreateController = () => {
     loading,
     isEditMode,
     currentProfilePicture,
+    departments,
+    sectors,
+    roles,
     handleChange,
     handleProfilePictureChange,
     handleSubmit,

@@ -94,13 +94,13 @@ export const createUserService = async (data: CreateUserRequest): Promise<UserMo
     formData.append('username', data.username);
     formData.append('email', data.email);
     formData.append('password', data.password);
-    formData.append('role', data.role);
+    formData.append('role_id', data.role_id.toString());
 
     if (data.phone) formData.append('phone', data.phone);
     if (data.first_name) formData.append('first_name', data.first_name);
     if (data.last_name) formData.append('last_name', data.last_name);
-    if (data.department_id) formData.append('department_id', data.department_id);
-    if (data.sector_id) formData.append('sector_id', data.sector_id);
+    if (data.department_id) formData.append('department_id', data.department_id.toString());
+    if (data.sector_id) formData.append('sector_id', data.sector_id.toString());
 
     // Append profile picture if exists
     if (data.profile_picture) {
@@ -136,12 +136,12 @@ export const updateUserService = async (id: string, data: UpdateUserRequest): Pr
     if (data.username !== undefined) formData.append('username', data.username);
     if (data.email !== undefined) formData.append('email', data.email);
     if (data.password !== undefined) formData.append('password', data.password);
-    if (data.role !== undefined) formData.append('role', data.role);
+    if (data.role_id !== undefined) formData.append('role_id', data.role_id.toString());
     if (data.phone !== undefined) formData.append('phone', data.phone);
     if (data.first_name !== undefined) formData.append('first_name', data.first_name);
     if (data.last_name !== undefined) formData.append('last_name', data.last_name);
-    if (data.department_id !== undefined) formData.append('department_id', data.department_id);
-    if (data.sector_id !== undefined) formData.append('sector_id', data.sector_id);
+    if (data.department_id !== undefined) formData.append('department_id', data.department_id.toString());
+    if (data.sector_id !== undefined) formData.append('sector_id', data.sector_id.toString());
 
     // Append profile picture if exists
     if (data.profile_picture !== undefined && data.profile_picture !== null) {
