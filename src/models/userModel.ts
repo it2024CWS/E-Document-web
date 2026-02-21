@@ -2,7 +2,7 @@ export interface UserModel {
   id: string;
   username: string;
   email: string;
-  role_id: number;
+  role_id: string;
   role_name?: string;
   phone: string;
   first_name: string;
@@ -20,12 +20,12 @@ export interface CreateUserRequest {
   username: string;
   email: string;
   password: string;
-  role_id: number;
+  role_id: string;
   phone?: string;
   first_name?: string;
   last_name?: string;
-  department_id?: string | number;
-  sector_id?: string | number;
+  department_id?: string;
+  sector_id?: string;
   profile_picture?: File | null;
 }
 
@@ -33,11 +33,11 @@ export interface UpdateUserRequest {
   username?: string;
   email?: string;
   password?: string;
-  role_id?: number;
+  role_id?: string;
   phone?: string;
   first_name?: string;
   last_name?: string;
-  department_id?: string | number;
-  sector_id?: string | number;
+  department_id?: string;
+  sector_id?: string;
   profile_picture?: File | null;
 }

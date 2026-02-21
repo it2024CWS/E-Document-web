@@ -18,7 +18,7 @@ const useFormCreateController = () => {
     username: '',
     email: '',
     password: '',
-    role_id: 0, // Default or empty
+    role_id: '', // Default or empty
     phone: '',
     first_name: '',
     last_name: '',
@@ -44,8 +44,8 @@ const useFormCreateController = () => {
   const fetchDepartments = async () => {
     try {
       const resp = await departmentService.getAllDepartments();
-      if (resp.success) {
-        setDepartments(resp.data);
+      if (resp) {
+        setDepartments(resp);
       }
     } catch (error) {
       console.error("Failed to load departments", error);
@@ -55,19 +55,19 @@ const useFormCreateController = () => {
   const fetchRoles = async () => {
     try {
       const resp = await roleService.getAllRoles();
-      if (resp.success) {
-        setRoles(resp.data);
+      if (resp) {
+        setRoles(resp);
       }
     } catch (error) {
       console.error("Failed to load roles", error);
     }
   };
 
-  const fetchSectors = async (deptId: number) => {
+  const fetchSectors = async (deptId: string) => {
     try {
       const resp = await sectorService.getSectorsByDepartment(deptId);
-      if (resp.success) {
-        setSectors(resp.data);
+      if (resp) {
+        setSectors(resp);
       } else {
         setSectors([]);
       }
@@ -109,8 +109,8 @@ const useFormCreateController = () => {
 
       // Load sectors if department is present
       if (user.department_id) {
-        // Ensure department_id is treated as number if it's stored as string in user model but we need number for API
-        fetchSectors(Number(user.department_id));
+        // Ensure department_id is treated as string
+        fetchSectors(user.department_id.toString());
       }
 
       // Set current profile picture URL for display
@@ -130,7 +130,7 @@ const useFormCreateController = () => {
       if (field === 'department_id') {
         newData.sector_id = '';
         if (value) {
-          fetchSectors(parseInt(value));
+          fetchSectors(value as string);
         } else {
           setSectors([]);
         }
@@ -171,10 +171,10 @@ const useFormCreateController = () => {
 
       const submitData: any = { ...formData };
 
-      // Convert IDs to numbers or null
-      submitData.department_id = formData.department_id ? parseInt(formData.department_id as string) : null;
-      submitData.sector_id = formData.sector_id ? parseInt(formData.sector_id as string) : null;
-      submitData.role_id = parseInt(formData.role_id as any);
+      // Convert IDs to strings or null
+      submitData.department_id = formData.department_id ? formData.department_id : null;
+      submitData.sector_id = formData.sector_id ? formData.sector_id : null;
+      submitData.role_id = formData.role_id;
 
       if (isEditMode && userId) {
         // Edit mode

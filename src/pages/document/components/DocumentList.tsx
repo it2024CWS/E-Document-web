@@ -9,8 +9,7 @@ import {
     Chip,
     Box,
     IconButton,
-    Typography,
-    colors as muiColors
+    Typography
 } from '@mui/material';
 import { DocumentModel } from '@/services/documentService';
 import { FolderModel } from '@/models/folderModel';
@@ -21,23 +20,27 @@ import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import FolderIcon from '@mui/icons-material/Folder';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 
 interface DocumentListProps {
     documents: DocumentModel[];
     folders?: FolderModel[];
     loading: boolean;
-    onVersionHistory: (doc: DocumentModel) => void;
-    onEdit: (doc: DocumentModel) => void;
     onDelete: (doc: DocumentModel) => void;
     onFolderClick?: (folder: FolderModel) => void;
     onDetail: (item: DocumentModel | FolderModel) => void;
 }
 
-const getFileIcon = (fileName: string) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    if (ext === 'pdf') return <PictureAsPdfIcon sx={{ color: colors.accent.red }} />;
-    if (['doc', 'docx'].includes(ext || '')) return <DescriptionIcon sx={{ color: colors.secondary.blue1 }} />;
-    if (['xls', 'xlsx'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
+const getFileIcon = (fileOrExt: string) => {
+    // If it contains a dot, split it. Otherwise, assume it's an extension like 'pdf' or 'application/pdf'
+    let ext = fileOrExt.includes('.') ? fileOrExt.split('.').pop()?.toLowerCase() : fileOrExt.toLowerCase();
+
+    // Also handle MIME types roughly
+    if (ext?.includes('pdf')) return <PictureAsPdfIcon sx={{ color: colors.accent.red }} />;
+    if (ext?.includes('word') || ['doc', 'docx'].includes(ext || '')) return <DescriptionIcon sx={{ color: colors.secondary.blue1 }} />;
+    if (ext?.includes('excel') || ext?.includes('spreadsheet') || ['xls', 'xlsx'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
+    if (ext?.includes('powerpoint') || ext?.includes('presentation') || ['ppt', 'pptx'].includes(ext || '')) return <SlideshowIcon sx={{ color: '#D24726' }} />;
+
     return <InsertDriveFileIcon sx={{ color: colors.secondary.gray1 }} />;
 };
 
@@ -56,8 +59,6 @@ const DocumentList = ({
     documents,
     folders = [],
     loading,
-    onVersionHistory,
-    onEdit,
     onFolderClick,
     onDetail
 }: DocumentListProps) => {
@@ -117,13 +118,13 @@ const DocumentList = ({
                             <TableRow key={doc.id} hover sx={{ '& td': { borderBottom: 'none', py: 2 } }}>
                                 <TableCell>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        {getFileIcon(doc.doc_name)}
+                                        {getFileIcon(doc.type || doc.doc_name || '')}
                                         <Typography variant="body2" fontWeight={500}>{doc.doc_name}</Typography>
                                     </Box>
                                 </TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.doc_no || '-'}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{new Date(doc.updated_at).toLocaleDateString()}</TableCell>
-                                <TableCell sx={{ color: colors.secondary.text }}>{doc.user_name || '-'}</TableCell>
+                                <TableCell sx={{ color: colors.secondary.text }}>{doc.registrant_name || '-'}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.department_name || '-'}</TableCell>
                                 <TableCell>
                                     <Chip

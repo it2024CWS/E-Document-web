@@ -8,7 +8,7 @@ export const outgoingDocService = {
         return response.data;
     },
 
-    getOutgoingDocById: async (id: number) => {
+    getOutgoingDocById: async (id: string) => {
         const response = await axios.get(`${API_URL}/${id}`);
         return response.data;
     },

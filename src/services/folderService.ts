@@ -1,70 +1,51 @@
 
 import axiosInstance from '@/configs/axios';
-import { FolderModel, CreateFolderRequest, UpdateFolderRequest } from '@/models/folderModel';
+import { FolderModel, CreateFolderRequest, UpdateFolderRequest, adaptFolder } from '@/models/folderModel';
 
-interface FolderResponse {
+interface ApiResponse<T> {
     success: boolean;
     message: string;
-    data: FolderModel;
-}
-
-interface FoldersResponse {
-    success: boolean;
-    message: string;
-    data: {
-        items: FolderModel[];
-    };
+    data: T;
 }
 
 export const folderService = {
     getAllFolders: async (): Promise<FolderModel[]> => {
         try {
-            const res = await axiosInstance.get<FoldersResponse>('/v1/folders');
-            if (res.data.success) {
-                return res.data.data.items;
-            }
-            return [];
+            const res = await axiosInstance.get<ApiResponse<FolderModel[]>>('/v1/folders');
+            const items = res.data.data ?? [];
+            return items.map(adaptFolder);
         } catch (error) {
-            console.error("Fetch folders error", error);
+            console.error('Fetch folders error', error);
             return [];
         }
     },
 
     getFolderById: async (id: string): Promise<FolderModel | null> => {
         try {
-            const res = await axiosInstance.get<FolderResponse>(`/v1/folders/${id}`);
-            if (res.data.success) {
-                return res.data.data;
-            }
-            return null;
+            const res = await axiosInstance.get<ApiResponse<FolderModel>>(`/v1/folders/${id}`);
+            return adaptFolder(res.data.data);
         } catch (error) {
-            console.error("Fetch folder error", error);
+            console.error('Fetch folder error', error);
             return null;
         }
     },
 
     createFolder: async (data: CreateFolderRequest): Promise<FolderModel | null> => {
         try {
-            const res = await axiosInstance.post<FolderResponse>('/v1/folders', data);
-            if (res.data.success) {
-                return res.data.data;
-            }
-            return null;
+            const res = await axiosInstance.post<ApiResponse<FolderModel>>('/v1/folders', data);
+            return adaptFolder(res.data.data);
         } catch (error) {
-            console.error("Create folder error", error);
+            console.error('Create folder error', error);
             throw error;
         }
     },
 
     updateFolder: async (id: string, data: UpdateFolderRequest): Promise<FolderModel | null> => {
         try {
-            const res = await axiosInstance.put<FolderResponse>(`/v1/folders/${id}`, data);
-            if (res.data.success) {
-                return res.data.data;
-            }
-            return null;
+            const res = await axiosInstance.put<ApiResponse<FolderModel>>(`/v1/folders/${id}`, data);
+            return adaptFolder(res.data.data);
         } catch (error) {
-            console.error("Update folder error", error);
+            console.error('Update folder error', error);
             throw error;
         }
     },
@@ -74,8 +55,8 @@ export const folderService = {
             const res = await axiosInstance.delete<{ success: boolean }>(`/v1/folders/${id}`);
             return res.data.success;
         } catch (error) {
-            console.error("Delete folder error", error);
+            console.error('Delete folder error', error);
             throw error;
         }
-    }
+    },
 };

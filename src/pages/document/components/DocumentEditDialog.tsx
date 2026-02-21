@@ -60,7 +60,7 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                         departmentService.getAllDepartments()
                     ]);
                     setDocTypes(dtRes);
-                    if (deptRes.success) setDepartments(deptRes.data);
+                    setDepartments(deptRes);
                 } catch (error) {
                     console.error("Failed to load dependency data", error);
                 } finally {
@@ -76,10 +76,10 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
             setFormData({
                 doc_name: docData.doc_name,
                 description: docData.description || '',
-                doc_type_id: docData.doc_type_id.toString(),
-                department_id: docData.department_id ? docData.department_id.toString() : (user?.department_id?.toString() || ''),
-                folder_id: docData.folder_id ? docData.folder_id.toString() : '',
-                status: docData.status,
+                doc_type_id: docData.doc_type_id?.toString() || '',
+                department_id: user?.department_id?.toString() || '',
+                folder_id: docData.folder_id?.toString() || '',
+                status: docData.status || '',
                 file: null
             });
         }
@@ -198,7 +198,7 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                                 >
                                     <MenuItem value=""><em>None</em></MenuItem>
                                     {departments.map((dept: any) => (
-                                        <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                                        <MenuItem key={dept.id} value={dept.id}>{dept.dept_name}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
@@ -213,7 +213,7 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                                     onChange={(e) => handleChange('doc_type_id', e.target.value)}
                                 >
                                     {docTypes.map((dt: any) => (
-                                        <MenuItem key={dt.id} value={dt.id}>{dt.name}</MenuItem>
+                                        <MenuItem key={dt.id} value={dt.id}>{dt.type_name}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>

@@ -8,7 +8,7 @@ export const incomingDocService = {
         return response.data;
     },
 
-    getIncomingDocById: async (id: number) => {
+    getIncomingDocById: async (id: string) => {
         const response = await axios.get(`${API_URL}/${id}`);
         return response.data;
     },
@@ -23,12 +23,12 @@ export const incomingDocService = {
         return response.data;
     },
 
-    receiveDocument: async (id: number, data: any) => {
+    receiveDocument: async (id: string, data: any) => {
         const response = await axios.post(`${API_URL}/${id}/receive`, data);
         return response.data;
     },
 
-    approveDocument: async (id: number, data: any) => {
+    approveDocument: async (id: string, data: any) => {
         const response = await axios.post(`${API_URL}/${id}/approve`, data);
         return response.data;
     },

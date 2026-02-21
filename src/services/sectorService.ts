@@ -1,35 +1,51 @@
-import axios from "axios";
+import axiosInstance from '@/configs/axios';
 
-const API_URL = "http://localhost:5001/api/v1/sectors";
+export interface SectorModel {
+    id: string;
+    name: string;
+    dept_id: string;
+    dept_name: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CreateSectorRequest {
+    name: string;
+    dept_id: string;
+}
+
+export interface UpdateSectorRequest {
+    name?: string;
+    dept_id?: string;
+}
 
 export const sectorService = {
-    getAllSectors: async () => {
-        const response = await axios.get(API_URL);
-        return response.data;
+    getAllSectors: async (): Promise<SectorModel[]> => {
+        const res = await axiosInstance.get('/v1/sectors');
+        return res.data.data;
     },
 
-    getSectorById: async (id: number) => {
-        const response = await axios.get(`${API_URL}/${id}`);
-        return response.data;
+    getSectorById: async (id: string): Promise<SectorModel> => {
+        const res = await axiosInstance.get(`/v1/sectors/${id}`);
+        return res.data.data;
     },
 
-    getSectorsByDepartment: async (deptId: number) => {
-        const response = await axios.get(`http://localhost:5001/api/v1/departments/${deptId}/sectors`);
-        return response.data;
+    getSectorsByDepartment: async (deptId: string): Promise<SectorModel[]> => {
+        const res = await axiosInstance.get(`/v1/departments/${deptId}/sectors`);
+        return res.data.data;
     },
 
-    createSector: async (data: any) => {
-        const response = await axios.post(API_URL, data);
-        return response.data;
+    createSector: async (data: CreateSectorRequest): Promise<SectorModel> => {
+        const res = await axiosInstance.post('/v1/sectors', data);
+        return res.data.data;
     },
 
-    updateSector: async (id: number, data: any) => {
-        const response = await axios.put(`${API_URL}/${id}`, data);
-        return response.data;
+    updateSector: async (id: string, data: UpdateSectorRequest): Promise<SectorModel> => {
+        const res = await axiosInstance.put(`/v1/sectors/${id}`, data);
+        return res.data.data;
     },
 
-    deleteSector: async (id: number) => {
-        const response = await axios.delete(`${API_URL}/${id}`);
-        return response.data;
+    deleteSector: async (id: string): Promise<void> => {
+        await axiosInstance.delete(`/v1/sectors/${id}`);
     },
 };

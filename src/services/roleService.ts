@@ -8,7 +8,7 @@ export const roleService = {
         return response.data;
     },
 
-    getRoleById: async (id: number) => {
+    getRoleById: async (id: string) => {
         const response = await axios.get(`${API_URL}/${id}`);
         return response.data;
     },
@@ -18,12 +18,12 @@ export const roleService = {
         return response.data;
     },
 
-    updateRole: async (id: number, data: any) => {
+    updateRole: async (id: string, data: any) => {
         const response = await axios.put(`${API_URL}/${id}`, data);
         return response.data;
     },
 
-    deleteRole: async (id: number) => {
+    deleteRole: async (id: string) => {
         const response = await axios.delete(`${API_URL}/${id}`);
         return response.data;
     },

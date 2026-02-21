@@ -120,6 +120,26 @@ export const uploadFolder = (options: FolderUploadOptions): tus.Upload[] => {
 };
 
 /**
+ * Upload a single file using TUS protocol and return a Promise.
+ * Resolves with the tusd upload ID on success.
+ */
+export const uploadSingleFile = (options: UploadOptions): Promise<string> => {
+    return new Promise((resolve, reject) => {
+        uploadFile({
+            ...options,
+            onSuccess: (uploadId) => {
+                options.onSuccess?.(uploadId);
+                resolve(uploadId);
+            },
+            onError: (error) => {
+                options.onError?.(error);
+                reject(error);
+            },
+        });
+    });
+};
+
+/**
  * Cancel an upload
  */
 export const cancelUpload = (upload: tus.Upload): void => {

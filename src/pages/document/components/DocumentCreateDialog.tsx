@@ -27,7 +27,7 @@ import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import { radius } from '@/themes/radius';
 import { colors } from '@/themes/colors';
 import { folderService } from '@/services/folderService';
-import { uploadFolder } from '@/services/uploadService';
+import { uploadFolder, uploadSingleFile } from '@/services/uploadService';
 import Swal from 'sweetalert2';
 
 interface DocumentCreateDialogProps {
@@ -38,7 +38,7 @@ interface DocumentCreateDialogProps {
     currentFolderId?: string;
 }
 
-const DocumentCreateDialog = ({ open, onClose, onSubmit, folders, currentFolderId }: DocumentCreateDialogProps) => {
+const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, currentFolderId }: DocumentCreateDialogProps) => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -72,7 +72,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit, folders, currentFolderI
                         departmentService.getAllDepartments()
                     ]);
                     setDocTypes(dtRes);
-                    if (deptRes.success) setDepartments(deptRes.data);
+                    setDepartments(deptRes);
                 } catch (error) {
                     console.error("Failed to load dependency data", error);
                 } finally {
@@ -100,25 +100,44 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit, folders, currentFolderI
     };
 
     const handleSubmitFile = async () => {
-        if (!formData.doc_name || !formData.doc_type_id || !formData.file) {
-            alert("Please fill all required fields");
+        if (!formData.file) {
+            Swal.fire('Validation', 'Please select a file to upload.', 'warning');
             return;
         }
 
         setSubmitting(true);
-        try {
-            const submitData = new FormData();
-            submitData.append('title', formData.doc_name);
-            submitData.append('description', formData.description);
-            submitData.append('doc_type_id', formData.doc_type_id.toString());
-            if (formData.department_id) submitData.append('department_id', formData.department_id.toString());
-            if (formData.folder_id) submitData.append('folder_id', formData.folder_id.toString());
-            submitData.append('file', formData.file);
+        onClose(); // Close dialog immediately
 
-            await onSubmit(submitData);
-            onClose();
-        } catch (error) {
-            console.error(error);
+        Swal.fire({
+            title: 'Uploading File...',
+            html: `Uploading <b>${formData.file.name}</b>, please wait.`,
+            allowOutsideClick: false,
+            didOpen: () => { Swal.showLoading(); },
+        });
+
+        try {
+            await uploadSingleFile({
+                file: formData.file,
+                relativePath: formData.file.name,
+                parentFolderId: formData.folder_id || undefined,
+                onProgress: (progress) => {
+                    Swal.update({
+                        html: `Uploading <b>${formData.file!.name}</b>… ${progress.percentage}%`,
+                    });
+                },
+            });
+
+            Swal.close();
+            await Swal.fire({
+                icon: 'success',
+                title: 'Upload Complete',
+                timer: 1500,
+                showConfirmButton: false,
+            });
+            window.location.reload();
+        } catch (error: any) {
+            Swal.close();
+            Swal.fire('Upload Failed', error?.message || 'An error occurred during upload.', 'error');
         } finally {
             setSubmitting(false);
         }
@@ -129,8 +148,9 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit, folders, currentFolderI
         setSubmitting(true);
         try {
             await folderService.createFolder({
-                name: newFolderName,
-                parent_id: formData.folder_id || undefined
+                folder_name: newFolderName,
+                folder_path: newFolderName,
+                parent_folder_id: formData.folder_id ? formData.folder_id : null
             });
             // Need a way to refresh folders in parent, but onSubmit is for document creation
             // Assuming we just close and reload or similar. logic might need adjustment if parent component doesn't auto-refresh folders
@@ -254,7 +274,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit, folders, currentFolderI
                                         >
                                             <MenuItem value=""><em>None</em></MenuItem>
                                             {departments.map((dept: any) => (
-                                                <MenuItem key={dept.id} value={dept.id}>{dept.name}</MenuItem>
+                                                <MenuItem key={dept.id} value={dept.id}>{dept.dept_name}</MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
@@ -269,7 +289,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit, folders, currentFolderI
                                             onChange={(e) => handleChange('doc_type_id', e.target.value)}
                                         >
                                             {docTypes.map((dt: any) => (
-                                                <MenuItem key={dt.id} value={dt.id}>{dt.name}</MenuItem>
+                                                <MenuItem key={dt.id} value={dt.id}>{dt.type_name}</MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
@@ -374,8 +394,8 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit, folders, currentFolderI
             <DialogActions>
                 <Button onClick={onClose} disabled={submitting}>Cancel</Button>
                 {tabValue === 0 ? (
-                    <Button onClick={handleSubmitFile} variant="contained" disabled={submitting || loading}>
-                        {submitting ? <CircularProgress size={24} /> : 'Upload File'}
+                    <Button onClick={handleSubmitFile} variant="contained" disabled={submitting || loading || !formData.file}>
+                        {submitting ? <CircularProgress size={24} /> : 'Upload'}
                     </Button>
                 ) : folderMode === 0 && (
                     <Button onClick={handleCreateFolder} variant="contained" disabled={submitting || !newFolderName}>

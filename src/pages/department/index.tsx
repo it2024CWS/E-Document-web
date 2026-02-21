@@ -21,13 +21,18 @@ import {
     DialogContent,
     DialogActions,
     TextField,
-    MenuItem
+    MenuItem,
+    Select,
+    FormControl,
+    InputLabel,
 } from '@mui/material';
-import { departmentServiceMock, sectorServiceMock, DepartmentModel, SectorModel } from '@/services/mock/departmentServiceMock';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
+import { departmentService, DepartmentModel, CreateDepartmentRequest, UpdateDepartmentRequest } from '@/services/departmentService';
+import { sectorService, SectorModel, CreateSectorRequest, UpdateSectorRequest } from '@/services/sectorService';
+import Swal from 'sweetalert2';
 
 interface TabPanelProps {
     children?: React.ReactNode;
@@ -35,8 +40,7 @@ interface TabPanelProps {
     value: number;
 }
 
-function TabPanel(props: TabPanelProps) {
-    const { children, value, index, ...other } = props;
+function TabPanel({ children, value, index, ...other }: TabPanelProps) {
     return (
         <div hidden={value !== index} {...other}>
             {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
@@ -44,81 +48,222 @@ function TabPanel(props: TabPanelProps) {
     );
 }
 
+// --------------- Department Dialog ---------------
+interface DeptDialogProps {
+    open: boolean;
+    onClose: () => void;
+    onSave: () => void;
+    initial?: DepartmentModel | null;
+}
+
+function DeptDialog({ open, onClose, onSave, initial }: DeptDialogProps) {
+    const [form, setForm] = useState<CreateDepartmentRequest & UpdateDepartmentRequest>({ dept_name: '', description: '' });
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            setForm({ dept_name: initial?.dept_name ?? '', description: initial?.description ?? '' });
+        }
+    }, [open, initial]);
+
+    const handleSave = async () => {
+        if (!form.dept_name?.trim()) return;
+        setSaving(true);
+        try {
+            if (initial) {
+                await departmentService.updateDepartment(initial.id, form);
+            } else {
+                await departmentService.createDepartment(form as CreateDepartmentRequest);
+            }
+            onSave();
+            onClose();
+        } catch (err: any) {
+            Swal.fire('Error', err?.response?.data?.message || 'Failed to save department', 'error');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+            <DialogTitle>{initial ? 'Edit Department' : 'Add Department'}</DialogTitle>
+            <DialogContent>
+                <TextField
+                    autoFocus
+                    margin="dense"
+                    label="Department Name *"
+                    fullWidth
+                    variant="outlined"
+                    value={form.dept_name}
+                    onChange={(e) => setForm({ ...form, dept_name: e.target.value })}
+                    sx={{ mb: 2 }}
+                />
+                <TextField
+                    margin="dense"
+                    label="Description"
+                    fullWidth
+                    variant="outlined"
+                    multiline
+                    rows={3}
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose} disabled={saving}>Cancel</Button>
+                <Button onClick={handleSave} variant="contained" disabled={saving || !form.dept_name?.trim()}>
+                    {saving ? <CircularProgress size={20} /> : 'Save'}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+// --------------- Sector Dialog ---------------
+interface SectorDialogProps {
+    open: boolean;
+    onClose: () => void;
+    onSave: () => void;
+    departments: DepartmentModel[];
+    initial?: SectorModel | null;
+}
+
+function SectorDialog({ open, onClose, onSave, departments, initial }: SectorDialogProps) {
+    const [form, setForm] = useState<{ name: string; dept_id: string }>({ name: '', dept_id: '' });
+    const [saving, setSaving] = useState(false);
+
+    useEffect(() => {
+        if (open) {
+            setForm({ name: initial?.name ?? '', dept_id: initial?.dept_id?.toString() ?? '' });
+        }
+    }, [open, initial]);
+
+    const handleSave = async () => {
+        if (!form.name.trim() || !form.dept_id) return;
+        setSaving(true);
+        try {
+            const payload = { name: form.name.trim(), dept_id: form.dept_id };
+            if (initial) {
+                await sectorService.updateSector(initial.id, payload as UpdateSectorRequest);
+            } else {
+                await sectorService.createSector(payload as CreateSectorRequest);
+            }
+            onSave();
+            onClose();
+        } catch (err: any) {
+            Swal.fire('Error', err?.response?.data?.message || 'Failed to save sector', 'error');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    return (
+        <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+            <DialogTitle>{initial ? 'Edit Sector' : 'Add Sector'}</DialogTitle>
+            <DialogContent>
+                <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
+                    <InputLabel>Department *</InputLabel>
+                    <Select
+                        label="Department *"
+                        value={form.dept_id}
+                        onChange={(e) => setForm({ ...form, dept_id: e.target.value })}
+                    >
+                        {departments.map((d) => (
+                            <MenuItem key={d.id} value={d.id}>{d.dept_name}</MenuItem>
+                        ))}
+                    </Select>
+                </FormControl>
+                <TextField
+                    margin="dense"
+                    label="Sector Name *"
+                    fullWidth
+                    variant="outlined"
+                    value={form.name}
+                    onChange={(e) => setForm({ ...form, name: e.target.value })}
+                />
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={onClose} disabled={saving}>Cancel</Button>
+                <Button onClick={handleSave} variant="contained" disabled={saving || !form.name.trim() || !form.dept_id}>
+                    {saving ? <CircularProgress size={20} /> : 'Save'}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    );
+}
+
+// --------------- Main Page ---------------
 const DepartmentPage = () => {
-    const [value, setValue] = useState(0);
+    const [tab, setTab] = useState(0);
     const [departments, setDepartments] = useState<DepartmentModel[]>([]);
     const [sectors, setSectors] = useState<SectorModel[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const [openDeptDialog, setOpenDeptDialog] = useState(false);
-    const [openSectorDialog, setOpenSectorDialog] = useState(false);
+    // Department dialog
+    const [deptDialogOpen, setDeptDialogOpen] = useState(false);
+    const [editingDept, setEditingDept] = useState<DepartmentModel | null>(null);
 
-    // Form States
-    const [newDept, setNewDept] = useState({ code: '', name: '' });
-    const [newSector, setNewSector] = useState({ code: '', name: '', department_id: '' });
+    // Sector dialog
+    const [sectorDialogOpen, setSectorDialogOpen] = useState(false);
+    const [editingSector, setEditingSector] = useState<SectorModel | null>(null);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
+    useEffect(() => { fetchData(); }, []);
 
     const fetchData = async () => {
         setLoading(true);
         try {
-            // Always fetch both for now to ensure we have departments for the sector dropdown
-            const depRes = await departmentServiceMock.getAllDepartments();
-            if (depRes.success) setDepartments(depRes.data);
-
-            const secRes = await sectorServiceMock.getAllSectors();
-            if (secRes.success) setSectors(secRes.data);
-        } catch (error) {
-            console.error(error);
+            const [depts, secs] = await Promise.all([
+                departmentService.getAllDepartments(),
+                sectorService.getAllSectors(),
+            ]);
+            setDepartments(depts ?? []);
+            setSectors(secs ?? []);
+        } catch (err) {
+            console.error('Failed to fetch data', err);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
-        setValue(newValue);
-    };
-
-    // --- Handlers ---
-    const handleOpenAdd = () => {
-        if (value === 0) {
-            setNewDept({ code: '', name: '' });
-            setOpenDeptDialog(true);
-        } else {
-            setNewSector({ code: '', name: '', department_id: '' });
-            setOpenSectorDialog(true);
+    // --- Department actions ---
+    const handleOpenAddDept = () => { setEditingDept(null); setDeptDialogOpen(true); };
+    const handleOpenEditDept = (dept: DepartmentModel) => { setEditingDept(dept); setDeptDialogOpen(true); };
+    const handleDeleteDept = async (id: string) => {
+        const result = await Swal.fire({
+            title: 'Delete Department?',
+            text: 'This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Delete',
+        });
+        if (!result.isConfirmed) return;
+        try {
+            await departmentService.deleteDepartment(id);
+            fetchData();
+        } catch (err: any) {
+            Swal.fire('Error', err?.response?.data?.message || 'Failed to delete department', 'error');
         }
     };
 
-    const handleSaveDept = async () => {
-        if (!newDept.code || !newDept.name) return;
+    // --- Sector actions ---
+    const handleOpenAddSector = () => { setEditingSector(null); setSectorDialogOpen(true); };
+    const handleOpenEditSector = (sec: SectorModel) => { setEditingSector(sec); setSectorDialogOpen(true); };
+    const handleDeleteSector = async (id: string) => {
+        const result = await Swal.fire({
+            title: 'Delete Sector?',
+            text: 'This action cannot be undone.',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: 'Delete',
+        });
+        if (!result.isConfirmed) return;
         try {
-            const res = await departmentServiceMock.createDepartment(newDept);
-            if (res.success) {
-                fetchData();
-                setOpenDeptDialog(false);
-            }
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
-    const handleSaveSector = async () => {
-        if (!newSector.code || !newSector.name || !newSector.department_id) return;
-        try {
-            const payload = {
-                ...newSector,
-                department_id: Number(newSector.department_id)
-            };
-            const res = await sectorServiceMock.createSector(payload);
-            if (res.success) {
-                fetchData();
-                setOpenSectorDialog(false);
-            }
-        } catch (error) {
-            console.error(error);
+            await sectorService.deleteSector(id);
+            fetchData();
+        } catch (err: any) {
+            Swal.fire('Error', err?.response?.data?.message || 'Failed to delete sector', 'error');
         }
     };
 
@@ -131,35 +276,32 @@ const DepartmentPage = () => {
                 <Box>
                     <Button
                         variant="contained"
-                        onClick={handleOpenAdd}
+                        onClick={tab === 0 ? handleOpenAddDept : handleOpenAddSector}
                         sx={{ mr: 1 }}
                     >
                         + Add
                     </Button>
-                    <Button
-                        startIcon={<RefreshIcon />}
-                        variant="outlined"
-                        onClick={fetchData}
-                    >
+                    <Button startIcon={<RefreshIcon />} variant="outlined" onClick={fetchData}>
                         Refresh
                     </Button>
                 </Box>
             </Box>
 
             <Card>
-                <Tabs value={value} onChange={handleChange} sx={{ borderBottom: 1, borderColor: 'divider' }}>
+                <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
                     <Tab label="Departments" />
                     <Tab label="Sectors" />
                 </Tabs>
 
-                <TabPanel value={value} index={0}>
+                {/* --- Departments Tab --- */}
+                <TabPanel value={tab} index={0}>
                     <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>ID</TableCell>
-                                    <TableCell>Code</TableCell>
                                     <TableCell>Name</TableCell>
+                                    <TableCell>Description</TableCell>
                                     <TableCell align="right">Actions</TableCell>
                                 </TableRow>
                             </TableHead>
@@ -168,35 +310,41 @@ const DepartmentPage = () => {
                                     <TableRow>
                                         <TableCell colSpan={4} align="center"><CircularProgress /></TableCell>
                                     </TableRow>
-                                ) : (
-                                    departments.map((dept) => (
-                                        <TableRow key={dept.id} hover>
-                                            <TableCell>{dept.id}</TableCell>
-                                            <TableCell>{dept.code}</TableCell>
-                                            <TableCell>{dept.name}</TableCell>
-                                            <TableCell align="right">
-                                                <Tooltip title="Edit">
-                                                    <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Delete">
-                                                    <IconButton size="small" color="error"><DeleteIcon fontSize="small" /></IconButton>
-                                                </Tooltip>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
+                                ) : departments.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} align="center">No departments found</TableCell>
+                                    </TableRow>
+                                ) : departments.map((dept) => (
+                                    <TableRow key={dept.id} hover>
+                                        <TableCell>{dept.id}</TableCell>
+                                        <TableCell>{dept.dept_name}</TableCell>
+                                        <TableCell>{dept.description || '—'}</TableCell>
+                                        <TableCell align="right">
+                                            <Tooltip title="Edit">
+                                                <IconButton size="small" onClick={() => handleOpenEditDept(dept)}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Delete">
+                                                <IconButton size="small" color="error" onClick={() => handleDeleteDept(dept.id)}>
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </TabPanel>
 
-                <TabPanel value={value} index={1}>
+                {/* --- Sectors Tab --- */}
+                <TabPanel value={tab} index={1}>
                     <TableContainer>
                         <Table>
                             <TableHead>
                                 <TableRow>
                                     <TableCell>ID</TableCell>
-                                    <TableCell>Code</TableCell>
                                     <TableCell>Name</TableCell>
                                     <TableCell>Department</TableCell>
                                     <TableCell align="right">Actions</TableCell>
@@ -205,105 +353,51 @@ const DepartmentPage = () => {
                             <TableBody>
                                 {loading ? (
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center"><CircularProgress /></TableCell>
+                                        <TableCell colSpan={4} align="center"><CircularProgress /></TableCell>
                                     </TableRow>
-                                ) : (
-                                    sectors.map((sec) => (
-                                        <TableRow key={sec.id} hover>
-                                            <TableCell>{sec.id}</TableCell>
-                                            <TableCell>{sec.code}</TableCell>
-                                            <TableCell>{sec.name}</TableCell>
-                                            <TableCell>{sec.department_name}</TableCell>
-                                            <TableCell align="right">
-                                                <Tooltip title="Edit">
-                                                    <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
-                                                </Tooltip>
-                                                <Tooltip title="Delete">
-                                                    <IconButton size="small" color="error"><DeleteIcon fontSize="small" /></IconButton>
-                                                </Tooltip>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
+                                ) : sectors.length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={4} align="center">No sectors found</TableCell>
+                                    </TableRow>
+                                ) : sectors.map((sec) => (
+                                    <TableRow key={sec.id} hover>
+                                        <TableCell>{sec.id}</TableCell>
+                                        <TableCell>{sec.name}</TableCell>
+                                        <TableCell>{sec.dept_name || '—'}</TableCell>
+                                        <TableCell align="right">
+                                            <Tooltip title="Edit">
+                                                <IconButton size="small" onClick={() => handleOpenEditSector(sec)}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip title="Delete">
+                                                <IconButton size="small" color="error" onClick={() => handleDeleteSector(sec.id)}>
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
                             </TableBody>
                         </Table>
                     </TableContainer>
                 </TabPanel>
             </Card>
 
-            {/* Department Dialog */}
-            <Dialog open={openDeptDialog} onClose={() => setOpenDeptDialog(false)} fullWidth maxWidth="sm">
-                <DialogTitle>Add Department</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        autoFocus
-                        margin="dense"
-                        label="Code"
-                        fullWidth
-                        variant="outlined"
-                        value={newDept.code}
-                        onChange={(e) => setNewDept({ ...newDept, code: e.target.value })}
-                        sx={{ mb: 2 }}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Name"
-                        fullWidth
-                        variant="outlined"
-                        value={newDept.name}
-                        onChange={(e) => setNewDept({ ...newDept, name: e.target.value })}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenDeptDialog(false)}>Cancel</Button>
-                    <Button onClick={handleSaveDept} variant="contained">Save</Button>
-                </DialogActions>
-            </Dialog>
-
-            {/* Sector Dialog */}
-            <Dialog open={openSectorDialog} onClose={() => setOpenSectorDialog(false)} fullWidth maxWidth="sm">
-                <DialogTitle>Add Sector</DialogTitle>
-                <DialogContent>
-                    <TextField
-                        select
-                        autoFocus
-                        margin="dense"
-                        label="Department"
-                        fullWidth
-                        variant="outlined"
-                        value={newSector.department_id}
-                        onChange={(e) => setNewSector({ ...newSector, department_id: e.target.value })}
-                        sx={{ mb: 2 }}
-                    >
-                        {departments.map((option) => (
-                            <MenuItem key={option.id} value={option.id}>
-                                {option.name}
-                            </MenuItem>
-                        ))}
-                    </TextField>
-                    <TextField
-                        margin="dense"
-                        label="Code"
-                        fullWidth
-                        variant="outlined"
-                        value={newSector.code}
-                        onChange={(e) => setNewSector({ ...newSector, code: e.target.value })}
-                        sx={{ mb: 2 }}
-                    />
-                    <TextField
-                        margin="dense"
-                        label="Name"
-                        fullWidth
-                        variant="outlined"
-                        value={newSector.name}
-                        onChange={(e) => setNewSector({ ...newSector, name: e.target.value })}
-                    />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={() => setOpenSectorDialog(false)}>Cancel</Button>
-                    <Button onClick={handleSaveSector} variant="contained">Save</Button>
-                </DialogActions>
-            </Dialog>
+            {/* Dialogs */}
+            <DeptDialog
+                open={deptDialogOpen}
+                onClose={() => setDeptDialogOpen(false)}
+                onSave={fetchData}
+                initial={editingDept}
+            />
+            <SectorDialog
+                open={sectorDialogOpen}
+                onClose={() => setSectorDialogOpen(false)}
+                onSave={fetchData}
+                departments={departments}
+                initial={editingSector}
+            />
         </Box>
     );
 };

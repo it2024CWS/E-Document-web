@@ -38,8 +38,8 @@ export const roleServiceMock = {
         return { success: true, data: mockRoles };
     },
 
-    getRoleById: async (id: number) => {
-        const role = mockRoles.find(r => r.id === id);
+    getRoleById: async (id: string) => {
+        const role = mockRoles.find(r => r.id.toString() === id);
         return { success: true, data: role };
     },
 
@@ -55,11 +55,11 @@ export const roleServiceMock = {
         return { success: true, data: newRole };
     },
 
-    updateRole: async (id: number, data: any) => {
+    updateRole: async (id: string, data: any) => {
         return { success: true, data: { ...data, id, updated_at: new Date().toISOString() } };
     },
 
-    deleteRole: async (id: number) => {
+    deleteRole: async (_id: string) => {
         return { success: true };
     }
 };

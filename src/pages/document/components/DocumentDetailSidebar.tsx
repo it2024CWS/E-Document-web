@@ -9,11 +9,9 @@ import {
     List,
     ListItem,
     ListItemText,
-    ListItemAvatar,
     Select,
     MenuItem,
     FormControl,
-    InputLabel,
     Stack
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
@@ -54,7 +52,7 @@ const DocumentDetailSidebar = ({
     const folderItem = item as FolderModel;
 
     // Mock owner info if missing
-    const ownerName = isDoc ? docItem.user_name : folderItem.user_name || 'Admin';
+    const ownerName = isDoc ? docItem.registrant_name || 'System' : 'Admin';
     const ownerEmail = (item as any).user_email || `${ownerName.toLowerCase().replace(' ', '.')}@company.com`;
     const ownerPhone = (item as any).user_phone || '+856 20 5555 8888';
     const ownerAvatar = (item as any).user_avatar || '';

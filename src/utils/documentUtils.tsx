@@ -3,12 +3,18 @@ import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import TableChartIcon from '@mui/icons-material/TableChart';
+import SlideshowIcon from '@mui/icons-material/Slideshow';
 
-export const getFileIcon = (fileName: string) => {
-    const ext = fileName.split('.').pop()?.toLowerCase();
-    if (ext === 'pdf') return <PictureAsPdfIcon sx={{ color: colors.accent.red }} />;
-    if (['doc', 'docx'].includes(ext || '')) return <DescriptionIcon sx={{ color: colors.secondary.blue1 }} />;
-    if (['xls', 'xlsx'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
+export const getFileIcon = (fileOrExt: string) => {
+    // If it contains a dot, split it. Otherwise, assume it's an extension like 'pdf' or 'application/pdf'
+    let ext = fileOrExt.includes('.') ? fileOrExt.split('.').pop()?.toLowerCase() : fileOrExt.toLowerCase();
+
+    // Also handle MIME types roughly
+    if (ext?.includes('pdf')) return <PictureAsPdfIcon sx={{ color: colors.accent.red }} />;
+    if (ext?.includes('word') || ['doc', 'docx'].includes(ext || '')) return <DescriptionIcon sx={{ color: colors.secondary.blue1 }} />;
+    if (ext?.includes('excel') || ext?.includes('spreadsheet') || ['xls', 'xlsx'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
+    if (ext?.includes('powerpoint') || ext?.includes('presentation') || ['ppt', 'pptx'].includes(ext || '')) return <SlideshowIcon sx={{ color: '#D24726' }} />;
+
     return <InsertDriveFileIcon sx={{ color: colors.secondary.gray1 }} />;
 };
 

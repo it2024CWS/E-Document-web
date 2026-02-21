@@ -1,30 +1,45 @@
-import axios from "axios";
+import axiosInstance from '@/configs/axios';
 
-const API_URL = "http://localhost:5001/api/v1/departments";
+export interface DepartmentModel {
+    id: string;
+    dept_name: string;
+    description: string;
+    created_at: string;
+    updated_at: string;
+}
+
+export interface CreateDepartmentRequest {
+    dept_name: string;
+    description?: string;
+}
+
+export interface UpdateDepartmentRequest {
+    dept_name?: string;
+    description?: string;
+}
 
 export const departmentService = {
-    getAllDepartments: async () => {
-        const response = await axios.get(API_URL);
-        return response.data;
+    getAllDepartments: async (): Promise<DepartmentModel[]> => {
+        const res = await axiosInstance.get('/v1/departments');
+        return res.data.data;
     },
 
-    getDepartmentById: async (id: number) => {
-        const response = await axios.get(`${API_URL}/${id}`);
-        return response.data;
+    getDepartmentById: async (id: string): Promise<DepartmentModel> => {
+        const res = await axiosInstance.get(`/v1/departments/${id}`);
+        return res.data.data;
     },
 
-    createDepartment: async (data: any) => {
-        const response = await axios.post(API_URL, data);
-        return response.data;
+    createDepartment: async (data: CreateDepartmentRequest): Promise<DepartmentModel> => {
+        const res = await axiosInstance.post('/v1/departments', data);
+        return res.data.data;
     },
 
-    updateDepartment: async (id: number, data: any) => {
-        const response = await axios.put(`${API_URL}/${id}`, data);
-        return response.data;
+    updateDepartment: async (id: string, data: UpdateDepartmentRequest): Promise<DepartmentModel> => {
+        const res = await axiosInstance.put(`/v1/departments/${id}`, data);
+        return res.data.data;
     },
 
-    deleteDepartment: async (id: number) => {
-        const response = await axios.delete(`${API_URL}/${id}`);
-        return response.data;
+    deleteDepartment: async (id: string): Promise<void> => {
+        await axiosInstance.delete(`/v1/departments/${id}`);
     },
 };

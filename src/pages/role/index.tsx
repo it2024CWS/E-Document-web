@@ -20,7 +20,7 @@ import {
     TextField,
 } from '@mui/material';
 import { roleServiceMock, RoleModel } from '@/services/mock/roleServiceMock';
-import RefreshIcon from '@mui/icons-material/Refresh';
+// import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
@@ -49,10 +49,10 @@ const RolePage = () => {
         }
     };
 
-    const handleOpenAdd = () => {
-        setFormData({ role_name: '', description: '' });
-        setOpenDialog(true);
-    };
+    // const handleOpenAdd = () => {
+    //     setFormData({ role_name: '', description: '' });
+    //     setOpenDialog(true);
+    // };
 
     const handleSave = async () => {
         if (!formData.role_name) return;

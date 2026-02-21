@@ -20,7 +20,6 @@ const DocumentPage = () => {
         setCreateDialogOpen,
         handleCreateDocument,
         versionDialogOpen,
-        handleOpenVersionHistory,
         handleCloseVersionHistory,
         selectedDocument,
         editDialogOpen,
@@ -44,9 +43,9 @@ const DocumentPage = () => {
 
     const currentFolders = useMemo(() => {
         if (!selectedFolder) {
-            return folders.filter(f => !f.parent_id);
+            return folders.filter(f => !f.parent_folder_id);
         }
-        return folders.filter(f => f.parent_id === selectedFolder.id);
+        return folders.filter(f => f.parent_folder_id === selectedFolder.id);
     }, [folders, selectedFolder]);
 
     const breadcrumbs = useMemo(() => {
@@ -64,9 +63,9 @@ const DocumentPage = () => {
                 // Must capture current value in closure or use let, but standard closure issue applies
                 // We create a new scope for each iteration or just pass the object directly
                 const folder = current;
-                path.unshift({ label: folder.name, onClick: () => handleFolderSelect(folder) });
+                path.unshift({ label: folder.name || '', onClick: () => handleFolderSelect(folder) });
 
-                const parent = folders.find(f => f.id === folder.parent_id);
+                const parent = folders.find(f => f.id === folder.parent_folder_id);
                 if (!parent) break;
                 current = parent;
             }
@@ -91,8 +90,6 @@ const DocumentPage = () => {
                 documents={documents}
                 folders={currentFolders}
                 loading={loading}
-                onVersionHistory={handleOpenVersionHistory}
-                onEdit={handleOpenEdit}
                 onFolderClick={handleFolderSelect}
                 onDelete={handleDeleteDocument}
                 onDetail={handleOpenDetail}
