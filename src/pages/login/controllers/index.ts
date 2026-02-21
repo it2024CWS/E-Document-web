@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { loginService } from '@/services/authService';
 import { UserDataModel } from '@/models/authModel';
 import { getErrorAlert, getSuccessAlert } from '@/utils/functions/sweetAlert/sweetAlert';
-import { HOME_PATH } from '@/routes/config';
+import { DASHBOARD_PATH } from '@/routes/config';
 import { useAuth } from '@/contexts/auth';
 
 const useMainController = () => {
@@ -67,7 +67,7 @@ const useMainController = () => {
       getSuccessAlert('Login successful!');
 
       // Redirect to home page
-      navigate(HOME_PATH);
+      navigate(DASHBOARD_PATH);
     } catch (error: any) {
       getErrorAlert(error);
     } finally {

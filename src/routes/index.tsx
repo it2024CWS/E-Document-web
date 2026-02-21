@@ -1,7 +1,7 @@
 import { useRoutes } from 'react-router-dom';
 import MainLayout from '../layouts';
-import { HOME_PATH, LOGIN_PATH, USER_PATH, DOCUMENT_PATH, INCOMING_PATH, OUTGOING_PATH, DEPARTMENT_PATH, DOCTYPE_PATH, DASHBOARD_PATH } from './config';
-import HomePage from '@/pages/home';
+import { HOME_PATH, LOGIN_PATH, USER_PATH, DOCUMENT_PATH, INCOMING_PATH, OUTGOING_PATH, DEPARTMENT_PATH, DOCTYPE_PATH, DASHBOARD_PATH, ROLE_PATH } from './config';
+import { Navigate } from 'react-router-dom';
 import LoginPage from '@/pages/login';
 import UserPage from '@/pages/user';
 import DocumentPage from '@/pages/document';
@@ -10,6 +10,7 @@ import OutgoingPage from '@/pages/outgoing';
 import DepartmentPage from '@/pages/department';
 import DocTypePage from '@/pages/doctype';
 import DashboardPage from '@/pages/dashboard';
+import RolePage from '@/pages/role';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import PublicRoute from '@/components/PublicRoute';
 
@@ -33,7 +34,7 @@ export default function AppRoutes() {
       children: [
         {
           path: HOME_PATH,
-          element: <HomePage />,
+          element: <Navigate to={DASHBOARD_PATH} replace />,
         },
         {
           path: USER_PATH,
@@ -62,6 +63,10 @@ export default function AppRoutes() {
         {
           path: DASHBOARD_PATH,
           element: <DashboardPage />,
+        },
+        {
+          path: ROLE_PATH,
+          element: <RolePage />,
         },
       ],
     },

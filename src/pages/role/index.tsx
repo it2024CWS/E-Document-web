@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import {
     Box,
@@ -18,19 +17,19 @@ import {
     DialogTitle,
     DialogContent,
     DialogActions,
-    TextField
+    TextField,
 } from '@mui/material';
-import { docTypeServiceMock, DocTypeModel } from '@/services/mock/docTypeServiceMock';
+import { roleServiceMock, RoleModel } from '@/services/mock/roleServiceMock';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
 
-const DocTypePage = () => {
-    const [docTypes, setDocTypes] = useState<DocTypeModel[]>([]);
+const RolePage = () => {
+    const [roles, setRoles] = useState<RoleModel[]>([]);
     const [loading, setLoading] = useState(false);
     const [openDialog, setOpenDialog] = useState(false);
-    const [newDocType, setNewDocType] = useState({ code: '', name: '' });
+    const [formData, setFormData] = useState({ role_name: '', description: '' });
 
     useEffect(() => {
         fetchData();
@@ -39,31 +38,29 @@ const DocTypePage = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const res = await docTypeServiceMock.getAllDocTypes();
-            if (res.success) setDocTypes(res.data);
+            const res = await roleServiceMock.getAllRoles();
+            if (res.success) {
+                setRoles(res.data);
+            }
         } catch (error) {
-            console.error(error);
+            console.error('Failed to fetch roles:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleOpenDialog = () => {
-        setNewDocType({ code: '', name: '' });
+    const handleOpenAdd = () => {
+        setFormData({ role_name: '', description: '' });
         setOpenDialog(true);
     };
 
-    const handleCloseDialog = () => {
-        setOpenDialog(false);
-    };
-
-    const handleSaveDocType = async () => {
-        if (!newDocType.code || !newDocType.name) return; // Simple validation
+    const handleSave = async () => {
+        if (!formData.role_name) return;
         try {
-            const res = await docTypeServiceMock.createDocType(newDocType);
+            const res = await roleServiceMock.createRole(formData);
             if (res.success) {
-                fetchData(); // Refresh list
-                handleCloseDialog();
+                fetchData();
+                setOpenDialog(false);
             }
         } catch (error) {
             console.error(error);
@@ -72,25 +69,25 @@ const DocTypePage = () => {
 
     return (
         <Box>
-            <BreadcrumbsCustom breadcrumbs={[{ label: 'Document Types' }]} />
+            <BreadcrumbsCustom breadcrumbs={[{ label: 'Role Management' }]} />
 
             <Box sx={{ mt: 3, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h5">Document Types</Typography>
+                <Typography variant="h5">Role Management</Typography>
                 <Box>
-                    <Button
+                    {/* <Button
                         variant="contained"
-                        onClick={handleOpenDialog}
+                        onClick={handleOpenAdd}
                         sx={{ mr: 1 }}
                     >
-                        + Add
-                    </Button>
-                    <Button
+                        + Add Role
+                    </Button> */}
+                    {/* <Button
                         startIcon={<RefreshIcon />}
                         variant="outlined"
                         onClick={fetchData}
                     >
                         Refresh
-                    </Button>
+                    </Button> */}
                 </Box>
             </Box>
 
@@ -100,22 +97,26 @@ const DocTypePage = () => {
                         <TableHead>
                             <TableRow>
                                 <TableCell>ID</TableCell>
-                                <TableCell>Code</TableCell>
-                                <TableCell>Name</TableCell>
+                                <TableCell>Role Name</TableCell>
+                                <TableCell>Description</TableCell>
+                                <TableCell>Created At</TableCell>
+                                <TableCell>Updated At</TableCell>
                                 <TableCell align="right">Actions</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} align="center"><CircularProgress /></TableCell>
+                                    <TableCell colSpan={6} align="center"><CircularProgress /></TableCell>
                                 </TableRow>
                             ) : (
-                                docTypes.map((item) => (
-                                    <TableRow key={item.id} hover>
-                                        <TableCell>{item.id}</TableCell>
-                                        <TableCell>{item.code}</TableCell>
-                                        <TableCell>{item.name}</TableCell>
+                                roles.map((role) => (
+                                    <TableRow key={role.id} hover>
+                                        <TableCell>{role.id}</TableCell>
+                                        <TableCell>{role.role_name}</TableCell>
+                                        <TableCell>{role.description}</TableCell>
+                                        <TableCell>{new Date(role.created_at).toLocaleString()}</TableCell>
+                                        <TableCell>{new Date(role.updated_at).toLocaleString()}</TableCell>
                                         <TableCell align="right">
                                             <Tooltip title="Edit">
                                                 <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
@@ -132,36 +133,37 @@ const DocTypePage = () => {
                 </TableContainer>
             </Card>
 
-            {/* Create Dialog */}
-            <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-                <DialogTitle>Add Document Type</DialogTitle>
+            <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="sm">
+                <DialogTitle>Add Role</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         margin="dense"
-                        label="Code"
+                        label="Role Name"
                         fullWidth
                         variant="outlined"
-                        value={newDocType.code}
-                        onChange={(e) => setNewDocType({ ...newDocType, code: e.target.value })}
+                        value={formData.role_name}
+                        onChange={(e) => setFormData({ ...formData, role_name: e.target.value })}
                         sx={{ mb: 2 }}
                     />
                     <TextField
                         margin="dense"
-                        label="Name"
+                        label="Description"
                         fullWidth
+                        multiline
+                        rows={3}
                         variant="outlined"
-                        value={newDocType.name}
-                        onChange={(e) => setNewDocType({ ...newDocType, name: e.target.value })}
+                        value={formData.description}
+                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>Cancel</Button>
-                    <Button onClick={handleSaveDocType} variant="contained">Save</Button>
+                    <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
+                    <Button onClick={handleSave} variant="contained">Save</Button>
                 </DialogActions>
             </Dialog>
         </Box>
     );
 };
 
-export default DocTypePage;
+export default RolePage;

@@ -1,7 +1,7 @@
 import { Navigate } from 'react-router-dom';
 import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/auth';
-import { HOME_PATH } from '@/routes/config';
+import { DASHBOARD_PATH } from '@/routes/config';
 import { Box, CircularProgress } from '@mui/material';
 
 interface PublicRouteProps {
@@ -27,7 +27,7 @@ const PublicRoute = ({ children }: PublicRouteProps) => {
   }
 
   if (isAuthenticated) {
-    return <Navigate to={HOME_PATH} replace />;
+    return <Navigate to={DASHBOARD_PATH} replace />;
   }
 
   return <>{children}</>;

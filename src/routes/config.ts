@@ -13,3 +13,4 @@ export const OUTGOING_PATH = '/outgoing';
 export const DEPARTMENT_PATH = '/departments';
 export const DOCTYPE_PATH = '/document-types';
 export const DASHBOARD_PATH = '/dashboard';
+export const ROLE_PATH = '/roles';
