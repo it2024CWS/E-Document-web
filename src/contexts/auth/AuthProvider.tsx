@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useEffect, useState } from 'react';
 import { UserDataModel } from '@/models/authModel';
 import { logoutService } from '@/services/authService';
+import { AUTH_USER_DATA } from '@/utils/constants/localStorage';
 
 export interface AuthContextType {
   user: UserDataModel | null;
@@ -20,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Check if user data exists in localStorage
     const checkAuth = () => {
       try {
-        const storedUser = localStorage.getItem('user');
+        const storedUser = localStorage.getItem(AUTH_USER_DATA);
         if (storedUser) {
           const parsedUser = JSON.parse(storedUser);
           // Simple validation to ensure data matches new model
@@ -28,12 +29,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
             setUser(parsedUser);
           } else {
             // If data is old format (missing role_id), clear it
-            localStorage.removeItem('user');
+            localStorage.removeItem(AUTH_USER_DATA);
           }
         }
       } catch (error) {
         console.error('Failed to parse user data:', error);
-        localStorage.removeItem('user');
+        localStorage.removeItem(AUTH_USER_DATA);
       } finally {
         setLoading(false);
       }
@@ -44,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = (userData: UserDataModel) => {
     setUser(userData);
-    localStorage.setItem('user', JSON.stringify(userData));
+    localStorage.setItem(AUTH_USER_DATA, JSON.stringify(userData));
   };
 
   const logout = async () => {
@@ -57,7 +58,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       // Clear local state and localStorage
       setUser(null);
-      localStorage.removeItem('user');
+      localStorage.removeItem(AUTH_USER_DATA);
     }
   };
 

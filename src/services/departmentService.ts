@@ -1,45 +1,41 @@
 import axiosInstance from '@/configs/axios';
-
-export interface DepartmentModel {
-    id: string;
-    dept_name: string;
-    description: string;
-    created_at: string;
-    updated_at: string;
-}
-
-export interface CreateDepartmentRequest {
-    dept_name: string;
-    description?: string;
-}
-
-export interface UpdateDepartmentRequest {
-    dept_name?: string;
-    description?: string;
-}
+import { DepartmentModel, CreateDepartmentRequest, UpdateDepartmentRequest } from '@/models/departmentModel';
+import { GetAllResponse, GetByIdResponse } from '@/interface/reponseInterface';
 
 export const departmentService = {
-    getAllDepartments: async (): Promise<DepartmentModel[]> => {
-        const res = await axiosInstance.get('/v1/departments');
-        return res.data.data;
-    },
+  getAllDepartments: async (
+    page: number = 1,
+    limit: number = 10,
+    search?: string
+  ): Promise<{ items: DepartmentModel[]; total: number }> => {
+    const params: any = { page, limit };
+    if (search) params.search = search;
 
-    getDepartmentById: async (id: string): Promise<DepartmentModel> => {
-        const res = await axiosInstance.get(`/v1/departments/${id}`);
-        return res.data.data;
-    },
+    const res = await axiosInstance.get<GetAllResponse<DepartmentModel>>('/v1/departments', { params });
+    
+    // In our new standardized response, for pagination it's res.data.data.items
+    return {
+      items: res.data.data.items,
+      total: res.data.pagination.totalItems
+    };
+  },
 
-    createDepartment: async (data: CreateDepartmentRequest): Promise<DepartmentModel> => {
-        const res = await axiosInstance.post('/v1/departments', data);
-        return res.data.data;
-    },
+  getDepartmentById: async (id: string): Promise<DepartmentModel> => {
+    const res = await axiosInstance.get<GetByIdResponse<DepartmentModel>>(`/v1/departments/${id}`);
+    return res.data.data;
+  },
 
-    updateDepartment: async (id: string, data: UpdateDepartmentRequest): Promise<DepartmentModel> => {
-        const res = await axiosInstance.put(`/v1/departments/${id}`, data);
-        return res.data.data;
-    },
+  createDepartment: async (data: CreateDepartmentRequest): Promise<DepartmentModel> => {
+    const res = await axiosInstance.post<GetByIdResponse<DepartmentModel>>('/v1/departments', data);
+    return res.data.data;
+  },
 
-    deleteDepartment: async (id: string): Promise<void> => {
-        await axiosInstance.delete(`/v1/departments/${id}`);
-    },
+  updateDepartment: async (id: string, data: UpdateDepartmentRequest): Promise<DepartmentModel> => {
+    const res = await axiosInstance.put<GetByIdResponse<DepartmentModel>>(`/v1/departments/${id}`, data);
+    return res.data.data;
+  },
+
+  deleteDepartment: async (id: string): Promise<void> => {
+    await axiosInstance.delete(`/v1/departments/${id}`);
+  },
 };

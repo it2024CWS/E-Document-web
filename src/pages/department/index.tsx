@@ -30,8 +30,10 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
-import { departmentService, DepartmentModel, CreateDepartmentRequest, UpdateDepartmentRequest } from '@/services/departmentService';
-import { sectorService, SectorModel, CreateSectorRequest, UpdateSectorRequest } from '@/services/sectorService';
+import { departmentService } from '@/services/departmentService';
+import { sectorService } from '@/services/sectorService';
+import { DepartmentModel, CreateDepartmentRequest, UpdateDepartmentRequest } from '@/models/departmentModel';
+import { SectorModel, CreateSectorRequest, UpdateSectorRequest } from '@/models/sectorModel';
 import Swal from 'sweetalert2';
 
 interface TabPanelProps {
@@ -212,12 +214,12 @@ const DepartmentPage = () => {
     const fetchData = async () => {
         setLoading(true);
         try {
-            const [depts, secs] = await Promise.all([
-                departmentService.getAllDepartments(),
-                sectorService.getAllSectors(),
+            const [deptRes, secRes] = await Promise.all([
+                departmentService.getAllDepartments(1, 100),
+                sectorService.getAllSectors(1, 100),
             ]);
-            setDepartments(depts ?? []);
-            setSectors(secs ?? []);
+            setDepartments(deptRes.items ?? []);
+            setSectors(secRes.items ?? []);
         } catch (err) {
             console.error('Failed to fetch data', err);
         } finally {

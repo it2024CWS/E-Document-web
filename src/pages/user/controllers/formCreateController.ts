@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { CreateUserRequest } from '@/models/userModel';
+import { DepartmentModel } from '@/models/departmentModel';
+import { SectorModel } from '@/models/sectorModel';
 import { createUserService, updateUserService, getUserByIdService } from '@/services/userService';
 import { departmentService } from '@/services/departmentService';
 import { sectorService } from '@/services/sectorService';
@@ -29,8 +31,8 @@ const useFormCreateController = () => {
   const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(null);
 
   // Master Data States
-  const [departments, setDepartments] = useState<any[]>([]);
-  const [sectors, setSectors] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<DepartmentModel[]>([]);
+  const [sectors, setSectors] = useState<SectorModel[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
 
   const userId = searchParams.get('id');
@@ -43,9 +45,10 @@ const useFormCreateController = () => {
 
   const fetchDepartments = async () => {
     try {
-      const resp = await departmentService.getAllDepartments();
-      if (resp) {
-        setDepartments(resp);
+      // Fetch with large limit for dropdown
+      const resp = await departmentService.getAllDepartments(1, 100);
+      if (resp && resp.items) {
+        setDepartments(resp.items);
       }
     } catch (error) {
       console.error("Failed to load departments", error);
@@ -54,12 +57,12 @@ const useFormCreateController = () => {
 
   const fetchRoles = async () => {
     try {
-      const resp = await roleService.getAllRoles();
-      if (resp) {
-        setRoles(resp);
+      const resp = await roleService.getAllRoles(1, 100);
+      if (resp && resp.items) {
+        setRoles(resp.items);
       }
     } catch (error) {
-      console.error("Failed to load roles", error);
+      console.error('Failed to load roles', error);
     }
   };
 

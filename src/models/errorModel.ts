@@ -8,7 +8,12 @@ export interface ErrorModel {
 }
 
 interface ErrorResponseModel {
-  data: { error: { code: string } };
+  data: {
+    success: boolean;
+    message: string;
+    error_code?: string;
+    data?: any;
+  };
   message: string;
   status: number;
 }

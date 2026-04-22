@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { docTypeService } from '@/services/docTypeService';
 import { departmentService } from '@/services/departmentService';
+import { DepartmentModel } from '@/models/departmentModel';
 import { useAuth } from '@/contexts/auth';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
@@ -43,7 +44,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [docTypes, setDocTypes] = useState<any[]>([]);
-    const [departments, setDepartments] = useState<any[]>([]);
+    const [departments, setDepartments] = useState<DepartmentModel[]>([]);
 
     // 0: File, 1: Folder
     const [tabValue, setTabValue] = useState(0);
@@ -69,10 +70,10 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                 try {
                     const [dtRes, deptRes] = await Promise.all([
                         docTypeService.getAllDocTypes(),
-                        departmentService.getAllDepartments()
+                        departmentService.getAllDepartments(1, 100)
                     ]);
                     setDocTypes(dtRes);
-                    setDepartments(deptRes);
+                    setDepartments(deptRes.items ?? []);
                 } catch (error) {
                     console.error("Failed to load dependency data", error);
                 } finally {

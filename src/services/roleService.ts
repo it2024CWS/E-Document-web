@@ -1,30 +1,130 @@
-import axios from "axios";
+import axiosInstance from '@/configs/axios';
+import { RoleModel, CreateRoleRequest, UpdateRoleRequest } from '@/models/roleModel';
+import { PaginationModel } from '@/models/paginationModel';
 
-const API_URL = "http://localhost:5001/api/v1/roles";
+import { GetAllResponse, GetByIdResponse } from '@/interface/reponseInterface';
 
 export const roleService = {
-    getAllRoles: async () => {
-        const response = await axios.get(API_URL);
-        return response.data;
-    },
+  getAllRoles: async (
+    page: number = 1,
+    limit: number = 10,
+    search?: string
+  ): Promise<{ items: RoleModel[]; pagination: PaginationModel }> => {
+    try {
+      const params: any = { page, limit };
+      if (search) {
+        params.search = search;
+      }
 
-    getRoleById: async (id: string) => {
-        const response = await axios.get(`${API_URL}/${id}`);
-        return response.data;
-    },
+      const res = await axiosInstance.get<GetAllResponse<RoleModel>>('/v1/roles', {
+        params,
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      });
 
-    createRole: async (data: any) => {
-        const response = await axios.post(API_URL, data);
-        return response.data;
-    },
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.message || 'Failed to fetch roles');
+      }
 
-    updateRole: async (id: string, data: any) => {
-        const response = await axios.put(`${API_URL}/${id}`, data);
-        return response.data;
-    },
+      return {
+        items: res.data.data.items,
+        pagination: {
+          total: res.data.pagination.totalItems,
+        },
+      };
+    } catch (error: any) {
+      console.error('Get roles error:', error);
+      if (error?.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error(error?.message || 'Failed to fetch roles');
+    }
+  },
 
-    deleteRole: async (id: string) => {
-        const response = await axios.delete(`${API_URL}/${id}`);
-        return response.data;
-    },
+  getRoleById: async (id: string): Promise<RoleModel> => {
+    try {
+      const res = await axiosInstance.get<GetByIdResponse<RoleModel>>(`/v1/roles/${id}`, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      });
+
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.message || 'Failed to fetch role');
+      }
+
+      return res.data.data;
+    } catch (error: any) {
+      console.error('Get role by ID error:', error);
+      if (error?.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error(error?.message || 'Failed to fetch role');
+    }
+  },
+
+  createRole: async (data: CreateRoleRequest): Promise<RoleModel> => {
+    try {
+      const res = await axiosInstance.post<GetByIdResponse<RoleModel>>('/v1/roles', data, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      });
+
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.message || 'Failed to create role');
+      }
+
+      return res.data.data;
+    } catch (error: any) {
+      console.error('Create role error:', error);
+      if (error?.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error(error?.message || 'Failed to create role');
+    }
+  },
+
+  updateRole: async (id: string, data: UpdateRoleRequest): Promise<RoleModel> => {
+    try {
+      const res = await axiosInstance.put<GetByIdResponse<RoleModel>>(`/v1/roles/${id}`, data, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      });
+
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.message || 'Failed to update role');
+      }
+
+      return res.data.data;
+    } catch (error: any) {
+      console.error('Update role error:', error);
+      if (error?.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error(error?.message || 'Failed to update role');
+    }
+  },
+
+  deleteRole: async (id: string): Promise<void> => {
+    try {
+      const res = await axiosInstance.delete(`/v1/roles/${id}`, {
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      });
+
+      if (!res?.data?.success) {
+        throw new Error(res?.data?.message || 'Failed to delete role');
+      }
+    } catch (error: any) {
+      console.error('Delete role error:', error);
+      if (error?.response?.data?.message) {
+        throw new Error(error.response.data.message);
+      }
+      throw new Error(error?.message || 'Failed to delete role');
+    }
+  },
 };

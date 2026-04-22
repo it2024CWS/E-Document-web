@@ -3,6 +3,8 @@ import { ErrorModel } from '@/models/errorModel';
 import './sweetAlert.css';
 import { getErrorMessage } from './errorMessage';
 import { colors } from '@/themes/colors';
+import { AUTH_DATA_STORAGE, AUTH_TOKEN_STORAGE, AUTH_USER_DATA } from '@/utils/constants/localStorage';
+import { ERROR_CODES } from '@/utils/constants/errorCodes';
 
 interface ConfirmAlertProps {
   onSubmit?: () => Promise<{ message: string } | void>;
@@ -23,6 +25,17 @@ const defaultCustomClass = {
 
 export const getErrorAlert = async (error: unknown | string, onSubmit?: () => void): Promise<void> => {
   const typedError = error as ErrorModel;
+  
+  // Check for unauthorized status or error_code
+  const isUnauthorized = 
+    (typeof error === 'string' && (error === 'Unauthorized' || error.toLowerCase().includes('unauthorized'))) ||
+    (typeof typedError !== 'string' && (
+      typedError?.response?.status === 401 || 
+      typedError?.response?.data?.error_code === ERROR_CODES.UNAUTHORIZED ||
+      typedError?.response?.data?.error_code === ERROR_CODES.TOKEN_EXPIRED ||
+      typedError?.message === 'Unauthorized'
+    ));
+
   const result = await Swal.fire({
     ...(typeof typedError !== 'string' && typedError?.response?.status && { title: 'Error' }),
     text: typeof typedError === 'string' ? typedError : getErrorMessage(error),
@@ -31,8 +44,20 @@ export const getErrorAlert = async (error: unknown | string, onSubmit?: () => vo
     confirmButtonColor: colors.primary.main,
     customClass: defaultCustomClass,
   });
-  if (result.isConfirmed && onSubmit) {
-    onSubmit();
+
+  if (result.isConfirmed) {
+    if (isUnauthorized) {
+      // Clear session data and redirect to login
+      localStorage.removeItem(AUTH_TOKEN_STORAGE);
+      localStorage.removeItem(AUTH_DATA_STORAGE);
+      localStorage.removeItem(AUTH_USER_DATA);
+      window.location.href = '/login';
+      return;
+    }
+    
+    if (onSubmit) {
+      onSubmit();
+    }
   }
 };
 

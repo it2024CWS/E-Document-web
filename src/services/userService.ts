@@ -1,28 +1,7 @@
 import axiosInstance from '@/configs/axios';
 import { UserModel, CreateUserRequest, UpdateUserRequest } from '@/models/userModel';
+import { GetAllResponse, GetByIdResponse } from '@/interface/reponseInterface';
 import { PaginationModel } from '@/models/paginationModel';
-
-interface GetUsersResponse {
-  success: boolean;
-  message: string;
-  error_code: string;
-  data: {
-    items: UserModel[];
-  };
-  pagination: {
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    itemsPerPage: number;
-  };
-}
-
-interface UserResponse {
-  success: boolean;
-  message: string;
-  error_code: string;
-  data: UserModel;
-}
 
 export const getUsersService = async (
   page: number = 1,
@@ -35,7 +14,7 @@ export const getUsersService = async (
       params.search = search;
     }
 
-    const res = await axiosInstance.get<GetUsersResponse>('/v1/users', {
+    const res = await axiosInstance.get<GetAllResponse<UserModel>>('/v1/users', {
       params,
       headers: {
         'ngrok-skip-browser-warning': 'true',
@@ -66,7 +45,7 @@ export const getUsersService = async (
 
 export const getUserByIdService = async (id: string): Promise<UserModel> => {
   try {
-    const res = await axiosInstance.get<UserResponse>(`/v1/users/${id}`, {
+    const res = await axiosInstance.get<GetByIdResponse<UserModel>>(`/v1/users/${id}`, {
       headers: {
         'ngrok-skip-browser-warning': 'true',
       },
@@ -108,7 +87,7 @@ export const createUserService = async (data: CreateUserRequest): Promise<UserMo
     }
 
     // Let axios set the correct multipart boundary header automatically
-    const res = await axiosInstance.post<UserResponse>('/v1/users', formData, {
+    const res = await axiosInstance.post<GetByIdResponse<UserModel>>('/v1/users', formData, {
       headers: {
         'ngrok-skip-browser-warning': 'true',
       },
@@ -149,7 +128,7 @@ export const updateUserService = async (id: string, data: UpdateUserRequest): Pr
     }
 
     // Let axios set the correct multipart boundary header automatically
-    const res = await axiosInstance.put<UserResponse>(`/v1/users/${id}`, formData, {
+    const res = await axiosInstance.put<GetByIdResponse<UserModel>>(`/v1/users/${id}`, formData, {
       headers: {
         'ngrok-skip-browser-warning': 'true',
       },

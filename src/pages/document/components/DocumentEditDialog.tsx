@@ -19,6 +19,7 @@ import {
 } from '@mui/material';
 import { docTypeService } from '@/services/docTypeService';
 import { departmentService } from '@/services/departmentService';
+import { DepartmentModel } from '@/models/departmentModel';
 import { useAuth } from '@/contexts/auth';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { radius } from '@/themes/radius';
@@ -38,7 +39,7 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [docTypes, setDocTypes] = useState<any[]>([]);
-    const [departments, setDepartments] = useState<any[]>([]);
+    const [departments, setDepartments] = useState<DepartmentModel[]>([]);
 
     const [formData, setFormData] = useState({
         doc_name: '',
@@ -57,10 +58,10 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                 try {
                     const [dtRes, deptRes] = await Promise.all([
                         docTypeService.getAllDocTypes(),
-                        departmentService.getAllDepartments()
+                        departmentService.getAllDepartments(1, 100)
                     ]);
                     setDocTypes(dtRes);
-                    setDepartments(deptRes);
+                    setDepartments(deptRes.items);
                 } catch (error) {
                     console.error("Failed to load dependency data", error);
                 } finally {
