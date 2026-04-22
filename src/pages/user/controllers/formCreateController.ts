@@ -151,7 +151,8 @@ const useFormCreateController = () => {
     setFormData((prev) => ({ ...prev, profile_picture: file }));
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     try {
       setLoading(true);
 

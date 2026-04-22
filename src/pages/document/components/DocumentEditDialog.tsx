@@ -24,7 +24,7 @@ import { useAuth } from '@/contexts/auth';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import { radius } from '@/themes/radius';
 import { colors } from '@/themes/colors';
-import { DocumentModel } from '@/services/documentService';
+import { DocumentModel } from '@/models/documentModel';
 
 interface DocumentEditDialogProps {
     open: boolean;
@@ -60,8 +60,8 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                         docTypeService.getAllDocTypes(),
                         departmentService.getAllDepartments(1, 100)
                     ]);
-                    setDocTypes(dtRes);
-                    setDepartments(deptRes.items);
+                    setDocTypes(dtRes.items ?? []);
+                    setDepartments(deptRes.items ?? []);
                 } catch (error) {
                     console.error("Failed to load dependency data", error);
                 } finally {
@@ -230,7 +230,7 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                                 >
                                     <MenuItem value="">Root</MenuItem>
                                     {folders.map((f: any) => (
-                                        <MenuItem key={f.id} value={f.id}>{f.name}</MenuItem>
+                                        <MenuItem key={f.id} value={f.id}>{f.folder_name}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>

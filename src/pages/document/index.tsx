@@ -30,16 +30,19 @@ const DocumentPage = () => {
         handleOpenDetail,
         handleCloseDetail,
         selectedDetailItem,
-        handleDeleteDocument
+        handleDeleteDocument,
+        refreshDocuments,
+        refreshFolders
     } = useDocumentController();
 
-    const { addDocumentTrigger } = useMainDrawerControllerContext();
+    const { addDocumentTrigger, consumeAddDocumentTrigger } = useMainDrawerControllerContext();
 
     useEffect(() => {
         if (addDocumentTrigger > 0) {
             setCreateDialogOpen(true);
+            consumeAddDocumentTrigger();
         }
-    }, [addDocumentTrigger, setCreateDialogOpen]);
+    }, [addDocumentTrigger, setCreateDialogOpen, consumeAddDocumentTrigger]);
 
     const currentFolders = useMemo(() => {
         if (!selectedFolder) {
@@ -63,7 +66,7 @@ const DocumentPage = () => {
                 // Must capture current value in closure or use let, but standard closure issue applies
                 // We create a new scope for each iteration or just pass the object directly
                 const folder = current;
-                path.unshift({ label: folder.name || '', onClick: () => handleFolderSelect(folder) });
+                path.unshift({ label: folder.folder_name || '', onClick: () => handleFolderSelect(folder) });
 
                 const parent = folders.find(f => f.id === folder.parent_folder_id);
                 if (!parent) break;
@@ -82,7 +85,7 @@ const DocumentPage = () => {
 
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h5">
-                    {selectedFolder ? `Folder: ${selectedFolder.name}` : 'All Documents'}
+                    {selectedFolder ? `Folder: ${selectedFolder.folder_name}` : 'All Documents'}
                 </Typography>
             </Box>
 
@@ -101,6 +104,10 @@ const DocumentPage = () => {
                 onSubmit={handleCreateDocument}
                 folders={folders}
                 currentFolderId={selectedFolder?.id}
+                onSuccess={() => {
+                    refreshDocuments();
+                    refreshFolders();
+                }}
             />
 
             <DocumentVersionsDialog

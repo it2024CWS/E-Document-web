@@ -20,7 +20,7 @@ const Table = memo(({ users, onSelectUser, totalUsers, ...props }: TableProps) =
     { label: 'Profile' },
     { label: 'Username' },
     { label: 'Email' },
-    { label: 'Name' },
+    { label: 'Full Name' },
     { label: 'Role' },
     { label: 'Phone' },
     { label: '', align: 'right' },
@@ -67,8 +67,8 @@ const Table = memo(({ users, onSelectUser, totalUsers, ...props }: TableProps) =
                   <TableBodyCell>{item.username}</TableBodyCell>
                   <TableBodyCell>{item.email}</TableBodyCell>
                   <TableBodyCell>
-                    {item.first_name || item.last_name
-                      ? `${item.first_name} ${item.last_name}`.trim()
+                    {item.firstname || item.lastname
+                      ? `${item.firstname} ${item.lastname}`.trim()
                       : '-'}
                   </TableBodyCell>
                   <TableBodyCell>

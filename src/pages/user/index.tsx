@@ -52,7 +52,7 @@ const Content = () => {
             <Table
               users={users}
               onSelectUser={ctrl.handleChangeSelectedItem}
-              totalUsers={ctrl.data?.pagination?.total}
+              totalUsers={ctrl.data?.pagination?.totalItems}
             />
           )}
         </Box>

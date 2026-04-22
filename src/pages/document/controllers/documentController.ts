@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from 'react';
 import Swal from 'sweetalert2';
-import { documentService, DocumentModel } from '@/services/documentService';
+import { DocumentModel } from '@/models/documentModel';
 import { folderService } from '@/services/folderService';
 import { FolderModel } from '@/models/folderModel';
+import { documentService } from '../../../services/documentService';
 
 const useDocumentController = () => {
     const [documents, setDocuments] = useState<DocumentModel[]>([]);
@@ -18,7 +19,7 @@ const useDocumentController = () => {
             setFolderLoading(true);
             try {
                 const res = await folderService.getAllFolders();
-                setFolders(res);
+                setFolders(res.items);
             } catch (error) {
                 console.error('Failed to fetch folders', error);
                 setFolders([]);
@@ -34,13 +35,15 @@ const useDocumentController = () => {
         const fetchDocuments = async () => {
             setLoading(true);
             try {
-                let res: DocumentModel[] = [];
+                let items: DocumentModel[] = [];
                 if (selectedFolder) {
-                    res = await documentService.getDocumentsByFolder(selectedFolder.id);
+                    const res = await documentService.getDocumentsByFolder(selectedFolder.id);
+                    items = res.items;
                 } else {
-                    res = await documentService.getAllDocuments();
+                    const res = await documentService.getAllDocuments();
+                    items = res.items;
                 }
-                setDocuments(res);
+                setDocuments(items);
             } catch (error) {
                 console.error('Failed to fetch documents', error);
                 setDocuments([]);
@@ -89,13 +92,15 @@ const useDocumentController = () => {
 
     const refreshDocuments = async () => {
         try {
-            let res: DocumentModel[] = [];
+            let items: DocumentModel[] = [];
             if (selectedFolder) {
-                res = await documentService.getDocumentsByFolder(selectedFolder.id);
+                const res = await documentService.getDocumentsByFolder(selectedFolder.id);
+                items = res.items;
             } else {
-                res = await documentService.getAllDocuments();
+                const res = await documentService.getAllDocuments();
+                items = res.items;
             }
-            setDocuments(res);
+            setDocuments(items);
         } catch (error) {
             console.error('Failed to refresh documents', error);
         }
@@ -104,7 +109,7 @@ const useDocumentController = () => {
     const refreshFolders = async () => {
         try {
             const res = await folderService.getAllFolders();
-            setFolders(res);
+            setFolders(res.items);
         } catch (error) {
             console.error('Failed to refresh folders', error);
         }
@@ -205,6 +210,8 @@ const useDocumentController = () => {
         handleOpenDetail,
         handleCloseDetail,
         handleDeleteDocument,
+        refreshDocuments,
+        refreshFolders,
     };
 };
 

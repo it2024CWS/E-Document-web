@@ -1,6 +1,6 @@
 import { FormEnum } from '@/enums/formEnum';
 import { UserModel } from '@/models/userModel';
-import { PaginationModel } from '@/models/paginationModel';
+import { PaginationModel } from '@/models/responseModel';   
 import { getUsersService } from '@/services/userService';
 import { getUserProfilePictureUrl } from '@/services/fileService';
 import { getErrorAlert } from '@/utils/functions/sweetAlert/sweetAlert';

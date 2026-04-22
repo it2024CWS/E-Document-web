@@ -1,7 +1,6 @@
 import axiosInstance from '@/configs/axios';
 import { UserModel, CreateUserRequest, UpdateUserRequest } from '@/models/userModel';
-import { GetAllResponse, GetByIdResponse } from '@/interface/reponseInterface';
-import { PaginationModel } from '@/models/paginationModel';
+import { GetAllResponse, GetByIdResponse, PaginationModel } from '@/models/responseModel';
 
 export const getUsersService = async (
   page: number = 1,
@@ -27,9 +26,7 @@ export const getUsersService = async (
 
     return {
       items: res.data.data.items,
-      pagination: {
-        total: res.data.pagination.totalItems,
-      },
+      pagination: res.data.pagination,
     };
   } catch (error: any) {
     console.error('Get users error:', error);

@@ -9,6 +9,7 @@ const useMainDrawerController = () => {
     handleChangeOpen: () => setOpen((state) => !state),
     addDocumentTrigger,
     triggerAddDocument: () => setAddDocumentTrigger((prev) => prev + 1),
+    consumeAddDocumentTrigger: () => setAddDocumentTrigger(0),
   };
 };
 

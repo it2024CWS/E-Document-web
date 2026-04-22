@@ -20,7 +20,8 @@ import {
     DialogActions,
     TextField
 } from '@mui/material';
-import { docTypeService, DocTypeModel } from '@/services/docTypeService';
+import { docTypeService } from '@/services/docTypeService';
+import { DocTypeModel } from '@/models/docTypeModel';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -45,7 +46,7 @@ const DocTypePage = () => {
         setLoading(true);
         try {
             const res = await docTypeService.getAllDocTypes();
-            setDocTypes(res);
+            setDocTypes(res.items);
         } catch (error) {
             console.error('Failed to fetch doc types:', error);
             Swal.fire('Error', 'Failed to load document types', 'error');

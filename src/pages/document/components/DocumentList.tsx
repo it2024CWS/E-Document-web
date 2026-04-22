@@ -1,4 +1,4 @@
-import {
+    import {
     Table,
     TableBody,
     TableCell,
@@ -11,9 +11,9 @@ import {
     IconButton,
     Typography
 } from '@mui/material';
-import { DocumentModel } from '@/services/documentService';
-import { FolderModel } from '@/models/folderModel';
-import { colors } from '@/themes/colors';
+import { DocumentModel } from '../../../models/documentModel';
+import { FolderModel } from '../../../models/folderModel';
+import { colors } from '../../../themes/colors';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
@@ -95,7 +95,7 @@ const DocumentList = ({
                             <TableCell>
                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
                                     <FolderIcon sx={{ color: colors.accent.yellow, fontSize: 32 }} />
-                                    <Typography variant="body2" fontWeight={500}>{folder.name}</Typography>
+                                    <Typography variant="body2" fontWeight={500}>{folder.folder_name}</Typography>
                                 </Box>
                             </TableCell>
                             <TableCell sx={{ color: colors.secondary.text }}>-</TableCell>
@@ -125,7 +125,7 @@ const DocumentList = ({
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.doc_no || '-'}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{new Date(doc.updated_at).toLocaleDateString()}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.registrant_name || '-'}</TableCell>
-                                <TableCell sx={{ color: colors.secondary.text }}>{doc.department_name || '-'}</TableCell>
+                                {/* <TableCell sx={{ color: colors.secondary.text }}>{doc.department?.name || '-'}</TableCell> */}
                                 <TableCell>
                                     <Chip
                                         label={doc.status || 'General'}

@@ -37,9 +37,10 @@ interface DocumentCreateDialogProps {
     onSubmit: (data: any) => Promise<void>; // FormData
     folders: any[]; // FolderModel
     currentFolderId?: string;
+    onSuccess?: () => void;
 }
 
-const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, currentFolderId }: DocumentCreateDialogProps) => {
+const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, currentFolderId, onSuccess }: DocumentCreateDialogProps) => {
     const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -72,7 +73,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                         docTypeService.getAllDocTypes(),
                         departmentService.getAllDepartments(1, 100)
                     ]);
-                    setDocTypes(dtRes);
+                    setDocTypes(dtRes.items ?? []);
                     setDepartments(deptRes.items ?? []);
                 } catch (error) {
                     console.error("Failed to load dependency data", error);
@@ -135,7 +136,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                 timer: 1500,
                 showConfirmButton: false,
             });
-            window.location.reload();
+            onSuccess?.();
         } catch (error: any) {
             Swal.close();
             Swal.fire('Upload Failed', error?.message || 'An error occurred during upload.', 'error');
@@ -158,8 +159,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
             // Actually DocumentPage refreshes specific things. We might need to trigger folder refresh.
             // For now, let's close.
             onClose();
-            // Trigger global refresh? logic in DocumentPage handles refreshing documents, but creating folder should refresh folder tree/list.
-            window.location.reload(); // Temporary fix or need a callback for folder creation
+            onSuccess?.();
         } catch (error) {
             console.error(error);
         } finally {
@@ -194,7 +194,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                     timer: 1500,
                     showConfirmButton: false
                 });
-                window.location.reload(); // Refresh to show new files
+                onSuccess?.();
             },
             onError: (fileName, error) => {
                 Swal.close();
@@ -306,7 +306,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                         >
                                             <MenuItem value="">Root</MenuItem>
                                             {folders.map((f: any) => (
-                                                <MenuItem key={f.id} value={f.id}>{f.name}</MenuItem>
+                                                <MenuItem key={f.id} value={f.id}>{f.folder_name}</MenuItem>
                                             ))}
                                         </Select>
                                     </FormControl>
@@ -356,7 +356,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                                 >
                                                     <MenuItem value="">Root</MenuItem>
                                                     {folders.map((f: any) => (
-                                                        <MenuItem key={f.id} value={f.id}>{f.name}</MenuItem>
+                                                        <MenuItem key={f.id} value={f.id}>{f.folder_name}</MenuItem>
                                                     ))}
                                                 </Select>
                                             </FormControl>
