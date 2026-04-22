@@ -72,10 +72,16 @@ const FormDetail = () => {
               <FieldData label="Email" value={detailCtrl.user.email} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="First Name" value={detailCtrl.user.first_name || '-'} />
+              <FieldData label="First Name" value={detailCtrl.user.firstname || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Last Name" value={detailCtrl.user.last_name || '-'} />
+              <FieldData label="Last Name" value={detailCtrl.user.lastname || '-'} />
+            </Grid>
+            <Grid size={{ md: 6, xs: 12 }}>
+              <FieldData label="Nickname" value={detailCtrl.user.nickname || '-'} />
+            </Grid>
+            <Grid size={{ md: 6, xs: 12 }}>
+              <FieldData label="Account Status" value={detailCtrl.user.is_active ? 'Active' : 'Inactive'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
               <FieldData

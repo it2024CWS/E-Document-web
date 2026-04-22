@@ -76,8 +76,8 @@ export const createUserService = async (data: CreateUserRequest): Promise<UserMo
     formData.append('role_id', data.role_id.toString());
 
     if (data.phone) formData.append('phone', data.phone);
-    if (data.first_name) formData.append('first_name', data.first_name);
-    if (data.last_name) formData.append('last_name', data.last_name);
+    if (data.firstname) formData.append('firstname', data.firstname);
+    if (data.lastname) formData.append('lastname', data.lastname);
     if (data.department_id) formData.append('department_id', data.department_id.toString());
     if (data.sector_id) formData.append('sector_id', data.sector_id.toString());
 
@@ -117,8 +117,8 @@ export const updateUserService = async (id: string, data: UpdateUserRequest): Pr
     if (data.password !== undefined) formData.append('password', data.password);
     if (data.role_id !== undefined) formData.append('role_id', data.role_id.toString());
     if (data.phone !== undefined) formData.append('phone', data.phone);
-    if (data.first_name !== undefined) formData.append('first_name', data.first_name);
-    if (data.last_name !== undefined) formData.append('last_name', data.last_name);
+    if (data.firstname !== undefined) formData.append('firstname', data.firstname);
+    if (data.lastname !== undefined) formData.append('lastname', data.lastname);
     if (data.department_id !== undefined) formData.append('department_id', data.department_id.toString());
     if (data.sector_id !== undefined) formData.append('sector_id', data.sector_id.toString());
 

@@ -81,8 +81,8 @@ const FormCreate = () => {
                 <TextFieldCustom
                   fullWidth
                   label="First Name"
-                  value={createCtrl.formData.first_name}
-                  onChange={(e) => createCtrl.handleChange('first_name', e.target.value)}
+                  value={createCtrl.formData.firstname}
+                  onChange={(e) => createCtrl.handleChange('firstname', e.target.value)}
                   disabled={createCtrl.loading}
                 />
               </Grid>
@@ -90,8 +90,17 @@ const FormCreate = () => {
                 <TextFieldCustom
                   fullWidth
                   label="Last Name"
-                  value={createCtrl.formData.last_name}
-                  onChange={(e) => createCtrl.handleChange('last_name', e.target.value)}
+                  value={createCtrl.formData.lastname}
+                  onChange={(e) => createCtrl.handleChange('lastname', e.target.value)}
+                  disabled={createCtrl.loading}
+                />
+              </Grid>
+              <Grid size={{ xs: 12, md: 6 }}>
+                <TextFieldCustom
+                  fullWidth
+                  label="Nickname"
+                  value={createCtrl.formData.nickname}
+                  onChange={(e) => createCtrl.handleChange('nickname', e.target.value)}
                   disabled={createCtrl.loading}
                 />
               </Grid>
@@ -123,6 +132,21 @@ const FormCreate = () => {
                         {role.role_name}
                       </MenuItem>
                     ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid size={{ xs: 12, md: 6 }}>
+                <FormControl fullWidth>
+                  <InputLabelCustom label="Account Status" required />
+                  <Select
+                    value={createCtrl.formData.is_active}
+                    label="Account Status"
+                    onChange={(e) => createCtrl.handleChange('is_active', e.target.value)}
+                    disabled={createCtrl.loading}
+                  >
+                    <MenuItem value="true">Active</MenuItem>
+                    <MenuItem value="false">Inactive</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>

@@ -22,11 +22,13 @@ const useFormCreateController = () => {
     password: '',
     role_id: '', // Default or empty
     phone: '',
-    first_name: '',
-    last_name: '',
+    firstname: '',
+    lastname: '',
     department_id: '',
     sector_id: '',
     profile_picture: null,
+    is_active: 'true', // UI uses string for Select
+    nickname: '',
   });
   const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(null);
 
@@ -103,11 +105,13 @@ const useFormCreateController = () => {
         password: '', // Don't load password
         role_id: user.role_id,
         phone: user.phone || '',
-        first_name: user.first_name || '',
-        last_name: user.last_name || '',
+        firstname: user.firstname || '',
+        lastname: user.lastname || '',
         department_id: user.department_id ? user.department_id.toString() : '',
         sector_id: user.sector_id ? user.sector_id.toString() : '',
         profile_picture: null,
+        is_active: user.is_active ? 'true' : 'false',
+        nickname: user.nickname || '',
       });
 
       // Load sectors if department is present
@@ -178,6 +182,8 @@ const useFormCreateController = () => {
       submitData.department_id = formData.department_id ? formData.department_id : null;
       submitData.sector_id = formData.sector_id ? formData.sector_id : null;
       submitData.role_id = formData.role_id;
+      submitData.is_active = formData.is_active === 'true'; // Convert back to boolean for API
+      submitData.nickname = formData.nickname;
 
       if (isEditMode && userId) {
         // Edit mode
