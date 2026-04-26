@@ -10,6 +10,7 @@ export interface DocumentModel {
   registrant_id: string;
   registrant_name: string;
   registrant_email: string;
+  department_name: string | null;
   status: string;
   version_number: number;
   description: string;

@@ -53,7 +53,6 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
     const [folderMode, setFolderMode] = useState(0);
 
     const [formData, setFormData] = useState({
-        doc_name: '',
         description: '',
         doc_type_id: '',
         department_id: user?.department_id || '',
@@ -244,15 +243,6 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                     </Box>
                                 </Grid>
 
-                                <Grid size={{ xs: 12 }}>
-                                    <TextField
-                                        fullWidth
-                                        label="Document Name"
-                                        required
-                                        value={formData.doc_name}
-                                        onChange={(e) => handleChange('doc_name', e.target.value)}
-                                    />
-                                </Grid>
 
                                 <Grid size={{ xs: 12 }}>
                                     <TextField

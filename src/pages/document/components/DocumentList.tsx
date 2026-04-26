@@ -125,7 +125,7 @@ const DocumentList = ({
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.doc_no || '-'}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{new Date(doc.updated_at).toLocaleDateString()}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.registrant_name || '-'}</TableCell>
-                                {/* <TableCell sx={{ color: colors.secondary.text }}>{doc.department?.name || '-'}</TableCell> */}
+                                <TableCell sx={{ color: colors.secondary.text }}>{doc.department_name || '-'}</TableCell>
                                 <TableCell>
                                     <Chip
                                         label={doc.status || 'General'}
