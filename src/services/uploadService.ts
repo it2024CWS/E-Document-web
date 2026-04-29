@@ -13,6 +13,8 @@ export interface UploadOptions {
     file: File;
     relativePath?: string;
     parentFolderId?: string;
+    targetModule?: string;
+    extraMetadata?: Record<string, string>;
     onProgress?: (progress: UploadProgressInfo) => void;
     onSuccess?: (uploadId: string) => void;
     onError?: (error: Error) => void;
@@ -22,11 +24,12 @@ export interface UploadOptions {
  * Upload a single file using TUS protocol
  */
 export const uploadFile = (options: UploadOptions): tus.Upload => {
-    const { file, relativePath, parentFolderId, onProgress, onSuccess, onError } = options;
+    const { file, relativePath, parentFolderId, targetModule, extraMetadata, onProgress, onSuccess, onError } = options;
 
     const metadata: Record<string, string> = {
         filename: file.name,
         file_type: file.type || 'application/octet-stream',
+        ...extraMetadata,
     };
 
     if (relativePath) {
@@ -35,6 +38,10 @@ export const uploadFile = (options: UploadOptions): tus.Upload => {
 
     if (parentFolderId) {
         metadata.parent_folder_id = parentFolderId;
+    }
+
+    if (targetModule) {
+        metadata.target_module = targetModule;
     }
 
     const upload = new tus.Upload(file, {

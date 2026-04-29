@@ -49,11 +49,16 @@ const Content = () => {
               <CircularProgress />
             </Box>
           ) : (
-            <Table
-              users={users}
-              onSelectUser={ctrl.handleChangeSelectedItem}
-              totalUsers={ctrl.data?.pagination?.totalItems}
-            />
+          <Table
+            users={users}
+            onSelectUser={ctrl.handleChangeSelectedItem}
+            totalUsers={ctrl.data?.pagination?.totalItems}
+            loading={ctrl.loading}
+            page={ctrl.page - 1} // MUI TablePagination is 0-indexed
+            rowsPerPage={ctrl.rowPerPage}
+            onPageChange={ctrl.handleChangePage}
+            onRowsPerPageChange={ctrl.handleChangeRowPerPage}
+          />
           )}
         </Box>
       );

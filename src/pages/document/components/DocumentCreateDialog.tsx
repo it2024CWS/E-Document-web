@@ -22,7 +22,7 @@ import { docTypeService } from '@/services/docTypeService';
 import { departmentService } from '@/services/departmentService';
 import { DepartmentModel } from '@/models/departmentModel';
 import { useAuth } from '@/contexts/auth';
-import UploadFileIcon from '@mui/icons-material/UploadFile';
+import UploadZone from '@/components/UploadZone';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
 import { radius } from '@/themes/radius';
@@ -218,29 +218,11 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                         {tabValue === 0 && (
                             <Grid container spacing={3}>
                                 <Grid size={{ xs: 12 }}>
-                                    <Box
-                                        sx={{
-                                            border: `2px dashed ${colors.secondary.gray2}`,
-                                            borderRadius: radius[2],
-                                            p: 3,
-                                            textAlign: 'center',
-                                            cursor: 'pointer',
-                                            bgcolor: colors.dominant.white2,
-                                            '&:hover': { bgcolor: colors.dominant.white3 }
-                                        }}
-                                        onClick={() => document.getElementById('file-upload')?.click()}
-                                    >
-                                        <input
-                                            id="file-upload"
-                                            type="file"
-                                            hidden
-                                            onChange={handleFileChange}
-                                        />
-                                        <UploadFileIcon sx={{ fontSize: 48, color: colors.secondary.text }} />
-                                        <Typography mt={1}>
-                                            {formData.file ? formData.file.name : "Click to select file"}
-                                        </Typography>
-                                    </Box>
+                                    <UploadZone
+                                        file={formData.file}
+                                        onFileChange={handleFileChange}
+                                        id="file-upload"
+                                    />
                                 </Grid>
 
 

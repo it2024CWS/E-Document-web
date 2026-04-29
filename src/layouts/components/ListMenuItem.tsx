@@ -28,9 +28,9 @@ const isMenuItemActive = (item: MainMenuItemModel, currentPath: string): boolean
 const NestedMenuItem: React.FC<{ item: MainMenuItemModel; currentPath: string; level?: number }> = ({ item, currentPath, level = 0 }) => {
   const navigate = useNavigate();
   const { open } = useMainDrawerControllerContext();
-  const [collapseOpen, setCollapseOpen] = useState(false);
   const hasSubMenu = item.subMenu && item.subMenu.length > 0;
   const isActive = isMenuItemActive(item, currentPath);
+  const [collapseOpen, setCollapseOpen] = useState(isActive && hasSubMenu);
 
   const handleClick = (path?: string) => {
     if (hasSubMenu) setCollapseOpen((prev) => !prev);
@@ -78,7 +78,7 @@ const NestedMenuItem: React.FC<{ item: MainMenuItemModel; currentPath: string; l
               {open && item.label}
             </Typography>
           </Box>
-          {hasSubMenu && open && (collapseOpen ? <KeyboardArrowRightIcon /> : <ExpandMore />)}
+          {hasSubMenu && open && (collapseOpen ? <ExpandMore /> : <KeyboardArrowRightIcon />)}
         </ListItemButton>
       </ListItem>
       {hasSubMenu && (
