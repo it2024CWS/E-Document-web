@@ -1,10 +1,10 @@
 
 export interface OutgoingDocModel {
-    id: number;
+    id: string;
     outgoing_no: string;
-    doc_id: number;
-    doc_no?: string;
-    doc_name?: string;
+    doc_id: string;
+    doc_no: string;
+    doc_name: string;
     user_id?: string;
     user_name?: string;
     type?: string;
@@ -13,9 +13,9 @@ export interface OutgoingDocModel {
 
 const mockOutgoingDocs: OutgoingDocModel[] = [
     {
-        id: 1,
+        id: '1',
         outgoing_no: 'OUT202602130001',
-        doc_id: 101,
+        doc_id: '101',
         doc_no: 'LAL20260210005',
         doc_name: 'Policy Update Q1.pdf',
         user_id: 'user-001',
@@ -24,9 +24,9 @@ const mockOutgoingDocs: OutgoingDocModel[] = [
         created_at: '2026-02-13T09:00:00Z'
     },
     {
-        id: 2,
+        id: '2',
         outgoing_no: 'OUT202602120005',
-        doc_id: 102,
+        doc_id: '102',
         doc_no: 'LAL20260210008',
         doc_name: 'Budget Request.xlsx',
         user_id: 'user-001',
@@ -35,9 +35,9 @@ const mockOutgoingDocs: OutgoingDocModel[] = [
         created_at: '2026-02-12T08:00:00Z'
     },
     {
-        id: 3,
+        id: '3',
         outgoing_no: 'OUT202602110012',
-        doc_id: 105,
+        doc_id: '105',
         doc_no: 'LAL20260205009',
         doc_name: 'Meeting Minutes.docx',
         user_id: 'user-001',
@@ -52,8 +52,8 @@ export const outgoingDocServiceMock = {
         return { success: true, data: mockOutgoingDocs };
     },
 
-    getOutgoingDocById: async (id: number) => {
-        const doc = mockOutgoingDocs.find(d => d.id === id);
+    getOutgoingDocById: async (id: string) => {
+        const doc = mockOutgoingDocs.find(d => d.id === String(id));
         return { success: true, data: doc };
     },
 

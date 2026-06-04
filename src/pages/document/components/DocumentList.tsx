@@ -76,7 +76,6 @@ const DocumentList = ({
                         <TableCell>Modified</TableCell>
                         <TableCell>Owner name</TableCell>
                         <TableCell>Department name</TableCell>
-                        <TableCell>Status</TableCell>
                         <TableCell align="right"></TableCell>
                     </TableRow>
                 </TableHead>
@@ -102,7 +101,6 @@ const DocumentList = ({
                             <TableCell sx={{ color: colors.secondary.text }}>{new Date(folder.updated_at || Date.now()).toLocaleDateString()}</TableCell>
                             <TableCell sx={{ color: colors.secondary.text }}>-</TableCell>
                             <TableCell sx={{ color: colors.secondary.text }}>-</TableCell>
-                            <TableCell></TableCell>
                             <TableCell align="right">
                                 <IconButton size="small" onClick={(e) => { e.stopPropagation(); onDetail(folder); }}>
                                     <MoreHorizIcon sx={{ color: colors.secondary.text }} />
@@ -126,20 +124,6 @@ const DocumentList = ({
                                 <TableCell sx={{ color: colors.secondary.text }}>{new Date(doc.updated_at).toLocaleDateString()}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.registrant_name || '-'}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.department_name || '-'}</TableCell>
-                                <TableCell>
-                                    <Chip
-                                        label={doc.status || 'General'}
-                                        size="small"
-                                        sx={{
-                                            borderRadius: '6px',
-                                            bgcolor: statusStyle.bg,
-                                            color: statusStyle.color,
-                                            fontWeight: 600,
-                                            fontSize: '0.75rem',
-                                            height: 24
-                                        }}
-                                    />
-                                </TableCell>
                                 <TableCell align="right">
                                     <IconButton size="small" onClick={() => onDetail(doc)}>
                                         <MoreHorizIcon sx={{ color: colors.secondary.text }} />
@@ -151,7 +135,7 @@ const DocumentList = ({
 
                     {documents.length === 0 && folders.length === 0 && (
                         <TableRow>
-                            <TableCell colSpan={7} align="center" sx={{ py: 3, color: colors.secondary.text }}>
+                            <TableCell colSpan={6} align="center" sx={{ py: 3, color: colors.secondary.text }}>
                                 No files or folders
                             </TableCell>
                         </TableRow>

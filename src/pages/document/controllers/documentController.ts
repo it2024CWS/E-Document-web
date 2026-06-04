@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Swal from 'sweetalert2';
 import { DocumentModel } from '@/models/documentModel';
 import { folderService } from '@/services/folderService';
@@ -12,6 +12,11 @@ const useDocumentController = () => {
     const [selectedFolder, setSelectedFolder] = useState<FolderModel | null>(null);
     const [loading, setLoading] = useState(false);
     const [folderLoading, setFolderLoading] = useState(false);
+
+    // Keep a ref that always mirrors selectedFolder so async callbacks (e.g. upload
+    // onAllComplete) can read the latest value without stale closure issues.
+    const selectedFolderRef = useRef<FolderModel | null>(null);
+    selectedFolderRef.current = selectedFolder;
 
     // ── Fetch folders on mount ─────────────────────────────────────────────────
     useEffect(() => {
@@ -90,11 +95,13 @@ const useDocumentController = () => {
         setSelectedFolder(folder);
     };
 
+    // Always reads the latest selectedFolder via ref so async upload callbacks work correctly
     const refreshDocuments = async () => {
         try {
+            const currentFolder = selectedFolderRef.current;
             let items: DocumentModel[] = [];
-            if (selectedFolder) {
-                const res = await documentService.getDocumentsByFolder(selectedFolder.id);
+            if (currentFolder) {
+                const res = await documentService.getDocumentsByFolder(currentFolder.id);
                 items = res.items;
             } else {
                 const res = await documentService.getAllDocuments();

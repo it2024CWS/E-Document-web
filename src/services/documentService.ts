@@ -1,5 +1,5 @@
 import axiosInstance from '@/configs/axios';
-import { DocumentModel, VersionModel, CreateDocumentRequest } from '@/models/documentModel';
+import { DocumentModel, VersionModel } from '@/models/documentModel';
 import { GetAllResponse, GetByIdResponse, PaginationModel } from '@/models/responseModel';
 
 export const documentService = {

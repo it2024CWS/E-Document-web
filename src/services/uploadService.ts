@@ -87,21 +87,25 @@ export interface FolderUploadOptions {
 }
 
 /**
- * Upload files from a folder, preserving relative paths
+ * Upload files from a folder, preserving relative paths.
+ * Uses a concurrency limit to avoid hitting server rate limits.
  */
-export const uploadFolder = (options: FolderUploadOptions): tus.Upload[] => {
+export const uploadFolder = (options: FolderUploadOptions): void => {
     const { files, parentFolderId, onFileProgress, onFileComplete, onAllComplete, onError } = options;
 
-    const uploads: tus.Upload[] = [];
+    const CONCURRENCY_LIMIT = 5; // max simultaneous uploads
+    const fileArray = Array.from(files);
+    const totalFiles = fileArray.length;
     let completedCount = 0;
-    const totalFiles = files.length;
+    let startedCount = 0;
 
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        // Get relative path from webkitRelativePath
+    const startNext = () => {
+        if (startedCount >= totalFiles) return;
+
+        const file = fileArray[startedCount++];
         const relativePath = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
 
-        const upload = uploadFile({
+        uploadFile({
             file,
             relativePath,
             parentFolderId,
@@ -113,18 +117,31 @@ export const uploadFolder = (options: FolderUploadOptions): tus.Upload[] => {
                 onFileComplete?.(file.name);
                 if (completedCount === totalFiles) {
                     onAllComplete?.();
+                } else {
+                    // Free up the slot and start the next file
+                    startNext();
                 }
             },
             onError: (error) => {
+                completedCount++;
                 onError?.(file.name, error);
+                if (completedCount === totalFiles) {
+                    onAllComplete?.();
+                } else {
+                    // Still free the slot so remaining files can upload
+                    startNext();
+                }
             },
         });
+    };
 
-        uploads.push(upload);
+    // Seed the initial batch up to CONCURRENCY_LIMIT
+    const initialBatch = Math.min(CONCURRENCY_LIMIT, totalFiles);
+    for (let i = 0; i < initialBatch; i++) {
+        startNext();
     }
-
-    return uploads;
 };
+
 
 /**
  * Upload a single file using TUS protocol and return a Promise.

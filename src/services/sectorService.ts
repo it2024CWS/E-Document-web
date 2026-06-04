@@ -1,6 +1,6 @@
 import axiosInstance from '@/configs/axios';
 import { SectorModel, CreateSectorRequest, UpdateSectorRequest } from '@/models/sectorModel';
-import { GetAllResponse, GetByIdResponse } from '@/interface/reponseInterface';
+import { GetAllResponse, GetByIdResponse } from '@/models/responseModel';
 
 export const sectorService = {
   getAllSectors: async (

@@ -19,9 +19,7 @@ import {
     Tab
 } from '@mui/material';
 import { docTypeService } from '@/services/docTypeService';
-import { departmentService } from '@/services/departmentService';
-import { DepartmentModel } from '@/models/departmentModel';
-import { useAuth } from '@/contexts/auth';
+
 import UploadZone from '@/components/UploadZone';
 import DriveFolderUploadIcon from '@mui/icons-material/DriveFolderUpload';
 import CreateNewFolderIcon from '@mui/icons-material/CreateNewFolder';
@@ -41,11 +39,9 @@ interface DocumentCreateDialogProps {
 }
 
 const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, currentFolderId, onSuccess }: DocumentCreateDialogProps) => {
-    const { user } = useAuth();
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [docTypes, setDocTypes] = useState<any[]>([]);
-    const [departments, setDepartments] = useState<DepartmentModel[]>([]);
 
     // 0: File, 1: Folder
     const [tabValue, setTabValue] = useState(0);
@@ -55,7 +51,6 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
     const [formData, setFormData] = useState({
         description: '',
         doc_type_id: '',
-        department_id: user?.department_id || '',
         folder_id: currentFolderId || '',
         file: null as File | null
     });
@@ -68,12 +63,8 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
             const fetchData = async () => {
                 setLoading(true);
                 try {
-                    const [dtRes, deptRes] = await Promise.all([
-                        docTypeService.getAllDocTypes(),
-                        departmentService.getAllDepartments(1, 100)
-                    ]);
+                    const dtRes = await docTypeService.getAllDocTypes();
                     setDocTypes(dtRes.items ?? []);
-                    setDepartments(deptRes.items ?? []);
                 } catch (error) {
                     console.error("Failed to load dependency data", error);
                 } finally {
@@ -235,22 +226,6 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                         value={formData.description}
                                         onChange={(e) => handleChange('description', e.target.value)}
                                     />
-                                </Grid>
-
-                                <Grid size={{ xs: 12, md: 6 }}>
-                                    <FormControl fullWidth>
-                                        <InputLabel>Department</InputLabel>
-                                        <Select
-                                            value={formData.department_id}
-                                            label="Department"
-                                            onChange={(e) => handleChange('department_id', e.target.value)}
-                                        >
-                                            <MenuItem value=""><em>None</em></MenuItem>
-                                            {departments.map((dept: any) => (
-                                                <MenuItem key={dept.id} value={dept.id}>{dept.dept_name}</MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
                                 </Grid>
 
                                 <Grid size={{ xs: 12, md: 6 }}>

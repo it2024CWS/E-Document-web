@@ -1,8 +1,8 @@
 import { colors } from '@/themes/colors';
 import { JSX } from 'react';
 import SvgColor from '@/components/SvgColor';
-import { DRAWER_USER_IC, DOCUMENT_COPY_ICON, DRAWER_LINK_APPROVE_IC, DRAWER_LINK_IC, DRAWER_SETTING_IC, DRAWER_REPORT_IC, HOME_IC } from '@/utils/constants/icon';
-import { USER_PATH, DOCUMENT_PATH, INCOMING_PATH, OUTGOING_PATH, DEPARTMENT_PATH, DOCTYPE_PATH, DASHBOARD_PATH, ROLE_PATH, DOC_CENTER_PATH } from '@/routes/config';
+import { DRAWER_USER_IC, DOCUMENT_COPY_ICON, DRAWER_LINK_APPROVE_IC, DRAWER_SETTING_IC, DRAWER_REPORT_IC, HOME_IC } from '@/utils/constants/icon';
+import { USER_PATH, DOCUMENT_PATH, DEPARTMENT_PATH, DOCTYPE_PATH, DASHBOARD_PATH, ROLE_PATH, DOC_CENTER_PATH } from '@/routes/config';
 
 export const DRAWER_WIDTH: number = 240;
 export const APP_BAR_HEIGHT: number = 80;

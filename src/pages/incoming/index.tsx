@@ -157,7 +157,7 @@ const IncomingPage = () => {
             </Card>
 
             <IncomingDocumentList
-                documents={filteredDocuments}
+                documents={filteredDocuments as any}
                 loading={loading}
                 onReceive={handleOpenReceive}
                 onApprove={handleOpenApprove}

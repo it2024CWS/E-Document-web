@@ -17,7 +17,7 @@ import {
 import CloseIcon from '@mui/icons-material/Close';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { DocumentModel, VersionModel } from '@/services/documentService';
+import { DocumentModel, VersionModel } from '@/models/documentModel';
 import { FolderModel } from '@/models/folderModel';
 import { colors } from '@/themes/colors';
 import { getFileIcon } from '@/utils/documentUtils';

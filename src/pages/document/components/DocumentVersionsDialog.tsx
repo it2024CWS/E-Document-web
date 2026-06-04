@@ -18,7 +18,8 @@ import {
 } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 import DescriptionIcon from '@mui/icons-material/Description';
-import { documentService, VersionModel } from '@/services/documentService';
+import { VersionModel } from '@/models/documentModel';
+import { documentService } from '@/services/documentService';
 import { colors } from '@/themes/colors';
 
 interface DocumentVersionsDialogProps {

@@ -1,6 +1,6 @@
 import axiosInstance from '@/configs/axios';
 import { DepartmentModel, CreateDepartmentRequest, UpdateDepartmentRequest } from '@/models/departmentModel';
-import { GetAllResponse, GetByIdResponse } from '@/interface/reponseInterface';
+import { GetAllResponse, GetByIdResponse } from '@/models/responseModel';
 
 export const departmentService = {
   getAllDepartments: async (

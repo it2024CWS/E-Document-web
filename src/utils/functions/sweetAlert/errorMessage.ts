@@ -8,7 +8,7 @@ const getErrorCode = (error: unknown): string => {
   const isObject = typeof error === 'object';
   if (!isObject) return 'UNKNOWN_ERROR';
   const err = error as ErrorModel;
-  if (err.response?.data?.error?.code) return err.response?.data?.error?.code;
+  if (err.response?.data?.error_code) return err.response?.data?.error_code;
   if (error instanceof Error) {
     const match = error.name.match(/^([A-Z_]+)$/);
     if (match) return match[1];

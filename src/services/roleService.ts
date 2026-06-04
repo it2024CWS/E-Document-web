@@ -1,8 +1,8 @@
 import axiosInstance from '@/configs/axios';
 import { RoleModel, CreateRoleRequest, UpdateRoleRequest } from '@/models/roleModel';
-import { PaginationModel } from '@/models/paginationModel';
+import { PaginationModel } from '@/models/responseModel';
 
-import { GetAllResponse, GetByIdResponse } from '@/interface/reponseInterface';
+import { GetAllResponse, GetByIdResponse } from '@/models/responseModel';
 
 export const roleService = {
   getAllRoles: async (
@@ -28,9 +28,12 @@ export const roleService = {
       }
 
       return {
-        items: res.data.data.items,
-        pagination: {
-          total: res.data.pagination.totalItems,
+        items: res.data.data?.items ?? [],
+        pagination: res.data.pagination ?? {
+          totalItems: res.data.data?.items?.length ?? 0,
+          currentPage: 1,
+          totalPages: 1,
+          itemsPerPage: res.data.data?.items?.length ?? 0,
         },
       };
     } catch (error: any) {

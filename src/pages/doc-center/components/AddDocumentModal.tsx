@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -9,16 +9,12 @@ import {
   Grid,
   CircularProgress,
   Typography,
-  Box,
   Checkbox,
   FormControlLabel,
 } from '@mui/material';
 import UploadZone from '@/components/UploadZone';
-import DepartmentSelect from './DepartmentSelect';
-import { departmentService } from '@/services/departmentService';
-import { DepartmentModel } from '@/models/departmentModel';
+
 import { uploadSingleFile } from '@/services/uploadService';
-import { colors } from '@/themes/colors';
 import { radius } from '@/themes/radius';
 
 interface AddDocumentModalProps {
@@ -28,47 +24,20 @@ interface AddDocumentModalProps {
 }
 
 const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) => {
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [departments, setDepartments] = useState<DepartmentModel[]>([]);
-  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
   const [sendToDirector, setSendToDirector] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState('');
-
-  useEffect(() => {
-    if (open) {
-      fetchDepartments();
-    }
-  }, [open]);
-
-  const fetchDepartments = async () => {
-    setLoading(true);
-    try {
-      const res = await departmentService.getAllDepartments(1, 100);
-      setDepartments(res.items || []);
-    } catch (error) {
-      console.error('Failed to fetch departments', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
     }
   };
 
-  const handleDeptChange = (event: any) => {
-    const {
-      target: { value },
-    } = event;
-    setSelectedDepartments(typeof value === 'string' ? value.split(',') : value);
-  };
+
 
   const handleSubmit = async () => {
-    if (!file || selectedDepartments.length === 0) return;
+    if (!file) return;
 
     setSubmitting(true);
     try {
@@ -77,7 +46,6 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
         targetModule: 'outgoing',
         extraMetadata: {
           description: description,
-          receiver_ids: selectedDepartments.join(','),
           send_to_director: sendToDirector.toString(),
         }
       });
@@ -119,15 +87,7 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
             />
           </Grid>
 
-          {/* Multiple Department Selection */}
-          <Grid size={{ xs: 12 }}>
-            <DepartmentSelect
-              departments={departments}
-              selectedDepartments={selectedDepartments}
-              onChange={handleDeptChange}
-              loading={loading}
-            />
-          </Grid>
+
 
           {/* Send to Director Checkbox */}
           <Grid size={{ xs: 12 }}>
@@ -153,7 +113,7 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
         <Button
           onClick={handleSubmit}
           variant="contained"
-          disabled={submitting || !file || selectedDepartments.length === 0}
+          disabled={submitting || !file}
           sx={{ borderRadius: radius[1], px: 4 }}
         >
           {submitting ? <CircularProgress size={24} /> : 'Add Document'}

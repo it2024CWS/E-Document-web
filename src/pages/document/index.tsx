@@ -104,9 +104,13 @@ const DocumentPage = () => {
                 onSubmit={handleCreateDocument}
                 folders={folders}
                 currentFolderId={selectedFolder?.id}
-                onSuccess={() => {
-                    refreshDocuments();
-                    refreshFolders();
+                onSuccess={async () => {
+                    // Wait a moment for all concurrent uploads to finish processing on the server
+                    await new Promise(r => setTimeout(r, 800));
+                    // Refresh folders first so newly-created sub-folders appear,
+                    // then refresh documents inside the current folder
+                    await refreshFolders();
+                    await refreshDocuments();
                 }}
             />
 
