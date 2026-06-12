@@ -88,7 +88,7 @@ const InboundTab = () => {
         </Box>
       )
     },
-    { label: 'Document number', content: (doc) => doc.doc_no || '-' },
+    { label: 'Document number', content: (doc) => doc.incoming_no || '-' },
     { label: 'Date', content: (doc) => new Date(doc.created_at).toLocaleDateString() },
     { label: 'Sender', content: (doc) => doc.sender_name || '-' },
     {

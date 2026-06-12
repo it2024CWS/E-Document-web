@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -13,8 +13,11 @@ import {
   FormControlLabel,
 } from '@mui/material';
 import UploadZone from '@/components/UploadZone';
-
+import DepartmentSelect from './DepartmentSelect';
 import { uploadSingleFile } from '@/services/uploadService';
+import { departmentService } from '@/services/departmentService';
+import { DepartmentModel } from '@/models/departmentModel';
+import useAuth from '@/contexts/auth/useAuth';
 import { radius } from '@/themes/radius';
 
 interface AddDocumentModalProps {
@@ -24,17 +27,44 @@ interface AddDocumentModalProps {
 }
 
 const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) => {
+  const { user } = useAuth();
   const [submitting, setSubmitting] = useState(false);
   const [sendToDirector, setSendToDirector] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [description, setDescription] = useState('');
+  const [departments, setDepartments] = useState<DepartmentModel[]>([]);
+  const [selectedDepartments, setSelectedDepartments] = useState<string[]>([]);
+  const [loadingDepts, setLoadingDepts] = useState(false);
+
+  useEffect(() => {
+    if (open) {
+      fetchDepartments();
+    }
+  }, [open]);
+
+  const fetchDepartments = async () => {
+    setLoadingDepts(true);
+    try {
+      const res = await departmentService.getAllDepartments(1, 100);
+      const filtered = res.items.filter((d) => d.id !== user?.department_id);
+      setDepartments(filtered);
+    } catch (error) {
+      console.error('Failed to fetch departments', error);
+    } finally {
+      setLoadingDepts(false);
+    }
+  };
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
     }
   };
 
-
+  const handleDepartmentChange = (event: any) => {
+    const value = event.target.value as string[];
+    setSelectedDepartments(value);
+  };
 
   const handleSubmit = async () => {
     if (!file) return;
@@ -47,11 +77,12 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
         extraMetadata: {
           description: description,
           send_to_director: sendToDirector.toString(),
+          receiver_ids: selectedDepartments.join(','),
         }
       });
-      
+
       onSuccess?.();
-      onClose();
+      handleClose();
     } catch (error) {
       console.error('Failed to upload document', error);
       alert('Failed to upload document. Please try again.');
@@ -60,8 +91,16 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
     }
   };
 
+  const handleClose = () => {
+    setFile(null);
+    setDescription('');
+    setSelectedDepartments([]);
+    setSendToDirector(false);
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
       <DialogTitle sx={{ fontWeight: 700 }}>Add New Document</DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={3}>
@@ -87,7 +126,15 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
             />
           </Grid>
 
-
+          {/* Department Multi-select */}
+          <Grid size={{ xs: 12 }}>
+            <DepartmentSelect
+              departments={departments}
+              selectedDepartments={selectedDepartments}
+              onChange={handleDepartmentChange}
+              loading={loadingDepts}
+            />
+          </Grid>
 
           {/* Send to Director Checkbox */}
           <Grid size={{ xs: 12 }}>
@@ -109,7 +156,7 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
         </Grid>
       </DialogContent>
       <DialogActions sx={{ px: 3, py: 2 }}>
-        <Button onClick={onClose} color="inherit">Cancel</Button>
+        <Button onClick={handleClose} color="inherit">Cancel</Button>
         <Button
           onClick={handleSubmit}
           variant="contained"

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Box, Tabs, Tab, Typography, Button } from '@mui/material';
 import { useSearchParams } from 'react-router-dom';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
@@ -25,6 +25,7 @@ const DocCenterPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState(0);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const outboundTabRef = useRef<any>(null);
 
   // Sync tab with URL search params
   useEffect(() => {
@@ -123,15 +124,14 @@ const DocCenterPage = () => {
       </TabPanel>
 
       <TabPanel value={tab} index={1}>
-        <OutboundTab />
+        <OutboundTab ref={outboundTabRef} />
       </TabPanel>
 
       <AddDocumentModal
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSuccess={() => {
-            // Logic to refresh data if needed
-            console.log('Document added successfully');
+            outboundTabRef.current?.refresh();
         }}
       />
     </Box>

@@ -74,14 +74,52 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
               <Table size="small">
                 <TableHead sx={{ bgcolor: colors.secondary.blue110 }}>
                   <TableRow>
-                    <TableCell sx={{ fontWeight: 600 }}>Receiver</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Department</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Incoming No</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Received Date</TableCell>
+                    <TableCell sx={{ fontWeight: 600 }}>Approved Date</TableCell>
                     <TableCell sx={{ fontWeight: 600 }}>Status</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {document.incoming_docs && document.incoming_docs.length > 0 ? (
+                  {/* New format: recipients array */}
+                  {document.recipients && document.recipients.length > 0 ? (
+                    document.recipients.map((recipient: any, idx: number) => {
+                      const incomingDoc = recipient.incoming_doc;
+                      const status = incomingDoc?.status || recipient.status || 'pending';
+                      const statusStyle = getStatusColor(status);
+                      const approverDate = incomingDoc?.approver_date || recipient.approver_date;
+                      return (
+                        <TableRow key={recipient.department_id || idx}>
+                          <TableCell>{recipient.department_name || recipient.dept_name || '-'}</TableCell>
+                          <TableCell>{incomingDoc?.incoming_no || recipient.incoming_no || '-'}</TableCell>
+                          <TableCell>
+                            {(incomingDoc?.received_date || recipient.received_date)
+                              ? new Date(incomingDoc?.received_date || recipient.received_date).toLocaleString()
+                              : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {approverDate ? new Date(approverDate).toLocaleString() : '-'}
+                          </TableCell>
+                          <TableCell>
+                            <Chip
+                              label={status}
+                              size="small"
+                              sx={{
+                                borderRadius: '4px',
+                                bgcolor: statusStyle.bg,
+                                color: statusStyle.color,
+                                fontWeight: 600,
+                                fontSize: '0.7rem',
+                                height: 20
+                              }}
+                            />
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })
+                  ) : document.incoming_docs && document.incoming_docs.length > 0 ? (
+                    /* Legacy format: incoming_docs array */
                     document.incoming_docs.map((inc: any) => {
                       const statusStyle = getStatusColor(inc.status);
                       return (
@@ -90,6 +128,9 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
                           <TableCell>{inc.incoming_no}</TableCell>
                           <TableCell>
                             {inc.received_date ? new Date(inc.received_date).toLocaleString() : '-'}
+                          </TableCell>
+                          <TableCell>
+                            {inc.approver_date ? new Date(inc.approver_date).toLocaleString() : '-'}
                           </TableCell>
                           <TableCell>
                             <Chip
@@ -110,7 +151,7 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
                     })
                   ) : (
                     <TableRow>
-                      <TableCell colSpan={4} align="center" sx={{ py: 3 }}>
+                      <TableCell colSpan={5} align="center" sx={{ py: 3 }}>
                         No tracking data available
                       </TableCell>
                     </TableRow>

@@ -1,10 +1,23 @@
 import axiosInstance from '@/configs/axios';
 
+export interface OutgoingDocFilter {
+    page?: number;
+    limit?: number;
+    departmentId?: string;
+    startDate?: string;
+    endDate?: string;
+    docNo?: string;
+}
+
 export const outgoingDocService = {
-    getAllOutgoingDocs: async (page: number = 1, limit: number = 10) => {
-        const response = await axiosInstance.get('/v1/outgoing-docs', {
-            params: { page, limit }
-        });
+    getAllOutgoingDocs: async (page: number = 1, limit: number = 10, filters?: OutgoingDocFilter) => {
+        const params: any = { page, limit };
+        if (filters?.departmentId) params.department_id = filters.departmentId;
+        if (filters?.startDate) params.start_date = filters.startDate;
+        if (filters?.endDate) params.end_date = filters.endDate;
+        if (filters?.docNo) params.doc_no = filters.docNo;
+
+        const response = await axiosInstance.get('/v1/outgoing-docs', { params });
         return response.data;
     },
 
