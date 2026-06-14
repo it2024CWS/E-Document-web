@@ -54,6 +54,19 @@ export const clearCachedProfilePicture = (userId: string): void => {
  * - `userId` is used as the cache key
  * - `objectPath` is the path returned by backend for this user's profile picture (e.g. "profiles/xxx.png")
  */
+export const getPresignedUrl = async (objectPath: string, expirySeconds = 3600): Promise<string | null> => {
+    if (!objectPath) return null;
+    try {
+        const res = await axiosInstance.get<PresignFileResponse>('/v1/files/presign', {
+            params: { object_path: objectPath, expiry: expirySeconds },
+        });
+        return res.data.data?.url ?? null;
+    } catch (error) {
+        console.error('Failed to get presigned URL', error);
+        return null;
+    }
+};
+
 export const getUserProfilePictureUrl = async (
     userId: string,
     objectPath?: string | null

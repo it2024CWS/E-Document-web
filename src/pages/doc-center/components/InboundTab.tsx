@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, ReactNode, forwardRef, useImperativeHandle } from 'react';
 import {
   Box,
   Card,
@@ -14,21 +14,37 @@ import {
   Typography,
   IconButton,
   Tooltip,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import DownloadIcon from '@mui/icons-material/Download';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { incomingDocService } from '@/services/incomingDocService';
 import { IncomingDocModel } from '@/models/incomingDocModel';
 import DataTable, { Column } from '@/components/Table/DataTable';
 import { exportToCSV } from '@/utils/exportUtils';
-import { getFileIcon, getStatusColor } from '@/utils/documentUtils';
+import { formatDateTime } from '@/utils/dateUtils';
+import { getFileIcon, getStatusColor, downloadDocument } from '@/utils/documentUtils';
 import { colors } from '@/themes/colors';
+import { useTranslation } from 'react-i18next';
 
-const InboundTab = () => {
+export interface InboundTabRef {
+  refresh: () => void;
+  triggerExport: () => void;
+}
+
+interface InboundTabProps {
+  tabBar?: ReactNode;
+}
+
+const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) => {
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<IncomingDocModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -38,6 +54,9 @@ const InboundTab = () => {
   const [selectedDoc, setSelectedDoc] = useState<IncomingDocModel | null>(null);
   const [remark, setRemark] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
+  const [menuDoc, setMenuDoc] = useState<IncomingDocModel | null>(null);
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -80,19 +99,19 @@ const InboundTab = () => {
 
   const columns = useMemo((): Column<IncomingDocModel>[] => [
     {
-      label: 'Document Name',
+      label: t('docs.documentName'),
       content: (doc) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {getFileIcon(doc.type || doc.doc_name || '')}
+          {getFileIcon(doc.file_type || doc.type || doc.doc_name || '')}
           <Typography variant="body2" fontWeight={500}>{doc.doc_name}</Typography>
         </Box>
       )
     },
-    { label: 'Document number', content: (doc) => doc.incoming_no || '-' },
-    { label: 'Date', content: (doc) => new Date(doc.created_at).toLocaleDateString() },
-    { label: 'Sender', content: (doc) => doc.sender_name || '-' },
+    { label: t('docs.documentNumber'), content: (doc) => doc.incoming_no || '-' },
+    { label: t('common.date'), content: (doc) => formatDateTime(doc.incoming_date) },
+    { label: t('common.sender'), content: (doc) => doc.creator_name || '-' },
     {
-      label: 'Status',
+      label: t('common.status'),
       content: (doc) => {
         const statusStyle = getStatusColor(doc.status);
         return (
@@ -117,7 +136,7 @@ const InboundTab = () => {
       content: (doc) => (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
           {doc.status === 'pending' && (
-            <Tooltip title="Receive Document">
+            <Tooltip title={t('docs.receiveDocument')}>
               <IconButton
                 size="small"
                 onClick={() => { setSelectedDoc(doc); setRemark(''); setReceiveDialogOpen(true); }}
@@ -128,7 +147,7 @@ const InboundTab = () => {
             </Tooltip>
           )}
           {doc.status === 'received' && (
-            <Tooltip title="Approve/Reject">
+            <Tooltip title={t('docs.evaluateDocument')}>
               <IconButton
                 size="small"
                 onClick={() => { setSelectedDoc(doc); setRemark(''); setApproveDialogOpen(true); }}
@@ -138,7 +157,10 @@ const InboundTab = () => {
               </IconButton>
             </Tooltip>
           )}
-          <IconButton size="small" onClick={() => console.log('View detail', doc)}>
+          <IconButton
+            size="small"
+            onClick={(e) => { setMenuAnchor(e.currentTarget); setMenuDoc(doc); }}
+          >
             <MoreHorizIcon sx={{ color: colors.secondary.text }} />
           </IconButton>
         </Box>
@@ -151,12 +173,17 @@ const InboundTab = () => {
       'Incoming No': doc.incoming_no,
       'Document Name': doc.doc_name,
       'Document Number': doc.doc_no,
-      Date: new Date(doc.created_at).toLocaleDateString(),
-      Sender: doc.sender_name,
+      Date: formatDateTime(doc.incoming_date),
+      Sender: doc.creator_name || '-',
       Status: doc.status,
     }));
     exportToCSV(dataToExport, 'Inbound_Documents');
   };
+
+  useImperativeHandle(ref, () => ({
+    refresh: fetchDocuments,
+    triggerExport: handleExport,
+  }));
 
   const handleReceiveSubmit = async () => {
     if (!selectedDoc) return;
@@ -189,50 +216,30 @@ const InboundTab = () => {
 
   return (
     <Box>
-      {/* Toolbar */}
+      {/* Toolbar — status filter only; Export/Refresh moved to parent title bar */}
       <Card sx={{ p: 2, mb: 2, borderRadius: '0 0 8px 8px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <Grid container spacing={2} alignItems="center" justifyContent="space-between">
+        <Grid container spacing={2} alignItems="center">
           <Grid size={{ xs: 12, md: 4 }}>
             <TextField
               select
               fullWidth
               size="small"
-              label="Filter by Status"
+              label={t('docs.filterByStatus')}
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
               SelectProps={{ native: true }}
             >
-              <option value="all">All Statuses</option>
-              <option value="pending">Pending</option>
-              <option value="received">Received</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
+              <option value="all">{t('docs.allStatuses')}</option>
+              <option value="pending">{t('common.pending')}</option>
+              <option value="received">{t('common.received')}</option>
+              <option value="approved">{t('common.approved')}</option>
+              <option value="rejected">{t('common.rejected')}</option>
             </TextField>
-          </Grid>
-          <Grid size={{ xs: 12, md: 'auto' }}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                startIcon={<FileDownloadIcon />}
-                variant="contained"
-                color="success"
-                size="small"
-                onClick={handleExport}
-                disabled={filteredDocuments.length === 0}
-              >
-                Export Excel
-              </Button>
-              <Button
-                startIcon={<RefreshIcon />}
-                variant="outlined"
-                size="small"
-                onClick={fetchDocuments}
-              >
-                Refresh
-              </Button>
-            </Box>
           </Grid>
         </Grid>
       </Card>
+
+      {tabBar}
 
       <DataTable
         columns={columns}
@@ -243,54 +250,81 @@ const InboundTab = () => {
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        countLabel="Total Inbound Docs"
+        countLabel={t('docs.totalInbound')}
       />
+
+      {/* Row action menu */}
+      <Menu
+        anchorEl={menuAnchor}
+        open={Boolean(menuAnchor)}
+        onClose={() => { setMenuAnchor(null); setMenuDoc(null); }}
+        slotProps={{ paper: { sx: { minWidth: 160, borderRadius: 2 } } }}
+      >
+        <MenuItem
+          disabled={!menuDoc?.doc_path || downloadingId === menuDoc?.id}
+          onClick={async () => {
+            if (!menuDoc) return;
+            setMenuAnchor(null);
+            setDownloadingId(menuDoc.id);
+            try { await downloadDocument(menuDoc.doc_path, menuDoc.doc_name, menuDoc.file_type); }
+            finally { setDownloadingId(null); }
+          }}
+        >
+          <ListItemIcon>
+            {downloadingId === menuDoc?.id
+              ? <CircularProgress size={18} />
+              : <DownloadIcon fontSize="small" />}
+          </ListItemIcon>
+          <ListItemText>{t('common.download')}</ListItemText>
+        </MenuItem>
+      </Menu>
 
       {/* Receive Dialog */}
       <Dialog open={receiveDialogOpen} onClose={() => setReceiveDialogOpen(false)}>
-        <DialogTitle>Receive Document</DialogTitle>
+        <DialogTitle>{t('docs.receiveDocument')}</DialogTitle>
         <DialogContent sx={{ minWidth: 400, pt: 2 }}>
           <TextField
             fullWidth multiline rows={3}
-            label="Remark (Optional)"
+            label={t('docs.remarkOptional')}
             value={remark}
             onChange={(e) => setRemark(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setReceiveDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setReceiveDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" color="primary" onClick={handleReceiveSubmit} disabled={actionLoading}>
-            {actionLoading ? <CircularProgress size={24} /> : 'Confirm Receive'}
+            {actionLoading ? <CircularProgress size={24} /> : t('docs.confirmReceive')}
           </Button>
         </DialogActions>
       </Dialog>
 
-      {/* Approve/Reject Dialog */}
       <Dialog open={approveDialogOpen} onClose={() => setApproveDialogOpen(false)}>
-        <DialogTitle>Evaluate Document</DialogTitle>
+        <DialogTitle>{t('docs.evaluateDocument')}</DialogTitle>
         <DialogContent sx={{ minWidth: 400, pt: 2 }}>
           <TextField
             fullWidth multiline rows={3}
-            label="Remark (Required for Rejection)"
+            label={t('docs.remarkRequired')}
             value={remark}
             onChange={(e) => setRemark(e.target.value)}
             sx={{ mt: 2 }}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setApproveDialogOpen(false)}>Cancel</Button>
+          <Button onClick={() => setApproveDialogOpen(false)}>{t('common.cancel')}</Button>
           <Button variant="contained" color="error" startIcon={<CancelIcon />}
             onClick={() => handleApproveSubmit(false)} disabled={actionLoading}>
-            Reject
+            {t('docs.reject')}
           </Button>
           <Button variant="contained" color="success" startIcon={<CheckCircleIcon />}
             onClick={() => handleApproveSubmit(true)} disabled={actionLoading}>
-            Approve
+            {t('docs.approve')}
           </Button>
         </DialogActions>
       </Dialog>
     </Box>
   );
-};
+});
+
+InboundTab.displayName = 'InboundTab';
 
 export default InboundTab;

@@ -1,12 +1,12 @@
-import { useState, useEffect, useMemo, useImperativeHandle, forwardRef } from 'react';
-import { Box, Card, Button, Grid, Typography, IconButton, TextField, FormControlLabel, Checkbox } from '@mui/material';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { useState, useEffect, useMemo, useImperativeHandle, forwardRef, ReactNode } from 'react';
+import { Box, Typography, IconButton } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { outgoingDocService, OutgoingDocFilter } from '@/services/outgoingDocService';
 import { OutgoingDocModel } from '@/models/outgoingDocModel';
 import DataTable, { Column } from '@/components/Table/DataTable';
 import { exportToCSV } from '@/utils/exportUtils';
+import { formatDateTime } from '@/utils/dateUtils';
 import { getFileIcon } from '@/utils/documentUtils';
 import { colors } from '@/themes/colors';
 import DocumentDetailModal from './DocumentDetailModal';
@@ -14,9 +14,22 @@ import useAuth from '@/contexts/auth/useAuth';
 
 export interface OutboundTabRef {
   refresh: () => void;
+  triggerExport: () => void;
 }
 
-const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
+export interface OutboundTabProps {
+  docNo?: string;
+  startDate?: string;
+  endDate?: string;
+  tabBar?: ReactNode;
+}
+
+const OutboundTab = forwardRef<OutboundTabRef, OutboundTabProps>(({
+  docNo = '',
+  startDate = '',
+  endDate = '',
+  tabBar,
+}, ref) => {
   const { user } = useAuth();
   const [documents, setDocuments] = useState<OutgoingDocModel[]>([]);
   const [loading, setLoading] = useState(false);
@@ -29,25 +42,34 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
 
-  // Filter state
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [docNo, setDocNo] = useState('');
-  const [filterByDept, setFilterByDept] = useState(true);
+  const handleExport = () => {
+    const dataToExport = documents.map((doc) => ({
+      'Document Name': doc.doc_name,
+      'Document Number': doc.doc_no,
+      Date: formatDateTime(doc.created_at),
+      Sender: doc.user_name,
+    }));
+    exportToCSV(dataToExport, 'Outbound_Documents');
+  };
 
   useImperativeHandle(ref, () => ({
     refresh: fetchDocuments,
+    triggerExport: handleExport,
   }));
 
   useEffect(() => {
+    setPage(0);
+  }, [docNo, startDate, endDate]);
+
+  useEffect(() => {
     fetchDocuments();
-  }, [page, rowsPerPage, startDate, endDate, docNo, filterByDept]);
+  }, [page, rowsPerPage, docNo, startDate, endDate]);
 
   const fetchDocuments = async () => {
     setLoading(true);
     try {
       const filters: OutgoingDocFilter = {
-        departmentId: filterByDept ? user?.department_id || undefined : undefined,
+        departmentId: user?.department_id || undefined,
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         docNo: docNo || undefined,
@@ -140,21 +162,23 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
     setPage(0);
   };
 
+  const { t } = useTranslation();
+
   const columns = useMemo((): Column<OutgoingDocModel>[] => [
     {
-      label: 'Document Name',
+      label: t('docs.documentName'),
       content: (doc) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          {getFileIcon(doc.type || doc.doc_name || '')}
+          {getFileIcon(doc.file_type || doc.type || doc.doc_name || '')}
           <Typography variant="body2" fontWeight={500}>{doc.doc_name || '-'}</Typography>
         </Box>
       )
     },
-    { label: 'Document number', content: (doc) => doc.doc_no || '-' },
-    { label: 'Date', content: (doc) => new Date(doc.created_at).toLocaleDateString() },
-    { label: 'Sender', content: (doc) => doc.creator_name || doc.user_name || '-' },
+    { label: t('docs.documentNumber'), content: (doc) => doc.doc_no || '-' },
+    { label: t('common.date'), content: (doc) => formatDateTime(doc.created_at) },
+    { label: t('common.sender'), content: (doc) => doc.creator_name || doc.user_name || '-' },
     {
-      label: 'Recipients',
+      label: t('docs.recipients'),
       content: (doc) => (
         <Typography variant="body2" sx={{ maxWidth: '200px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={getRecipientsList(doc)}>
           {getRecipientsList(doc)}
@@ -162,7 +186,7 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
       )
     },
     {
-      label: 'All',
+      label: t('common.all'),
       align: 'center',
       content: (doc) => {
         const total = doc.status_counts?.total ?? doc.recipients?.length ?? 0;
@@ -170,7 +194,7 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
       }
     },
     {
-      label: 'Pending',
+      label: t('common.pending'),
       align: 'center',
       content: (doc) => {
         const counts = getStatusCounts(doc);
@@ -178,7 +202,7 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
       }
     },
     {
-      label: 'Received',
+      label: t('common.received'),
       align: 'center',
       content: (doc) => {
         const counts = getStatusCounts(doc);
@@ -186,7 +210,7 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
       }
     },
     {
-      label: 'Approved',
+      label: t('common.approved'),
       align: 'center',
       content: (doc) => {
         const counts = getStatusCounts(doc);
@@ -194,7 +218,7 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
       }
     },
     {
-      label: 'Rejected',
+      label: t('common.rejected'),
       align: 'center',
       content: (doc) => {
         const counts = getStatusCounts(doc);
@@ -212,122 +236,10 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
     }
   ], []);
 
-  const handleExport = () => {
-    const dataToExport = documents.map((doc) => ({
-      'Document Name': doc.doc_name,
-      'Document Number': doc.doc_no,
-      Date: new Date(doc.created_at).toLocaleDateString(),
-      Sender: doc.user_name,
-    }));
-    exportToCSV(dataToExport, 'Outbound_Documents');
-  };
-
   return (
     <Box>
-      {/* Filters */}
-      <Card sx={{ p: 2, mb: 2, borderRadius: '8px 8px 0 0', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <Grid container spacing={2} alignItems="flex-end">
-          <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
-            <TextField
-              fullWidth
-              size="small"
-              label="Document Number"
-              value={docNo}
-              onChange={(e) => {
-                setDocNo(e.target.value);
-                setPage(0);
-              }}
-              placeholder="Filter by doc no..."
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              label="Start Date"
-              value={startDate}
-              onChange={(e) => {
-                setStartDate(e.target.value);
-                setPage(0);
-              }}
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 2.5 }}>
-            <TextField
-              fullWidth
-              size="small"
-              type="date"
-              label="End Date"
-              value={endDate}
-              onChange={(e) => {
-                setEndDate(e.target.value);
-                setPage(0);
-              }}
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={filterByDept}
-                  onChange={(e) => {
-                    setFilterByDept(e.target.checked);
-                    setPage(0);
-                  }}
-                  size="small"
-                />
-              }
-              label="My Dept Only"
-            />
-          </Grid>
-          <Grid size={{ xs: 12, sm: 6, md: 2 }}>
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={() => {
-                setDocNo('');
-                setStartDate('');
-                setEndDate('');
-                setFilterByDept(true);
-                setPage(0);
-              }}
-            >
-              Clear
-            </Button>
-          </Grid>
-        </Grid>
-      </Card>
-
-      {/* Toolbar */}
-      <Card sx={{ p: 2, mb: 2, borderRadius: '0 0 8px 8px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-        <Grid container spacing={2} alignItems="center" justifyContent="flex-end">
-          <Grid size={{ xs: 12, md: 'auto' }}>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <Button
-                startIcon={<FileDownloadIcon />}
-                variant="contained"
-                color="success"
-                size="small"
-                onClick={handleExport}
-                disabled={documents.length === 0}
-              >
-                Export Excel
-              </Button>
-              <Button
-                startIcon={<RefreshIcon />}
-                variant="outlined"
-                size="small"
-                onClick={fetchDocuments}
-              >
-                Refresh
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-      </Card>
+      {/* Tab bar slot — rendered between toolbar and table */}
+      {tabBar}
 
       <DataTable
         columns={columns}
@@ -338,7 +250,7 @@ const OutboundTab = forwardRef<OutboundTabRef>((_, ref) => {
         rowsPerPage={rowsPerPage}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
-        countLabel="Total Outbound Docs"
+        countLabel={t('docs.totalOutbound')}
       />
 
       <DocumentDetailModal

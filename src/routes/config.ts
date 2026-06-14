@@ -4,13 +4,13 @@ export const HOME_PATH = '/';
 
 export const USER_PATH = '/users';
 
-export const DOCUMENT_PATH = '/documents';
+export const DOCUMENT_PATH = '/my-file';
 
 
 
 export const INCOMING_PATH = '/incoming';
 export const OUTGOING_PATH = '/outgoing';
-export const DOC_CENTER_PATH = '/doc-center';
+export const DOC_CENTER_PATH = '/documents';
 export const DEPARTMENT_PATH = '/departments';
 export const DOCTYPE_PATH = '/document-types';
 export const DASHBOARD_PATH = '/dashboard';

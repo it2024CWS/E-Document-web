@@ -6,21 +6,17 @@
     TableHead,
     TableRow,
     Paper,
-    Chip,
     Box,
     IconButton,
     Typography
 } from '@mui/material';
 import { DocumentModel } from '../../../models/documentModel';
+import { formatDate } from '@/utils/dateUtils';
 import { FolderModel } from '../../../models/folderModel';
 import { colors } from '../../../themes/colors';
-import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
-import DescriptionIcon from '@mui/icons-material/Description';
-import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import TableChartIcon from '@mui/icons-material/TableChart';
+import { getFileIcon } from '@/utils/documentUtils';
 import FolderIcon from '@mui/icons-material/Folder';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
-import SlideshowIcon from '@mui/icons-material/Slideshow';
 
 interface DocumentListProps {
     documents: DocumentModel[];
@@ -31,29 +27,6 @@ interface DocumentListProps {
     onDetail: (item: DocumentModel | FolderModel) => void;
 }
 
-const getFileIcon = (fileOrExt: string) => {
-    // If it contains a dot, split it. Otherwise, assume it's an extension like 'pdf' or 'application/pdf'
-    let ext = fileOrExt.includes('.') ? fileOrExt.split('.').pop()?.toLowerCase() : fileOrExt.toLowerCase();
-
-    // Also handle MIME types roughly
-    if (ext?.includes('pdf')) return <PictureAsPdfIcon sx={{ color: colors.accent.red }} />;
-    if (ext?.includes('word') || ['doc', 'docx'].includes(ext || '')) return <DescriptionIcon sx={{ color: colors.secondary.blue1 }} />;
-    if (ext?.includes('excel') || ext?.includes('spreadsheet') || ['xls', 'xlsx'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
-    if (ext?.includes('powerpoint') || ext?.includes('presentation') || ['ppt', 'pptx'].includes(ext || '')) return <SlideshowIcon sx={{ color: '#D24726' }} />;
-
-    return <InsertDriveFileIcon sx={{ color: colors.secondary.gray1 }} />;
-};
-
-const getStatusColor = (status: string) => {
-    const s = status.toLowerCase();
-    if (s === 'general') return { bg: '#E3F2FD', color: '#1565C0' }; // Blue
-    if (s === 'pending') return { bg: '#FFF4E5', color: '#B76E00' }; // Orange
-    if (s === 'approved') return { bg: '#E8F5E9', color: '#2E7D32' }; // Green
-    // Fallback for old mock data
-    if (s === 'confidential') return { bg: '#FFF4E5', color: '#B76E00' };
-    if (s === 'highly confidential') return { bg: '#FFEBEE', color: '#C62828' };
-    return { bg: colors.secondary.gray3, color: colors.secondary.text }; // Default
-};
 
 const DocumentList = ({
     documents,
@@ -98,7 +71,7 @@ const DocumentList = ({
                                 </Box>
                             </TableCell>
                             <TableCell sx={{ color: colors.secondary.text }}>-</TableCell>
-                            <TableCell sx={{ color: colors.secondary.text }}>{new Date(folder.updated_at || Date.now()).toLocaleDateString()}</TableCell>
+                            <TableCell sx={{ color: colors.secondary.text }}>{formatDate(folder.updated_at || Date.now())}</TableCell>
                             <TableCell sx={{ color: colors.secondary.text }}>-</TableCell>
                             <TableCell sx={{ color: colors.secondary.text }}>-</TableCell>
                             <TableCell align="right">
@@ -111,17 +84,16 @@ const DocumentList = ({
 
                     {/* Documents */}
                     {documents.map((doc) => {
-                        const statusStyle = getStatusColor(doc.status || 'General');
                         return (
                             <TableRow key={doc.id} hover sx={{ '& td': { borderBottom: 'none', py: 2 } }}>
                                 <TableCell>
                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        {getFileIcon(doc.type || doc.doc_name || '')}
+                                        {getFileIcon(doc.file_type || doc.type || doc.doc_name || '')}
                                         <Typography variant="body2" fontWeight={500}>{doc.doc_name}</Typography>
                                     </Box>
                                 </TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.doc_no || '-'}</TableCell>
-                                <TableCell sx={{ color: colors.secondary.text }}>{new Date(doc.updated_at).toLocaleDateString()}</TableCell>
+                                <TableCell sx={{ color: colors.secondary.text }}>{formatDate(doc.updated_at)}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.registrant_name || '-'}</TableCell>
                                 <TableCell sx={{ color: colors.secondary.text }}>{doc.department_name || '-'}</TableCell>
                                 <TableCell align="right">

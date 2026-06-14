@@ -1,3 +1,4 @@
+import { getPresignedUrl } from '@/services/fileService';
 import { colors } from '@/themes/colors';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
 import DescriptionIcon from '@mui/icons-material/Description';
@@ -16,6 +17,26 @@ export const getFileIcon = (fileOrExt: string) => {
     if (ext?.includes('powerpoint') || ext?.includes('presentation') || ['ppt', 'pptx'].includes(ext || '')) return <SlideshowIcon sx={{ color: '#D24726' }} />;
 
     return <InsertDriveFileIcon sx={{ color: colors.secondary.gray1 }} />;
+};
+
+export const downloadDocument = async (
+    docPath: string | undefined,
+    docName: string,
+    fileType?: string
+): Promise<void> => {
+    if (!docPath) return;
+    const url = await getPresignedUrl(docPath);
+    if (!url) return;
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = fileType ? `${docName}.${fileType}` : docName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
 };
 
 export const getStatusColor = (status: string) => {

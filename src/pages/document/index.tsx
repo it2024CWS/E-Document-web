@@ -7,9 +7,11 @@ import DocumentVersionsDialog from './components/DocumentVersionsDialog';
 import DocumentEditDialog from './components/DocumentEditDialog';
 import DocumentDetailSidebar from './components/DocumentDetailSidebar';
 import useMainDrawerControllerContext from '@/layouts/context';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 const DocumentPage = () => {
+    const [versionsRefreshKey, setVersionsRefreshKey] = useState(0);
+
     const {
         documents,
         folders,
@@ -25,7 +27,6 @@ const DocumentPage = () => {
         editDialogOpen,
         handleOpenEdit,
         handleCloseEdit,
-        handleUpdateDocument,
         detailSidebarOpen,
         handleOpenDetail,
         handleCloseDetail,
@@ -124,9 +125,13 @@ const DocumentPage = () => {
             <DocumentEditDialog
                 open={editDialogOpen}
                 onClose={handleCloseEdit}
-                onUpdate={handleUpdateDocument}
+                onSuccess={async () => {
+                    await refreshDocuments();
+                    setVersionsRefreshKey(k => k + 1);
+                }}
                 docData={selectedDocument}
                 folders={folders}
+                currentFolderId={selectedFolder?.id}
             />
 
             <DocumentDetailSidebar
@@ -136,14 +141,12 @@ const DocumentPage = () => {
                 type={selectedDetailItem && 'doc_no' in selectedDetailItem ? 'document' : 'folder'}
                 onEdit={(item) => {
                     handleCloseDetail();
-                    // Assuming onEdit can handle DocumentModel, if it's a folder we might need a separate handler
                     if ('doc_no' in item) {
                         handleOpenEdit(item as any);
-                    } else {
-                        // Handle folder edit if implemented
                     }
                 }}
                 onDelete={handleDeleteDocument}
+                versionsKey={versionsRefreshKey}
             />
         </Box>
     );

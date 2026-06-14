@@ -22,46 +22,51 @@ export interface MainMenuItemModel {
 
 export const MAIN_MENU_ITEMS: GroupMenuModel[] = [
   {
-    label: 'General',
+    label: 'nav.general',
     menu: [
       {
-        label: 'Dashboard',
+        label: 'nav.dashboard',
         path: DASHBOARD_PATH,
         icon: <SvgColor src={HOME_IC} />,
       },
       {
-        label: 'Document Management',
+        label: 'nav.documentManagement',
         icon: <SvgColor src={DOCUMENT_COPY_ICON} />,
         subMenu: [
           {
-            label: 'My Files',
+            label: 'nav.myFiles',
             path: DOCUMENT_PATH,
             icon: <SvgColor src={DOCUMENT_COPY_ICON} />,
           },
           {
-            label: 'Documents',
+            label: 'nav.documents',
             path: DOC_CENTER_PATH,
             icon: <SvgColor src={DRAWER_LINK_APPROVE_IC} />,
           },
         ],
       },
+    ],
+  },
+  {
+    label: 'nav.dataManagement',
+    menu: [
       {
-        label: 'User Management',
+        label: 'nav.userManagement',
         path: USER_PATH,
         icon: <SvgColor src={DRAWER_USER_IC} />,
       },
       {
-        label: 'Role Management',
+        label: 'nav.roleManagement',
         path: ROLE_PATH,
         icon: <SvgColor src={DRAWER_USER_IC} />,
       },
       {
-        label: 'Department Management',
+        label: 'nav.departmentManagement',
         path: DEPARTMENT_PATH,
         icon: <SvgColor src={DRAWER_SETTING_IC} />,
       },
       {
-        label: 'Document Types',
+        label: 'nav.documentTypes',
         path: DOCTYPE_PATH,
         icon: <SvgColor src={DRAWER_REPORT_IC} />,
       },

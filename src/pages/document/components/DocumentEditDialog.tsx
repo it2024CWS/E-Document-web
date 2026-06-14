@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import {
     Dialog,
@@ -15,13 +14,15 @@ import {
     CircularProgress,
     Typography,
     Box,
-    Chip
+    Chip,
+    Alert,
+    LinearProgress,
 } from '@mui/material';
-import { docTypeService } from '@/services/docTypeService';
-import { departmentService } from '@/services/departmentService';
-import { DepartmentModel } from '@/models/departmentModel';
-import { useAuth } from '@/contexts/auth';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { docTypeService } from '@/services/docTypeService';
+import { documentService } from '@/services/documentService';
+import { uploadSingleFile } from '@/services/uploadService';
 import { radius } from '@/themes/radius';
 import { colors } from '@/themes/colors';
 import { DocumentModel } from '@/models/documentModel';
@@ -29,46 +30,34 @@ import { DocumentModel } from '@/models/documentModel';
 interface DocumentEditDialogProps {
     open: boolean;
     onClose: () => void;
-    onUpdate: (id: string, data: any) => Promise<void>;
+    onSuccess: () => void;
     docData: DocumentModel | null;
     folders: any[];
+    currentFolderId?: string;
 }
 
-const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: DocumentEditDialogProps) => {
-    const { user } = useAuth();
+const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, currentFolderId }: DocumentEditDialogProps) => {
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
     const [docTypes, setDocTypes] = useState<any[]>([]);
-    const [departments, setDepartments] = useState<DepartmentModel[]>([]);
+    const [fileError, setFileError] = useState('');
+    const [step, setStep] = useState<'idle' | 'updating' | 'uploading' | 'done'>('idle');
 
     const [formData, setFormData] = useState({
         doc_name: '',
         description: '',
         doc_type_id: '',
-        department_id: '',
         folder_id: '',
-        status: '',
-        file: null as File | null
+        file: null as File | null,
     });
 
     useEffect(() => {
         if (open) {
-            const fetchData = async () => {
-                setLoading(true);
-                try {
-                    const [dtRes, deptRes] = await Promise.all([
-                        docTypeService.getAllDocTypes(),
-                        departmentService.getAllDepartments(1, 100)
-                    ]);
-                    setDocTypes(dtRes.items ?? []);
-                    setDepartments(deptRes.items ?? []);
-                } catch (error) {
-                    console.error("Failed to load dependency data", error);
-                } finally {
-                    setLoading(false);
-                }
-            };
-            fetchData();
+            setFileError('');
+            setStep('idle');
+            setUploadProgress(0);
+            docTypeService.getAllDocTypes().then(res => setDocTypes(res.items ?? []));
         }
     }, [open]);
 
@@ -78,49 +67,79 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                 doc_name: docData.doc_name,
                 description: docData.description || '',
                 doc_type_id: docData.doc_type_id?.toString() || '',
-                department_id: user?.department_id?.toString() || '',
-                folder_id: docData.folder_id?.toString() || '',
-                status: docData.status || '',
-                file: null
+                folder_id: currentFolderId || docData.folder_id?.toString() || '',
+                file: null,
             });
         }
-    }, [open, docData, user]);
+    }, [open, docData, currentFolderId]);
 
     const handleChange = (field: string, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            setFormData(prev => ({ ...prev, file: (e.target.files as FileList)[0] }));
+        const selected = e.target.files?.[0];
+        if (!selected || !docData) return;
+
+        const selectedExt = selected.name.split('.').pop()?.toLowerCase() || '';
+        const selectedBaseName = selected.name.slice(0, -(selectedExt.length + 1));
+
+        const originalExt = (docData.file_type || '').toLowerCase();
+        const originalBaseName = docData.doc_name?.trim() || '';
+
+        const nameMatch = selectedBaseName === originalBaseName;
+        const extMatch = selectedExt === originalExt;
+
+        if (!nameMatch || !extMatch) {
+            setFileError(
+                `ไฟล์ที่เลือก "${selected.name}" ไม่ตรงกับเอกสารนี้ "${originalBaseName}.${originalExt}"\n` +
+                `ไม่สามารถแก้ไขได้ — กรุณาเลือกไฟล์เดิม`
+            );
+            e.target.value = '';
+            setFormData(prev => ({ ...prev, file: null }));
+            return;
         }
+
+        setFileError('');
+        setFormData(prev => ({ ...prev, file: selected }));
     };
 
     const handleSubmit = async () => {
         if (!docData) return;
         if (!formData.doc_name || !formData.doc_type_id) {
-            alert("Please fill all required fields");
+            setFileError('Please fill all required fields');
             return;
         }
 
         setSubmitting(true);
         try {
-            const submitData = new FormData();
-            submitData.append('title', formData.doc_name);
-            submitData.append('description', formData.description);
-            submitData.append('doc_type_id', formData.doc_type_id.toString());
-            if (formData.department_id) submitData.append('department_id', formData.department_id.toString());
-            if (formData.folder_id) submitData.append('folder_id', formData.folder_id.toString());
-            submitData.append('status', formData.status);
+            // Step 1: Update metadata
+            setStep('updating');
+            await documentService.updateDocument(docData.id, {
+                doc_name: formData.doc_name,
+                description: formData.description,
+                doc_type_id: formData.doc_type_id,
+                folder_id: formData.folder_id || undefined,
+            });
 
+            // Step 2: Upload new version if file selected
             if (formData.file) {
-                submitData.append('file', formData.file);
+                setStep('uploading');
+                setUploadProgress(0);
+                await uploadSingleFile({
+                    file: formData.file,
+                    parentFolderId: formData.folder_id || undefined,
+                    onProgress: (info) => setUploadProgress(info.percentage),
+                });
             }
 
-            await onUpdate(docData.id, submitData);
+            setStep('done');
+            onSuccess();
             onClose();
         } catch (error) {
-            console.error(error);
+            console.error('Update failed:', error);
+            setFileError('Update failed. Please try again.');
+            setStep('idle');
         } finally {
             setSubmitting(false);
         }
@@ -129,43 +148,70 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
     if (!docData && !loading) return null;
 
     return (
-        <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
+        <Dialog open={open} onClose={submitting ? undefined : onClose} maxWidth="md" fullWidth>
             <DialogTitle>
                 Edit Document: {docData?.doc_no}
-                <Chip
-                    label={`v${docData?.version_number}`}
-                    size="small"
-                    color="primary"
-                    sx={{ ml: 2 }}
-                />
+                <Chip label={`v${docData?.version_number}`} size="small" color="primary" sx={{ ml: 2 }} />
             </DialogTitle>
+
             <DialogContent dividers>
                 {loading ? <CircularProgress /> : (
                     <Grid container spacing={3}>
+
+                        {fileError && (
+                            <Grid size={{ xs: 12 }}>
+                                <Alert severity="error" onClose={() => setFileError('')} sx={{ whiteSpace: 'pre-line' }}>
+                                    {fileError}
+                                </Alert>
+                            </Grid>
+                        )}
+
+                        {/* File upload zone */}
                         <Grid size={{ xs: 12 }}>
                             <Box
                                 sx={{
-                                    border: `2px dashed ${colors.secondary.gray2}`,
+                                    border: `2px dashed ${formData.file ? colors.accent.green : colors.secondary.gray2}`,
                                     borderRadius: radius[2],
                                     p: 3,
                                     textAlign: 'center',
                                     cursor: 'pointer',
-                                    bgcolor: formData.file ? colors.dominant.white3 : colors.dominant.white2,
-                                    '&:hover': { bgcolor: colors.dominant.white3 }
+                                    bgcolor: formData.file ? '#F0FFF4' : colors.dominant.white2,
+                                    '&:hover': { bgcolor: colors.dominant.white3 },
+                                    transition: 'all 0.2s',
                                 }}
                                 onClick={() => document.getElementById('edit-file-upload')?.click()}
                             >
-                                <input
-                                    id="edit-file-upload"
-                                    type="file"
-                                    hidden
-                                    onChange={handleFileChange}
-                                />
-                                <UploadFileIcon sx={{ fontSize: 48, color: colors.secondary.text }} />
-                                <Typography mt={1}>
-                                    {formData.file ? formData.file.name : "Click to replace file (Creates new version)"}
-                                </Typography>
+                                <input id="edit-file-upload" type="file" hidden onChange={handleFileChange} />
+                                {formData.file ? (
+                                    <>
+                                        <CheckCircleIcon sx={{ fontSize: 40, color: colors.accent.green }} />
+                                        <Typography mt={1} fontWeight={600} color={colors.accent.green}>
+                                            {formData.file.name}
+                                        </Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            Will create a new version (V{(docData?.version_number ?? 0) + 1})
+                                        </Typography>
+                                    </>
+                                ) : (
+                                    <>
+                                        <UploadFileIcon sx={{ fontSize: 48, color: colors.secondary.text }} />
+                                        <Typography mt={1}>Click to replace file — creates a new version</Typography>
+                                        <Typography variant="caption" color="text.secondary">
+                                            File must match: {docData?.doc_name}.{docData?.file_type}
+                                        </Typography>
+                                    </>
+                                )}
                             </Box>
+
+                            {/* Upload progress */}
+                            {step === 'uploading' && (
+                                <Box sx={{ mt: 1 }}>
+                                    <LinearProgress variant="determinate" value={uploadProgress} />
+                                    <Typography variant="caption" color="text.secondary">
+                                        Uploading new version… {uploadProgress}%
+                                    </Typography>
+                                </Box>
+                            )}
                         </Grid>
 
                         <Grid size={{ xs: 12 }}>
@@ -187,22 +233,6 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                                 value={formData.description}
                                 onChange={(e) => handleChange('description', e.target.value)}
                             />
-                        </Grid>
-
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <FormControl fullWidth>
-                                <InputLabel>Department</InputLabel>
-                                <Select
-                                    value={formData.department_id}
-                                    label="Department"
-                                    onChange={(e) => handleChange('department_id', e.target.value)}
-                                >
-                                    <MenuItem value=""><em>None</em></MenuItem>
-                                    {departments.map((dept: any) => (
-                                        <MenuItem key={dept.id} value={dept.id}>{dept.dept_name}</MenuItem>
-                                    ))}
-                                </Select>
-                            </FormControl>
                         </Grid>
 
                         <Grid size={{ xs: 12, md: 6 }}>
@@ -236,28 +266,21 @@ const DocumentEditDialog = ({ open, onClose, onUpdate, docData, folders }: Docum
                             </FormControl>
                         </Grid>
 
-                        <Grid size={{ xs: 12, md: 6 }}>
-                            <FormControl fullWidth>
-                                <InputLabel>Status</InputLabel>
-                                <Select
-                                    value={formData.status}
-                                    label="Status"
-                                    onChange={(e) => handleChange('status', e.target.value)}
-                                >
-                                    <MenuItem value="draft">Draft</MenuItem>
-                                    <MenuItem value="pending">Pending</MenuItem>
-                                    <MenuItem value="approved">Approved</MenuItem>
-                                    <MenuItem value="rejected">Rejected</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
                     </Grid>
                 )}
             </DialogContent>
+
             <DialogActions>
                 <Button onClick={onClose} disabled={submitting}>Cancel</Button>
-                <Button onClick={handleSubmit} variant="contained" disabled={submitting || loading}>
-                    {submitting ? <CircularProgress size={24} /> : 'Update'}
+                <Button
+                    onClick={handleSubmit}
+                    variant="contained"
+                    disabled={submitting || loading}
+                    startIcon={submitting ? <CircularProgress size={16} /> : undefined}
+                >
+                    {step === 'updating' ? 'Updating...' :
+                     step === 'uploading' ? 'Uploading version...' :
+                     'Update'}
                 </Button>
             </DialogActions>
         </Dialog>

@@ -14,12 +14,14 @@ import {
     Grid
 } from '@mui/material';
 import RefreshIcon from '@mui/icons-material/Refresh';
-import { incomingDocServiceMock, IncomingDocModel } from '@/services/mock/incomingDocServiceMock';
+import { incomingDocServiceMock } from '@/services/mock/incomingDocServiceMock';
+import { IncomingDocModel } from '@/models/incomingDocModel';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
 import IncomingDocumentList from './components/IncomingDocumentList';
 import { exportToCSV } from '@/utils/exportUtils';
+import { formatDate } from '@/utils/dateUtils';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const IncomingPage = () => {
@@ -43,7 +45,7 @@ const IncomingPage = () => {
         try {
             const res = await incomingDocServiceMock.getAllIncomingDocs();
             if (res.success) {
-                setDocuments(res.data);
+                setDocuments(res.data as unknown as IncomingDocModel[]);
             }
         } catch (error) {
             console.error("Failed to fetch incoming documents", error);
@@ -102,8 +104,8 @@ const IncomingPage = () => {
             'Incoming No': doc.incoming_no,
             'Document Name': doc.doc_name,
             'Document Number': doc.doc_no,
-            'Date': new Date(doc.created_at).toLocaleDateString(),
-            'Sender': doc.sender_name,
+            'Date': formatDate(doc.incoming_date),
+            'Sender': doc.creator_name || '-',
             'Status': doc.status
         }));
         exportToCSV(dataToExport, 'Incoming_Documents');

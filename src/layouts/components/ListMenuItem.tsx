@@ -8,6 +8,7 @@ import CircleIcon from '@mui/icons-material/Circle';
 import KeyboardArrowRightIcon from '@mui/icons-material/KeyboardArrowRight';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import useMainDrawerControllerContext from '../context';
+import { useTranslation } from 'react-i18next';
 
 interface ListMenuItemProps {
   menu: GroupMenuModel;
@@ -28,6 +29,7 @@ const isMenuItemActive = (item: MainMenuItemModel, currentPath: string): boolean
 const NestedMenuItem: React.FC<{ item: MainMenuItemModel; currentPath: string; level?: number }> = ({ item, currentPath, level = 0 }) => {
   const navigate = useNavigate();
   const { open } = useMainDrawerControllerContext();
+  const { t } = useTranslation();
   const hasSubMenu = item.subMenu && item.subMenu.length > 0;
   const isActive = isMenuItemActive(item, currentPath);
   const [collapseOpen, setCollapseOpen] = useState(isActive && hasSubMenu);
@@ -75,7 +77,7 @@ const NestedMenuItem: React.FC<{ item: MainMenuItemModel; currentPath: string; l
             )}
             <Typography sx={{ fontWeight: 'inherit', fontSize: '14px', textWrap: 'wrap', overflow: 'hidden' }}>
               {!hasSubMenu && level !== 0 && <CircleIcon sx={{ fontSize: 'calc(1em - 6px)', mr: 1, width: !open ? '30px' : 'auto' }} />}
-              {open && item.label}
+              {open && t(item.label)}
             </Typography>
           </Box>
           {hasSubMenu && open && (collapseOpen ? <ExpandMore /> : <KeyboardArrowRightIcon />)}
@@ -96,11 +98,12 @@ const NestedMenuItem: React.FC<{ item: MainMenuItemModel; currentPath: string; l
 
 const ListMenuItem: React.FC<ListMenuItemProps> = ({ menu, currentPath }) => {
   const { open } = useMainDrawerControllerContext();
+  const { t } = useTranslation();
   return (
     <>
       {open && (
         <Box sx={{ pl: 2, pt: 1, pb: 0.5 }}>
-          <Typography sx={{ fontSize: '14px', color: colors.secondary.gray2, fontWeight: 'bold' }}>{menu.label}</Typography>
+          <Typography sx={{ fontSize: '14px', color: colors.secondary.gray2, fontWeight: 'bold' }}>{t(menu.label)}</Typography>
         </Box>
       )}
       <List>

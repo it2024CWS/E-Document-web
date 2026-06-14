@@ -1,4 +1,5 @@
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
+import { formatDateTime } from '@/utils/dateUtils';
 import { Box, Grid, Typography, Button, CircularProgress, Divider } from '@mui/material';
 import useMainControllerContext from '../context';
 import { radius } from '@/themes/radius';
@@ -101,13 +102,13 @@ const FormDetail = () => {
             <Grid size={{ md: 6, xs: 12 }}>
               <FieldData
                 label="Created At"
-                value={new Date(detailCtrl.user.created_at).toLocaleString()}
+                value={formatDateTime(detailCtrl.user.created_at)}
               />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
               <FieldData
                 label="Updated At"
-                value={new Date(detailCtrl.user.updated_at).toLocaleString()}
+                value={formatDateTime(detailCtrl.user.updated_at)}
               />
             </Grid>
           </Grid>

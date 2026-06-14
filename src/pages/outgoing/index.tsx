@@ -10,6 +10,7 @@ import { outgoingDocServiceMock, OutgoingDocModel } from '@/services/mock/outgoi
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
 import OutgoingDocumentList from './components/OutgoingDocumentList';
 import { exportToCSV } from '@/utils/exportUtils';
+import { formatDate } from '@/utils/dateUtils';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const OutgoingPage = () => {
@@ -38,7 +39,7 @@ const OutgoingPage = () => {
         const dataToExport = documents.map(doc => ({
             'Document Name': doc.doc_name,
             'Document Number': doc.doc_no,
-            'Date': new Date(doc.created_at).toLocaleDateString(),
+            'Date': formatDate(doc.created_at),
             'Sender': doc.user_name
         }));
         exportToCSV(dataToExport, 'Outgoing_Documents');

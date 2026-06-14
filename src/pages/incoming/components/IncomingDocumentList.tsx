@@ -6,6 +6,7 @@ import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import { getFileIcon, getStatusColor } from '@/utils/documentUtils';
+import { formatDateTime } from '@/utils/dateUtils';
 import DataTable, { Column } from '@/components/Table/DataTable';
 
 interface IncomingDocumentListProps {
@@ -23,14 +24,14 @@ const IncomingDocumentList = ({ documents, loading, onReceive, onApprove, onView
           label: 'Document Name',
           content: (doc) => (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {getFileIcon(doc.type || doc.doc_name || '')}
+              {getFileIcon(doc.file_type || doc.type || doc.doc_name || '')}
               <Typography variant="body2" fontWeight={500}>{doc.doc_name}</Typography>
             </Box>
           )
         },
         { label: 'Document number', content: (doc) => doc.doc_no || '-' },
-        { label: 'Date', content: (doc) => new Date(doc.created_at).toLocaleDateString() },
-        { label: 'Sender', content: (doc) => doc.sender_name || '-' },
+        { label: 'Date', content: (doc) => formatDateTime(doc.incoming_date) },
+        { label: 'Sender', content: (doc) => doc.creator_name || '-' },
         {
           label: 'Status',
           content: (doc) => {

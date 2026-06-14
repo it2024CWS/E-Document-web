@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatDateTime } from '@/utils/dateUtils';
 import {
     Box,
     Typography,
@@ -115,8 +116,8 @@ const RolePage = () => {
                                         <TableCell>{role.id}</TableCell>
                                         <TableCell>{role.role_name}</TableCell>
                                         <TableCell>{role.description}</TableCell>
-                                        <TableCell>{new Date(role.created_at).toLocaleString()}</TableCell>
-                                        <TableCell>{new Date(role.updated_at).toLocaleString()}</TableCell>
+                                        <TableCell>{formatDateTime(role.created_at)}</TableCell>
+                                        <TableCell>{formatDateTime(role.updated_at)}</TableCell>
                                         <TableCell align="right">
                                             <Tooltip title="Edit">
                                                 <IconButton size="small"><EditIcon fontSize="small" /></IconButton>

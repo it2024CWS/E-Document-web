@@ -37,6 +37,7 @@ export interface OutgoingDocModel {
   created_at: string;
   doc_path?: string;
   type?: string;
+  file_type?: string;
   // Legacy support
   incoming_docs?: any[];
   // New fields

@@ -10,11 +10,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { LOGIN_PATH } from '@/routes/config';
 import LogoutIcon from '@mui/icons-material/Logout';
+import { useTranslation } from 'react-i18next';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const MainAppBar = () => {
   const drawerCtrl = useMainDrawerControllerContext();
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -32,7 +35,6 @@ const MainAppBar = () => {
     navigate(LOGIN_PATH);
   };
 
-  // Get first letter of username for avatar
   const avatarLetter = user?.username?.charAt(0).toUpperCase() || 'U';
 
   return (
@@ -59,16 +61,13 @@ const MainAppBar = () => {
           alt="sidebar"
         />
       </IconButton>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 3 }}>
+
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 2 }}>
+        <LanguageSwitcher />
         <SectionCurrentTime />
         <Box
           onClick={handleClick}
-          sx={{
-            cursor: 'pointer',
-            '&:hover': {
-              opacity: 0.9,
-            },
-          }}
+          sx={{ cursor: 'pointer', '&:hover': { opacity: 0.9 } }}
         >
           <Stack
             direction="row"
@@ -76,6 +75,7 @@ const MainAppBar = () => {
             sx={{
               borderRadius: radius[5],
               bgcolor: colors.dominant.white1,
+              border: `1px solid ${colors.secondary.gray1}`,
               p: '6px 8px',
               minWidth: '160px',
             }}
@@ -85,26 +85,23 @@ const MainAppBar = () => {
               <Typography variant="body2" fontWeight="bold" color="text.primary">
                 {user?.username || 'User'}
               </Typography>
-              <Typography sx={{ fontSize: '12px', color: colors.secondary.gray2 }}>{user?.role_name || 'User'}</Typography>
+              <Typography sx={{ fontSize: '12px', color: colors.secondary.gray2 }}>
+                {user?.role_name || 'User'}
+              </Typography>
             </Stack>
           </Stack>
         </Box>
+
         <Menu
           anchorEl={anchorEl}
           open={open}
           onClose={handleClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
         >
           <MenuItem onClick={handleLogout}>
             <LogoutIcon sx={{ mr: 1, fontSize: 20 }} />
-            Logout
+            {t('common.logout')}
           </MenuItem>
         </Menu>
       </Box>

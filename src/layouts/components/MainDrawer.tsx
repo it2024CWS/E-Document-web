@@ -1,4 +1,5 @@
 import { Box, CSSObject, List, ListItem, ListItemButton, ListItemIcon, ListItemText, styled, Theme } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import MuiDrawer from '@mui/material/Drawer';
 import { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { colors } from '@/themes/colors';
@@ -68,6 +69,7 @@ const MainDrawer = ({ open }: AppBarProps) => {
   const currentPath = location.pathname;
   const navigate = useNavigate();
   const { logout } = useAuth();
+  const { t } = useTranslation();
 
   const handleLogout = async () => {
     await logout();
@@ -142,7 +144,7 @@ const MainDrawer = ({ open }: AppBarProps) => {
                 <LogoutIcon sx={{ color: colors.accent.red }} />
               </ListItemIcon>
               <ListItemText
-                primary="Logout"
+                primary={t('common.logout')}
                 sx={{
                   opacity: open ? 1 : 0,
                   '& .MuiListItemText-primary': {

@@ -4,6 +4,7 @@ export interface DocumentModel {
   doc_name: string;
   doc_path: string;
   type: string;
+  file_type?: string; // File extension (e.g., "pdf", "docx")
   doc_type_id: string | null;
   folder_id: string | null;
   folder_name: string | null;
@@ -24,6 +25,7 @@ export interface VersionModel {
   doc_id: string;
   version_number: number;
   doc_path: string;
+  file_type: string;
   created_at: string;
 }
 

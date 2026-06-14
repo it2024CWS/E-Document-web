@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { formatDateTime } from '@/utils/dateUtils';
 import {
     Dialog,
     DialogTitle,
@@ -82,7 +83,7 @@ const DocumentVersionsDialog = ({ open, onClose, documentId, documentTitle }: Do
                                         secondary={
                                             <>
                                                 <Typography variant="body2" component="span" display="block">
-                                                    Created: {new Date(version.created_at).toLocaleString()}
+                                                    Created: {formatDateTime(version.created_at)}
                                                 </Typography>
                                                 {/* <Typography variant="caption" display="block">
                                                     Path: {version.doc_path}

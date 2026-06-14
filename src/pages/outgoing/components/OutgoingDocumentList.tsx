@@ -4,6 +4,7 @@ import { OutgoingDocModel } from '@/models/outgoingDocModel';
 import { colors } from '@/themes/colors';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
 import { getFileIcon } from '@/utils/documentUtils';
+import { formatDateTime } from '@/utils/dateUtils';
 import DataTable, { Column } from '@/components/Table/DataTable';
 
 interface OutgoingDocumentListProps {
@@ -19,13 +20,13 @@ const OutgoingDocumentList = ({ documents, loading, onViewDetail }: OutgoingDocu
           label: 'Document Name',
           content: (doc) => (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-              {getFileIcon(doc.type || doc.doc_name || '')}
+              {getFileIcon(doc.file_type || doc.type || doc.doc_name || '')}
               <Typography variant="body2" fontWeight={500}>{doc.doc_name || '-'}</Typography>
             </Box>
           )
         },
         { label: 'Document number', content: (doc) => doc.doc_no || '-' },
-        { label: 'Date', content: (doc) => new Date(doc.created_at).toLocaleDateString() },
+        { label: 'Date', content: (doc) => formatDateTime(doc.created_at) },
         { label: 'Sender', content: (doc) => doc.user_name || '-' },
         {
           label: '',
