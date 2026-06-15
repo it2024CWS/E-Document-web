@@ -5,41 +5,45 @@ import {
     CircularProgress
 } from '@mui/material';
 import useDashboardController from './controllers/dashboardController';
-import MoveToInboxIcon from '@mui/icons-material/MoveToInbox';
-import OutboxIcon from '@mui/icons-material/Outbox';
-import PendingActionsIcon from '@mui/icons-material/PendingActions';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import CancelIcon from '@mui/icons-material/Cancel';
+import CallReceivedIcon from '@mui/icons-material/CallReceived';
+import SendIcon from '@mui/icons-material/Send';
+import HourglassEmptyIcon from '@mui/icons-material/HourglassEmpty';
+import TaskAltIcon from '@mui/icons-material/TaskAlt';
+import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import { colors } from '@/themes/colors';
 import IncomingDocumentList from '../incoming/components/IncomingDocumentList';
 import OutgoingDocumentList from '../outgoing/components/OutgoingDocumentList';
+import { useTranslation } from 'react-i18next';
 
-const StatCard = ({ title, value, icon, color, bgcolor }: any) => (
-    <Card sx={{ p: 2, display: 'flex', alignItems: 'center', height: '100%', boxShadow: '0px 2px 10px rgba(0,0,0,0.05)' }}>
+const StatCard = ({ title, value, icon, color }: any) => (
+    <Card sx={{ p: 2.5, display: 'flex', alignItems: 'center', height: '100%', boxShadow: '0px 2px 10px rgba(0,0,0,0.05)' }}>
         <Box sx={{
-            bgcolor: bgcolor || (color + '15'),
+            bgcolor: color + '20',
             color: color,
             borderRadius: '50%',
-            width: 48,
-            height: 48,
+            width: 52,
+            height: 52,
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            mr: 2
+            mr: 2,
+            flexShrink: 0,
         }}>
             {icon}
         </Box>
         <Box>
-            <Typography variant="h4" fontWeight="bold" sx={{ color: color }}>{value}</Typography>
-            <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase' }}>{title}</Typography>
+            <Typography variant="h4" fontWeight="bold" sx={{ color, lineHeight: 1.1 }}>{value}</Typography>
+            <Typography variant="caption" color="text.secondary" fontWeight={600} sx={{ textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                {title}
+            </Typography>
         </Box>
     </Card>
 );
 
 const DashboardPage = () => {
+    const { t } = useTranslation();
     const { stats, loading } = useDashboardController();
 
-    // Handlers for lists (can be empty or navigate to full page)
     const handleViewIncoming = (doc: any) => console.log('View Incoming', doc);
     const handleViewOutgoing = (doc: any) => console.log('View Outgoing', doc);
 
@@ -49,56 +53,55 @@ const DashboardPage = () => {
                 <Box display="flex" justifyContent="center" p={5}><CircularProgress /></Box>
             ) : stats ? (
                 <>
-                    {/* Top 5 Boxes - Using Box with CSS Grid for 5 columns */}
+                    {/* Stat cards */}
                     <Box sx={{
                         display: 'grid',
                         gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(5, 1fr)' },
-                        gap: 3,
-                        mb: 4
+                        gap: 2,
+                        mb: 5,
                     }}>
                         <StatCard
-                            title="Incoming"
+                            title={t('dashboard.incoming')}
                             value={stats.totalIncoming}
-                            icon={<MoveToInboxIcon />}
+                            icon={<CallReceivedIcon />}
                             color={colors.secondary.blue1}
                         />
                         <StatCard
-                            title="Outgoing"
+                            title={t('dashboard.outgoing')}
                             value={stats.totalOutgoing}
-                            icon={<OutboxIcon />}
+                            icon={<SendIcon />}
                             color={colors.accent.main}
                         />
                         <StatCard
-                            title="Pending"
+                            title={t('common.pending')}
                             value={stats.countPending}
-                            icon={<PendingActionsIcon />}
+                            icon={<HourglassEmptyIcon />}
                             color={colors.accent.yellow}
                         />
                         <StatCard
-                            title="Approved"
+                            title={t('common.approved')}
                             value={stats.countApproved}
-                            icon={<CheckCircleIcon />}
+                            icon={<TaskAltIcon />}
                             color={colors.accent.green}
                         />
                         <StatCard
-                            title="Rejected"
+                            title={t('common.rejected')}
                             value={stats.countRejected}
-                            icon={<CancelIcon />}
+                            icon={<DoNotDisturbOnIcon />}
                             color={colors.accent.red}
                         />
-                        </Box>
-                        <br />
+                    </Box>
 
-                    {/* Bottom lists - Using Box with CSS Grid for 2 columns */}
+                    {/* Recent document lists */}
+                    <br></br>
                     <Box sx={{
                         display: 'grid',
                         gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' },
-                        gap: 3
+                        gap: 3,
                     }}>
-                        {/* Incoming List */}
                         <Card sx={{ p: 0, overflow: 'hidden', boxShadow: '0px 2px 10px rgba(0,0,0,0.05)' }}>
-                            <Box sx={{ p: 2, bgcolor: colors.dominant.white2, borderBottom: '1px solid ' + colors.secondary.gray1 }}>
-                                <Typography variant="subtitle1" fontWeight={600}>Recent Incoming</Typography>
+                            <Box sx={{ px: 2.5, py: 1.5, bgcolor: colors.dominant.white2, borderBottom: '1px solid ' + colors.secondary.gray1 }}>
+                                <Typography variant="subtitle1" fontWeight={700}>{t('dashboard.recentIncoming')}</Typography>
                             </Box>
                             <IncomingDocumentList
                                 documents={stats.recentIncoming}
@@ -109,10 +112,9 @@ const DashboardPage = () => {
                             />
                         </Card>
 
-                        {/* Outgoing List */}
                         <Card sx={{ p: 0, overflow: 'hidden', boxShadow: '0px 2px 10px rgba(0,0,0,0.05)' }}>
-                            <Box sx={{ p: 2, bgcolor: colors.dominant.white2, borderBottom: '1px solid ' + colors.secondary.gray1 }}>
-                                <Typography variant="subtitle1" fontWeight={600}>Recent Outgoing</Typography>
+                            <Box sx={{ px: 2.5, py: 1.5, bgcolor: colors.dominant.white2, borderBottom: '1px solid ' + colors.secondary.gray1 }}>
+                                <Typography variant="subtitle1" fontWeight={700}>{t('dashboard.recentOutgoing')}</Typography>
                             </Box>
                             <OutgoingDocumentList
                                 documents={stats.recentOutgoing}

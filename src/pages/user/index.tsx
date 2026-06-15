@@ -9,9 +9,11 @@ import { Box, Typography, CircularProgress } from '@mui/material';
 import Toolbar from './components/Toolbar';
 import Table from './components/Table';
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const Content = () => {
   const ctrl = useMainControllerContext();
+  const { t } = useTranslation();
 
   // Extract only the data we need to prevent unnecessary re-renders
   const users = useMemo(() => ctrl.data?.info || [], [ctrl.data?.info]);
@@ -35,7 +37,7 @@ const Content = () => {
       return (
         <Box>
           <Typography variant="h4" mb={3}>
-            User Management
+            {t('users.title')}
           </Typography>
 
           <Toolbar sx={{ mb: 3 }}

@@ -8,10 +8,12 @@ import { useFormDetailControllerContext } from '../context/FormDetailControllerP
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import ProfilePictureUpload from '../components/ProfilePictureUpload';
+import { useTranslation } from 'react-i18next';
 
 const FormDetail = () => {
   const mainCtrl = useMainControllerContext();
   const detailCtrl = useFormDetailControllerContext();
+  const { t } = useTranslation();
 
   if (detailCtrl.loading) {
     return (
@@ -24,7 +26,7 @@ const FormDetail = () => {
   if (!detailCtrl.user) {
     return (
       <Box>
-        <Typography>User not found</Typography>
+        <Typography>{t('users.userNotFound')}</Typography>
       </Box>
     );
   }
@@ -34,26 +36,26 @@ const FormDetail = () => {
       <BreadcrumbsCustom
         breadcrumbs={[
           {
-            label: 'User management',
+            label: t('nav.userManagement'),
             onClick: () => {
               mainCtrl.handleChangeForm(null!);
               mainCtrl.handleChangeSelectedItem(null!);
             },
           },
-          { label: 'User detail' },
+          { label: t('users.userDetail') },
         ]}
       />
 
       <Box sx={{ mt: 3 }}>
         <Box sx={{ bgcolor: 'white', borderRadius: radius[2], p: 4 }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-            <Typography variant="h5">User Information</Typography>
+            <Typography variant="h5">{t('users.userInfo')}</Typography>
             <Box sx={{ display: 'flex', gap: 2 }}>
               <Button variant="outlined" startIcon={<EditIcon />} onClick={detailCtrl.handleEdit}>
-                Edit
+                {t('common.edit')}
               </Button>
               <Button variant="outlined" color="error" startIcon={<DeleteIcon />} onClick={detailCtrl.handleDelete}>
-                Delete
+                {t('common.delete')}
               </Button>
             </Box>
           </Box>
@@ -67,49 +69,40 @@ const FormDetail = () => {
 
           <Grid container spacing={4}>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Username" value={detailCtrl.user.username} />
+              <FieldData label={t('users.username')} value={detailCtrl.user.username} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Email" value={detailCtrl.user.email} />
+              <FieldData label={t('common.email')} value={detailCtrl.user.email} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="First Name" value={detailCtrl.user.firstname || '-'} />
+              <FieldData label={t('users.firstName')} value={detailCtrl.user.firstname || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Last Name" value={detailCtrl.user.lastname || '-'} />
+              <FieldData label={t('users.lastName')} value={detailCtrl.user.lastname || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Nickname" value={detailCtrl.user.nickname || '-'} />
+              <FieldData label={t('users.nickname')} value={detailCtrl.user.nickname || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Account Status" value={detailCtrl.user.is_active ? 'Active' : 'Inactive'} />
+              <FieldData label={t('users.accountStatus')} value={detailCtrl.user.is_active ? t('users.active') : t('users.inactive')} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData
-                label="Role"
-                value={detailCtrl.user.role_name || '-'}
-              />
+              <FieldData label={t('users.role')} value={detailCtrl.user.role_name || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Phone" value={detailCtrl.user.phone || '-'} />
+              <FieldData label={t('common.phone')} value={detailCtrl.user.phone || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Department" value={detailCtrl.user.department_name || '-'} />
+              <FieldData label={t('common.department')} value={detailCtrl.user.department_name || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData label="Sector" value={detailCtrl.user.sector_name || '-'} />
+              <FieldData label={t('common.sector')} value={detailCtrl.user.sector_name || '-'} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData
-                label="Created At"
-                value={formatDateTime(detailCtrl.user.created_at)}
-              />
+              <FieldData label={t('users.createdAt')} value={formatDateTime(detailCtrl.user.created_at)} />
             </Grid>
             <Grid size={{ md: 6, xs: 12 }}>
-              <FieldData
-                label="Updated At"
-                value={formatDateTime(detailCtrl.user.updated_at)}
-              />
+              <FieldData label={t('users.updatedAt')} value={formatDateTime(detailCtrl.user.updated_at)} />
             </Grid>
           </Grid>
         </Box>

@@ -69,21 +69,13 @@ export const logoutService = async (): Promise<void> => {
   }
 };
 
-export const refreshTokenService = async (refresh_token: string): Promise<RefreshTokenModel> => {
+export const refreshTokenService = async (): Promise<RefreshTokenModel> => {
   try {
-    axiosInstance.defaults.headers.common['Authorization'] = `Bearer ${refresh_token}`;
-    const res = await api.post(
-      '/auth/refresh-token',
-      { refresh_token },
-      {
-        headers: {
-          'ngrok-skip-browser-warning': 'true',
-        },
-      }
-    );
+    // Backend reads the refreshToken cookie automatically; no body needed
+    const res = await axiosInstance.post('/v1/auth/refresh');
     return res?.data?.data as RefreshTokenModel;
   } catch (error) {
-    console.log('Failed to get new session: ', error);
+    console.log('Failed to refresh token: ', error);
     throw error;
   }
 };

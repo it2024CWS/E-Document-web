@@ -65,6 +65,10 @@ const useDocumentController = () => {
     const [editDialogOpen, setEditDialogOpen] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState<DocumentModel | null>(null);
 
+    // ── Folder edit dialog ─────────────────────────────────────────────────────
+    const [folderEditDialogOpen, setFolderEditDialogOpen] = useState(false);
+    const [selectedEditFolder, setSelectedEditFolder] = useState<FolderModel | null>(null);
+
     // ── Detail sidebar ─────────────────────────────────────────────────────────
     const [detailSidebarOpen, setDetailSidebarOpen] = useState(false);
     const [selectedDetailItem, setSelectedDetailItem] = useState<DocumentModel | FolderModel | null>(null);
@@ -146,6 +150,16 @@ const useDocumentController = () => {
         }
     };
 
+    const handleOpenEditFolder = (folder: FolderModel) => {
+        setSelectedEditFolder(folder);
+        setFolderEditDialogOpen(true);
+    };
+
+    const handleCloseEditFolder = () => {
+        setFolderEditDialogOpen(false);
+        setSelectedEditFolder(null);
+    };
+
     const handleOpenDetail = (item: DocumentModel | FolderModel) => {
         setSelectedDetailItem(item);
         setDetailSidebarOpen(true);
@@ -219,6 +233,10 @@ const useDocumentController = () => {
         handleDeleteDocument,
         refreshDocuments,
         refreshFolders,
+        folderEditDialogOpen,
+        selectedEditFolder,
+        handleOpenEditFolder,
+        handleCloseEditFolder,
     };
 };
 

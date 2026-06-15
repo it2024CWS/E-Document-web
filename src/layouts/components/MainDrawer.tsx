@@ -1,7 +1,6 @@
 import { Box, CSSObject, List, ListItem, ListItemButton, ListItemIcon, ListItemText, styled, Theme } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import MuiDrawer from '@mui/material/Drawer';
-import { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { colors } from '@/themes/colors';
 import { DRAWER_WIDTH, MAIN_MENU_ITEMS, GroupMenuModel } from '../config';
 import ListMenuItem from './ListMenuItem';
@@ -14,9 +13,6 @@ import UploadButton from '@/components/UploadButton';
 
 const drawerWidth = DRAWER_WIDTH;
 
-interface AppBarProps extends MuiAppBarProps {
-  open?: boolean;
-}
 
 const openedMixin = (theme: Theme): CSSObject => ({
   width: drawerWidth,
@@ -36,35 +32,29 @@ const closedMixin = (theme: Theme): CSSObject => ({
   width: `calc(${theme.spacing(6)} + 1px)`,
 });
 
-const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })(({ theme }) => ({
-  width: drawerWidth,
-  flexShrink: 0,
-  whiteSpace: 'nowrap',
-  boxSizing: 'border-box',
-  borderRight: `1px solid ${colors.secondary.gray1}`,
-  '& .MuiDrawer-paper': {
-    borderRadius: 0,
-    boxShadow: 'none',
-  },
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        ...openedMixin(theme),
-        '& .MuiDrawer-paper': { ...openedMixin(theme) },
-      },
+const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' })<{ open?: boolean }>(
+  ({ theme, open }) => ({
+    width: drawerWidth,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    boxSizing: 'border-box',
+    borderRight: `1px solid ${colors.secondary.gray1}`,
+    '& .MuiDrawer-paper': {
+      borderRadius: 0,
+      boxShadow: 'none',
     },
-    {
-      props: ({ open }) => !open,
-      style: {
-        ...closedMixin(theme),
-        '& .MuiDrawer-paper': closedMixin(theme),
-      },
-    },
-  ],
-}));
+    ...(open && {
+      ...openedMixin(theme),
+      '& .MuiDrawer-paper': openedMixin(theme),
+    }),
+    ...(!open && {
+      ...closedMixin(theme),
+      '& .MuiDrawer-paper': closedMixin(theme),
+    }),
+  })
+);
 
-const MainDrawer = ({ open }: AppBarProps) => {
+const MainDrawer = ({ open }: { open?: boolean }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();

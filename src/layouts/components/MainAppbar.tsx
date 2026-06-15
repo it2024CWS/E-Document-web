@@ -40,8 +40,8 @@ const MainAppBar = () => {
   return (
     <Box
       sx={{
-        maxHeight: `calc(${APP_BAR_HEIGHT}px - 32px)`,
-        height: '100%',
+        height: `${APP_BAR_HEIGHT}px`,
+        boxSizing: 'border-box',
         bgcolor: APP_BAR_COLOR,
         p: '16px',
         borderBottom: `1px solid ${colors.secondary.gray1}`,

@@ -4,6 +4,7 @@ import AddIcon from '@mui/icons-material/Add';
 import TextFieldSearch from '@/components/TextField/TextFieldSearch';
 import { FormEnum } from '@/enums/formEnum';
 import { useState, useEffect, memo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface ToolbarProps extends BoxProps {
   onChangeForm: (form: FormEnum) => void;
@@ -13,6 +14,7 @@ interface ToolbarProps extends BoxProps {
 
 const Toolbar = memo(
   ({ onChangeForm, onSearch, initialSearchQuery, ...props }: ToolbarProps) => {
+    const { t } = useTranslation();
     const [localSearchValue, setLocalSearchValue] = useState(initialSearchQuery || '');
     const isFirstRender = useRef(true);
     const onSearchRef = useRef(onSearch);
@@ -44,7 +46,7 @@ const Toolbar = memo(
       <Box sx={{ display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 2 }}>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
           <TextFieldSearch
-            placeholder="Search users..."
+            placeholder={t('users.searchPlaceholder')}
             value={localSearchValue}
             onChange={(e) => setLocalSearchValue(e.target.value)}
           />
@@ -52,7 +54,7 @@ const Toolbar = memo(
 
         <Button onClick={() => onChangeFormRef.current(FormEnum.CREATE)}>
           <AddIcon sx={{ fontSize: 20, mr: 1 }} />
-          Create User
+          {t('users.createUser')}
         </Button>
       </Box>
     </Box>

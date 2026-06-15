@@ -26,6 +26,7 @@ import { uploadSingleFile } from '@/services/uploadService';
 import { radius } from '@/themes/radius';
 import { colors } from '@/themes/colors';
 import { DocumentModel } from '@/models/documentModel';
+import { useTranslation } from 'react-i18next';
 
 interface DocumentEditDialogProps {
     open: boolean;
@@ -37,7 +38,8 @@ interface DocumentEditDialogProps {
 }
 
 const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, currentFolderId }: DocumentEditDialogProps) => {
-    const [loading, setLoading] = useState(false);
+    const { t } = useTranslation();
+    const [loading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [docTypes, setDocTypes] = useState<any[]>([]);
@@ -73,9 +75,8 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
         }
     }, [open, docData, currentFolderId]);
 
-    const handleChange = (field: string, value: any) => {
+    const handleChange = (field: string, value: any) =>
         setFormData(prev => ({ ...prev, [field]: value }));
-    };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const selected = e.target.files?.[0];
@@ -83,17 +84,13 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
 
         const selectedExt = selected.name.split('.').pop()?.toLowerCase() || '';
         const selectedBaseName = selected.name.slice(0, -(selectedExt.length + 1));
-
         const originalExt = (docData.file_type || '').toLowerCase();
         const originalBaseName = docData.doc_name?.trim() || '';
 
-        const nameMatch = selectedBaseName === originalBaseName;
-        const extMatch = selectedExt === originalExt;
-
-        if (!nameMatch || !extMatch) {
+        if (selectedBaseName !== originalBaseName || selectedExt !== originalExt) {
             setFileError(
-                `ไฟล์ที่เลือก "${selected.name}" ไม่ตรงกับเอกสารนี้ "${originalBaseName}.${originalExt}"\n` +
-                `ไม่สามารถแก้ไขได้ — กรุณาเลือกไฟล์เดิม`
+                t('docs.fileMustMatch', { name: originalBaseName, ext: originalExt }) +
+                ` — "${selected.name}"`
             );
             e.target.value = '';
             setFormData(prev => ({ ...prev, file: null }));
@@ -107,13 +104,12 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
     const handleSubmit = async () => {
         if (!docData) return;
         if (!formData.doc_name || !formData.doc_type_id) {
-            setFileError('Please fill all required fields');
+            setFileError(t('docs.fillRequiredFields'));
             return;
         }
 
         setSubmitting(true);
         try {
-            // Step 1: Update metadata
             setStep('updating');
             await documentService.updateDocument(docData.id, {
                 doc_name: formData.doc_name,
@@ -122,7 +118,6 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
                 folder_id: formData.folder_id || undefined,
             });
 
-            // Step 2: Upload new version if file selected
             if (formData.file) {
                 setStep('uploading');
                 setUploadProgress(0);
@@ -138,7 +133,7 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
             onClose();
         } catch (error) {
             console.error('Update failed:', error);
-            setFileError('Update failed. Please try again.');
+            setFileError(t('docs.updateFailed'));
             setStep('idle');
         } finally {
             setSubmitting(false);
@@ -147,17 +142,21 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
 
     if (!docData && !loading) return null;
 
+    const submitLabel =
+        step === 'updating' ? t('docs.updating') :
+        step === 'uploading' ? t('docs.uploadingVersion') :
+        t('docs.update');
+
     return (
         <Dialog open={open} onClose={submitting ? undefined : onClose} maxWidth="md" fullWidth>
             <DialogTitle>
-                Edit Document: {docData?.doc_no}
+                {t('docs.editDocument', { no: docData?.doc_no })}
                 <Chip label={`v${docData?.version_number}`} size="small" color="primary" sx={{ ml: 2 }} />
             </DialogTitle>
 
             <DialogContent dividers>
                 {loading ? <CircularProgress /> : (
                     <Grid container spacing={3}>
-
                         {fileError && (
                             <Grid size={{ xs: 12 }}>
                                 <Alert severity="error" onClose={() => setFileError('')} sx={{ whiteSpace: 'pre-line' }}>
@@ -189,26 +188,25 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
                                             {formData.file.name}
                                         </Typography>
                                         <Typography variant="caption" color="text.secondary">
-                                            Will create a new version (V{(docData?.version_number ?? 0) + 1})
+                                            {t('docs.willCreateVersion', { n: (docData?.version_number ?? 0) + 1 })}
                                         </Typography>
                                     </>
                                 ) : (
                                     <>
                                         <UploadFileIcon sx={{ fontSize: 48, color: colors.secondary.text }} />
-                                        <Typography mt={1}>Click to replace file — creates a new version</Typography>
+                                        <Typography mt={1}>{t('docs.clickToReplaceFile')}</Typography>
                                         <Typography variant="caption" color="text.secondary">
-                                            File must match: {docData?.doc_name}.{docData?.file_type}
+                                            {t('docs.fileMustMatch', { name: docData?.doc_name, ext: docData?.file_type })}
                                         </Typography>
                                     </>
                                 )}
                             </Box>
 
-                            {/* Upload progress */}
                             {step === 'uploading' && (
                                 <Box sx={{ mt: 1 }}>
                                     <LinearProgress variant="determinate" value={uploadProgress} />
                                     <Typography variant="caption" color="text.secondary">
-                                        Uploading new version… {uploadProgress}%
+                                        {t('docs.uploadingNewVersion', { progress: uploadProgress })}
                                     </Typography>
                                 </Box>
                             )}
@@ -217,7 +215,7 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
                         <Grid size={{ xs: 12 }}>
                             <TextField
                                 fullWidth
-                                label="Document Name"
+                                label={t('docs.documentName')}
                                 required
                                 value={formData.doc_name}
                                 onChange={(e) => handleChange('doc_name', e.target.value)}
@@ -227,7 +225,7 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
                         <Grid size={{ xs: 12 }}>
                             <TextField
                                 fullWidth
-                                label="Description"
+                                label={t('docs.description')}
                                 multiline
                                 rows={3}
                                 value={formData.description}
@@ -237,10 +235,10 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
 
                         <Grid size={{ xs: 12, md: 6 }}>
                             <FormControl fullWidth required>
-                                <InputLabel>Document Type</InputLabel>
+                                <InputLabel>{t('docs.documentType')}</InputLabel>
                                 <Select
                                     value={formData.doc_type_id}
-                                    label="Document Type"
+                                    label={t('docs.documentType')}
                                     onChange={(e) => handleChange('doc_type_id', e.target.value)}
                                 >
                                     {docTypes.map((dt: any) => (
@@ -252,35 +250,32 @@ const DocumentEditDialog = ({ open, onClose, onSuccess, docData, folders, curren
 
                         <Grid size={{ xs: 12, md: 6 }}>
                             <FormControl fullWidth>
-                                <InputLabel>Folder</InputLabel>
+                                <InputLabel>{t('docs.selectFolder')}</InputLabel>
                                 <Select
                                     value={formData.folder_id}
-                                    label="Folder"
+                                    label={t('docs.selectFolder')}
                                     onChange={(e) => handleChange('folder_id', e.target.value)}
                                 >
-                                    <MenuItem value="">Root</MenuItem>
+                                    <MenuItem value="">{t('docs.rootFolder')}</MenuItem>
                                     {folders.map((f: any) => (
                                         <MenuItem key={f.id} value={f.id}>{f.folder_name}</MenuItem>
                                     ))}
                                 </Select>
                             </FormControl>
                         </Grid>
-
                     </Grid>
                 )}
             </DialogContent>
 
             <DialogActions>
-                <Button onClick={onClose} disabled={submitting}>Cancel</Button>
+                <Button variant="outlined" onClick={onClose} disabled={submitting}>{t('common.cancel')}</Button>
                 <Button
-                    onClick={handleSubmit}
                     variant="contained"
+                    onClick={handleSubmit}
                     disabled={submitting || loading}
-                    startIcon={submitting ? <CircularProgress size={16} /> : undefined}
+                    startIcon={submitting ? <CircularProgress size={16} color="inherit" /> : undefined}
                 >
-                    {step === 'updating' ? 'Updating...' :
-                     step === 'uploading' ? 'Uploading version...' :
-                     'Update'}
+                    {submitLabel}
                 </Button>
             </DialogActions>
         </Dialog>

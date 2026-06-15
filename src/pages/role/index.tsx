@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { formatDateTime } from '@/utils/dateUtils';
 import {
     Box,
@@ -10,6 +11,7 @@ import {
     TableContainer,
     TableHead,
     TableRow,
+    TablePagination,
     IconButton,
     Button,
     CircularProgress,
@@ -19,76 +21,154 @@ import {
     DialogContent,
     DialogActions,
     TextField,
+    InputAdornment,
 } from '@mui/material';
-import { roleServiceMock, RoleModel } from '@/services/mock/roleServiceMock';
-// import RefreshIcon from '@mui/icons-material/Refresh';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
+import SearchIcon from '@mui/icons-material/Search';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
+import { roleService } from '@/services/roleService';
+import { RoleModel, CreateRoleRequest, UpdateRoleRequest } from '@/models/roleModel';
+import Swal from 'sweetalert2';
 
 const RolePage = () => {
+    const { t } = useTranslation();
+
+    // Table state
     const [roles, setRoles] = useState<RoleModel[]>([]);
     const [loading, setLoading] = useState(false);
+    const [totalItems, setTotalItems] = useState(0);
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+    const [search, setSearch] = useState('');
+    const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+    // Dialog state
     const [openDialog, setOpenDialog] = useState(false);
-    const [formData, setFormData] = useState({ role_name: '', description: '' });
+    const [editingRole, setEditingRole] = useState<RoleModel | null>(null);
+    const [formData, setFormData] = useState<CreateRoleRequest>({ role_name: '', description: '' });
+    const [saving, setSaving] = useState(false);
 
-    useEffect(() => {
-        fetchData();
-    }, []);
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async (currentPage: number, limit: number, q: string) => {
         setLoading(true);
         try {
-            const res = await roleServiceMock.getAllRoles();
-            if (res.success) {
-                setRoles(res.data);
-            }
+            const res = await roleService.getAllRoles(currentPage + 1, limit, q || undefined);
+            setRoles(res.items);
+            setTotalItems(res.pagination.totalItems);
         } catch (error) {
             console.error('Failed to fetch roles:', error);
         } finally {
             setLoading(false);
         }
+    }, []);
+
+    useEffect(() => {
+        fetchData(page, rowsPerPage, search);
+    }, [page, rowsPerPage, fetchData]);
+
+    const handleSearchChange = (value: string) => {
+        setSearch(value);
+        if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+        searchTimerRef.current = setTimeout(() => {
+            setPage(0);
+            fetchData(0, rowsPerPage, value);
+        }, 500);
     };
 
-    // const handleOpenAdd = () => {
-    //     setFormData({ role_name: '', description: '' });
-    //     setOpenDialog(true);
-    // };
+    const handleOpenAdd = () => {
+        setEditingRole(null);
+        setFormData({ role_name: '', description: '' });
+        setOpenDialog(true);
+    };
+
+    const handleOpenEdit = (role: RoleModel) => {
+        setEditingRole(role);
+        setFormData({ role_name: role.role_name, description: role.description || '' });
+        setOpenDialog(true);
+    };
+
+    const handleCloseDialog = () => {
+        setOpenDialog(false);
+        setEditingRole(null);
+    };
 
     const handleSave = async () => {
-        if (!formData.role_name) return;
+        if (!formData.role_name?.trim()) return;
+        setSaving(true);
         try {
-            const res = await roleServiceMock.createRole(formData);
-            if (res.success) {
-                fetchData();
-                setOpenDialog(false);
+            if (editingRole) {
+                await roleService.updateRole(editingRole.id, formData as UpdateRoleRequest);
+            } else {
+                await roleService.createRole(formData);
             }
-        } catch (error) {
-            console.error(error);
+            handleCloseDialog();
+            fetchData(page, rowsPerPage, search);
+        } catch (err: any) {
+            Swal.fire('Error', err?.message || 'Failed to save role', 'error');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+    const handleDelete = async (role: RoleModel) => {
+        const result = await Swal.fire({
+            title: t('common.delete') + ' ' + role.role_name + '?',
+            text: t('dept.cannotUndo'),
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            confirmButtonText: t('common.delete'),
+            cancelButtonText: t('common.cancel'),
+        });
+        if (!result.isConfirmed) return;
+
+        try {
+            await roleService.deleteRole(role.id);
+            fetchData(page, rowsPerPage, search);
+        } catch (err: any) {
+            Swal.fire('Error', err?.message || 'Failed to delete role', 'error');
         }
     };
 
     return (
         <Box>
-            <BreadcrumbsCustom breadcrumbs={[{ label: 'Role Management' }]} />
+            <BreadcrumbsCustom breadcrumbs={[{ label: t('nav.roleManagement') }]} />
 
-            <Box sx={{ mt: 3, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h5">Role Management</Typography>
-                <Box>
-                    {/* <Button
+            <Box sx={{ mt: 3, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2 }}>
+                <Typography variant="h5">{t('roles.title')}</Typography>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <TextField
+                        size="small"
+                        placeholder={t('common.search')}
+                        value={search}
+                        onChange={(e) => handleSearchChange(e.target.value)}
+                        slotProps={{
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <SearchIcon fontSize="small" />
+                                    </InputAdornment>
+                                ),
+                            },
+                        }}
+                        sx={{ width: 220 }}
+                    />
+                    <Button
                         variant="contained"
+                        startIcon={<AddIcon />}
                         onClick={handleOpenAdd}
-                        sx={{ mr: 1 }}
                     >
-                        + Add Role
-                    </Button> */}
-                    {/* <Button
+                        {t('roles.addRole')}
+                    </Button>
+                    <Button
                         startIcon={<RefreshIcon />}
                         variant="outlined"
-                        onClick={fetchData}
+                        onClick={() => fetchData(page, rowsPerPage, search)}
                     >
-                        Refresh
-                    </Button> */}
+                        {t('common.refresh')}
+                    </Button>
                 </Box>
             </Box>
 
@@ -97,33 +177,45 @@ const RolePage = () => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Role Name</TableCell>
-                                <TableCell>Description</TableCell>
-                                <TableCell>Created At</TableCell>
-                                <TableCell>Updated At</TableCell>
-                                <TableCell align="right">Actions</TableCell>
+                                <TableCell width={60}>{t('common.id')}</TableCell>
+                                <TableCell>{t('roles.roleName')}</TableCell>
+                                <TableCell>{t('docs.description')}</TableCell>
+                                <TableCell>{t('roles.createdAt')}</TableCell>
+                                <TableCell>{t('roles.updatedAt')}</TableCell>
+                                <TableCell align="right">{t('common.actions')}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
                             {loading ? (
                                 <TableRow>
-                                    <TableCell colSpan={6} align="center"><CircularProgress /></TableCell>
+                                    <TableCell colSpan={6} align="center" sx={{ py: 4 }}>
+                                        <CircularProgress />
+                                    </TableCell>
+                                </TableRow>
+                            ) : roles.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={6} align="center" sx={{ py: 4, color: 'text.secondary' }}>
+                                        {t('common.noData')}
+                                    </TableCell>
                                 </TableRow>
                             ) : (
-                                roles.map((role) => (
+                                roles.map((role, index) => (
                                     <TableRow key={role.id} hover>
-                                        <TableCell>{role.id}</TableCell>
+                                        <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                                         <TableCell>{role.role_name}</TableCell>
-                                        <TableCell>{role.description}</TableCell>
+                                        <TableCell>{role.description || '—'}</TableCell>
                                         <TableCell>{formatDateTime(role.created_at)}</TableCell>
                                         <TableCell>{formatDateTime(role.updated_at)}</TableCell>
                                         <TableCell align="right">
-                                            <Tooltip title="Edit">
-                                                <IconButton size="small"><EditIcon fontSize="small" /></IconButton>
+                                            <Tooltip title={t('common.edit')}>
+                                                <IconButton size="small" onClick={() => handleOpenEdit(role)}>
+                                                    <EditIcon fontSize="small" />
+                                                </IconButton>
                                             </Tooltip>
-                                            <Tooltip title="Delete">
-                                                <IconButton size="small" color="error"><DeleteIcon fontSize="small" /></IconButton>
+                                            <Tooltip title={t('common.delete')}>
+                                                <IconButton size="small" color="error" onClick={() => handleDelete(role)}>
+                                                    <DeleteIcon fontSize="small" />
+                                                </IconButton>
                                             </Tooltip>
                                         </TableCell>
                                     </TableRow>
@@ -132,24 +224,38 @@ const RolePage = () => {
                         </TableBody>
                     </Table>
                 </TableContainer>
+                <TablePagination
+                    component="div"
+                    count={totalItems}
+                    page={page}
+                    rowsPerPage={rowsPerPage}
+                    onPageChange={(_, newPage) => setPage(newPage)}
+                    onRowsPerPageChange={(e) => { setRowsPerPage(parseInt(e.target.value, 10)); setPage(0); }}
+                    rowsPerPageOptions={[5, 10, 25]}
+                />
             </Card>
 
-            <Dialog open={openDialog} onClose={() => setOpenDialog(false)} fullWidth maxWidth="sm">
-                <DialogTitle>Add Role</DialogTitle>
+            {/* Add / Edit Dialog */}
+            <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
+                <DialogTitle>
+                    {editingRole ? t('common.edit') + ' ' + t('roles.roleName') : t('roles.addRole')}
+                </DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         margin="dense"
-                        label="Role Name"
+                        label={t('roles.roleName')}
+                        required
                         fullWidth
                         variant="outlined"
                         value={formData.role_name}
                         onChange={(e) => setFormData({ ...formData, role_name: e.target.value })}
-                        sx={{ mb: 2 }}
+                        disabled={!!editingRole}
+                        sx={{ mb: 2, mt: 1 }}
                     />
                     <TextField
                         margin="dense"
-                        label="Description"
+                        label={t('docs.description')}
                         fullWidth
                         multiline
                         rows={3}
@@ -159,8 +265,14 @@ const RolePage = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={() => setOpenDialog(false)}>Cancel</Button>
-                    <Button onClick={handleSave} variant="contained">Save</Button>
+                    <Button onClick={handleCloseDialog} disabled={saving}>{t('common.cancel')}</Button>
+                    <Button
+                        onClick={handleSave}
+                        variant="contained"
+                        disabled={saving || !formData.role_name?.trim()}
+                    >
+                        {saving ? <CircularProgress size={20} /> : editingRole ? t('users.update') : t('common.save')}
+                    </Button>
                 </DialogActions>
             </Dialog>
         </Box>

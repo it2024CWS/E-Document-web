@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Box,
     Typography,
@@ -29,6 +30,7 @@ import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
 import Swal from 'sweetalert2';
 
 const DocTypePage = () => {
+    const { t } = useTranslation();
     const [docTypes, setDocTypes] = useState<DocTypeModel[]>([]);
     const [loading, setLoading] = useState(false);
 
@@ -97,13 +99,13 @@ const DocTypePage = () => {
 
     const handleDeleteDocType = async (id: string, name: string) => {
         const confirmed = await Swal.fire({
-            title: 'Delete Document Type?',
-            text: `Are you sure you want to delete "${name}"? This action cannot be undone.`,
+            title: t('docType.deleteDocType'),
+            text: t('docType.deleteConfirm', { name }),
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Delete'
+            confirmButtonText: t('common.delete'),
         });
 
         if (!confirmed.isConfirmed) return;
@@ -120,24 +122,24 @@ const DocTypePage = () => {
 
     return (
         <Box>
-            <BreadcrumbsCustom breadcrumbs={[{ label: 'Document Types' }]} />
+            <BreadcrumbsCustom breadcrumbs={[{ label: t('nav.documentTypes') }]} />
 
             <Box sx={{ mt: 3, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h5">Document Types</Typography>
+                <Typography variant="h5">{t('docType.title')}</Typography>
                 <Box>
                     <Button
                         variant="contained"
                         onClick={() => handleOpenDialog()}
                         sx={{ mr: 1 }}
                     >
-                        + Add
+                        + {t('common.add')}
                     </Button>
                     <Button
                         startIcon={<RefreshIcon />}
                         variant="outlined"
                         onClick={fetchData}
                     >
-                        Refresh
+                        {t('common.refresh')}
                     </Button>
                 </Box>
             </Box>
@@ -147,10 +149,10 @@ const DocTypePage = () => {
                     <Table>
                         <TableHead>
                             <TableRow>
-                                <TableCell>ID</TableCell>
-                                <TableCell>Type Name</TableCell>
-                                <TableCell>Description</TableCell>
-                                <TableCell align="right">Actions</TableCell>
+                                <TableCell width={60}>{t('common.id')}</TableCell>
+                                <TableCell>{t('docType.typeName')}</TableCell>
+                                <TableCell>{t('docs.description')}</TableCell>
+                                <TableCell align="right">{t('common.actions')}</TableCell>
                             </TableRow>
                         </TableHead>
                         <TableBody>
@@ -160,21 +162,21 @@ const DocTypePage = () => {
                                 </TableRow>
                             ) : docTypes.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={4} align="center">No document types found</TableCell>
+                                    <TableCell colSpan={4} align="center">{t('docType.noDocTypes')}</TableCell>
                                 </TableRow>
                             ) : (
-                                docTypes.map((item) => (
+                                docTypes.map((item, index) => (
                                     <TableRow key={item.id} hover>
-                                        <TableCell>{item.id}</TableCell>
+                                        <TableCell>{index + 1}</TableCell>
                                         <TableCell>{item.type_name}</TableCell>
                                         <TableCell>{item.description || '-'}</TableCell>
                                         <TableCell align="right">
-                                            <Tooltip title="Edit">
+                                            <Tooltip title={t('common.edit')}>
                                                 <IconButton size="small" onClick={() => handleOpenDialog(item)}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
                                             </Tooltip>
-                                            <Tooltip title="Delete">
+                                            <Tooltip title={t('common.delete')}>
                                                 <IconButton size="small" color="error" onClick={() => handleDeleteDocType(item.id, item.type_name)}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
@@ -190,12 +192,12 @@ const DocTypePage = () => {
 
             {/* Create / Edit Dialog */}
             <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
-                <DialogTitle>{editMode ? 'Edit Document Type' : 'Add Document Type'}</DialogTitle>
+                <DialogTitle>{editMode ? t('docType.editDocType') : t('docType.addDocType')}</DialogTitle>
                 <DialogContent>
                     <TextField
                         autoFocus
                         margin="dense"
-                        label="Type Name"
+                        label={t('docType.typeName')}
                         fullWidth
                         required
                         variant="outlined"
@@ -205,7 +207,7 @@ const DocTypePage = () => {
                     />
                     <TextField
                         margin="dense"
-                        label="Description"
+                        label={t('docs.description')}
                         fullWidth
                         multiline
                         rows={3}
@@ -215,9 +217,9 @@ const DocTypePage = () => {
                     />
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleCloseDialog}>Cancel</Button>
+                    <Button onClick={handleCloseDialog}>{t('common.cancel')}</Button>
                     <Button onClick={handleSaveDocType} variant="contained">
-                        {editMode ? 'Update' : 'Save'}
+                        {editMode ? t('users.update') : t('common.save')}
                     </Button>
                 </DialogActions>
             </Dialog>
@@ -226,4 +228,3 @@ const DocTypePage = () => {
 };
 
 export default DocTypePage;
-

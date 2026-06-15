@@ -3,6 +3,7 @@ import DataTable, { Column } from '@/components/Table/DataTable';
 import { BoxProps, Chip, Avatar } from '@mui/material';
 import { UserModel } from '@/models/userModel';
 import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface TableProps extends BoxProps {
   users: UserModel[];
@@ -15,21 +16,22 @@ interface TableProps extends BoxProps {
   onRowsPerPageChange?: (newLimit: number) => void;
 }
 
-const Table = memo(({ 
-  users, 
-  onSelectUser, 
-  totalUsers, 
+const Table = memo(({
+  users,
+  onSelectUser,
+  totalUsers,
   loading,
   page,
   rowsPerPage,
   onPageChange,
   onRowsPerPageChange,
-  ...props 
+  ...props
 }: TableProps) => {
-  
+  const { t } = useTranslation();
+
   const columns = useMemo((): Column<UserModel>[] => [
-    { 
-      label: 'Profile', 
+    {
+      label: t('users.profile'),
       content: (item) => (
         <Avatar
           src={item.profile_picture || undefined}
@@ -40,18 +42,18 @@ const Table = memo(({
         </Avatar>
       )
     },
-    { label: 'Username', content: (item) => item.username },
-    { label: 'Email', content: (item) => item.email },
-    { 
-      label: 'Full Name', 
+    { label: t('users.username'), content: (item) => item.username },
+    { label: t('common.email'), content: (item) => item.email },
+    {
+      label: t('users.fullName'),
       content: (item) => (
         item.firstname || item.lastname
           ? `${item.firstname} ${item.lastname}`.trim()
           : '-'
       )
     },
-    { 
-      label: 'Role', 
+    {
+      label: t('users.role'),
       content: (item) => (
         item.role_name ? (
           <Chip
@@ -63,13 +65,13 @@ const Table = memo(({
         ) : '-'
       )
     },
-    { label: 'Phone', content: (item) => item.phone || '-' },
-    { 
-      label: '', 
-      align: 'right', 
-      content: (item) => <ButtonDetail onClick={() => onSelectUser(item)} /> 
+    { label: t('common.phone'), content: (item) => item.phone || '-' },
+    {
+      label: '',
+      align: 'right',
+      content: (item) => <ButtonDetail onClick={() => onSelectUser(item)} />
     },
-  ], [onSelectUser]);
+  ], [onSelectUser, t]);
 
   return (
     <DataTable
@@ -82,7 +84,7 @@ const Table = memo(({
       rowsPerPage={rowsPerPage}
       onPageChange={onPageChange}
       onRowsPerPageChange={onRowsPerPageChange}
-      countLabel="All Users"
+      countLabel={t('users.allUsers')}
     />
   );
 });

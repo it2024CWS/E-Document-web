@@ -6,10 +6,13 @@ import DocumentCreateDialog from './components/DocumentCreateDialog';
 import DocumentVersionsDialog from './components/DocumentVersionsDialog';
 import DocumentEditDialog from './components/DocumentEditDialog';
 import DocumentDetailSidebar from './components/DocumentDetailSidebar';
+import FolderEditDialog from './components/FolderEditDialog';
 import useMainDrawerControllerContext from '@/layouts/context';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const DocumentPage = () => {
+    const { t } = useTranslation();
     const [versionsRefreshKey, setVersionsRefreshKey] = useState(0);
 
     const {
@@ -33,7 +36,11 @@ const DocumentPage = () => {
         selectedDetailItem,
         handleDeleteDocument,
         refreshDocuments,
-        refreshFolders
+        refreshFolders,
+        folderEditDialogOpen,
+        selectedEditFolder,
+        handleOpenEditFolder,
+        handleCloseEditFolder,
     } = useDocumentController();
 
     const { addDocumentTrigger, consumeAddDocumentTrigger } = useMainDrawerControllerContext();
@@ -55,7 +62,7 @@ const DocumentPage = () => {
     const breadcrumbs = useMemo(() => {
         const crumbs: { label: string; onClick?: () => void }[] = [
             {
-                label: 'Document Management',
+                label: t('nav.documentManagement'),
                 onClick: () => handleFolderSelect(null)
             }
         ];
@@ -86,7 +93,9 @@ const DocumentPage = () => {
 
             <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
                 <Typography variant="h5">
-                    {selectedFolder ? `Folder: ${selectedFolder.folder_name}` : 'All Documents'}
+                    {selectedFolder
+                        ? t('myFile.folderView', { name: selectedFolder.folder_name })
+                        : t('myFile.allDocuments')}
                 </Typography>
             </Box>
 
@@ -134,6 +143,13 @@ const DocumentPage = () => {
                 currentFolderId={selectedFolder?.id}
             />
 
+            <FolderEditDialog
+                open={folderEditDialogOpen}
+                onClose={handleCloseEditFolder}
+                folder={selectedEditFolder}
+                onSuccess={refreshFolders}
+            />
+
             <DocumentDetailSidebar
                 open={detailSidebarOpen}
                 onClose={handleCloseDetail}
@@ -143,6 +159,8 @@ const DocumentPage = () => {
                     handleCloseDetail();
                     if ('doc_no' in item) {
                         handleOpenEdit(item as any);
+                    } else {
+                        handleOpenEditFolder(item as any);
                     }
                 }}
                 onDelete={handleDeleteDocument}

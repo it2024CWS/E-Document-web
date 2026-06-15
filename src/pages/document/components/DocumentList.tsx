@@ -1,4 +1,4 @@
-    import {
+import {
     Table,
     TableBody,
     TableCell,
@@ -17,6 +17,7 @@ import { colors } from '../../../themes/colors';
 import { getFileIcon } from '@/utils/documentUtils';
 import FolderIcon from '@mui/icons-material/Folder';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import { useTranslation } from 'react-i18next';
 
 interface DocumentListProps {
     documents: DocumentModel[];
@@ -27,7 +28,6 @@ interface DocumentListProps {
     onDetail: (item: DocumentModel | FolderModel) => void;
 }
 
-
 const DocumentList = ({
     documents,
     folders = [],
@@ -35,8 +35,10 @@ const DocumentList = ({
     onFolderClick,
     onDetail
 }: DocumentListProps) => {
+    const { t } = useTranslation();
+
     if (loading) {
-        return <div>Loading...</div>;
+        return <Typography sx={{ p: 3, textAlign: 'center', color: 'text.secondary' }}>{t('common.loading')}</Typography>;
     }
 
     return (
@@ -44,11 +46,11 @@ const DocumentList = ({
             <Table>
                 <TableHead>
                     <TableRow sx={{ '& th': { borderBottom: 'none', color: colors.secondary.text, fontWeight: 600, fontSize: '0.9rem' } }}>
-                        <TableCell>Document Name</TableCell>
-                        <TableCell>Document number</TableCell>
-                        <TableCell>Modified</TableCell>
-                        <TableCell>Owner name</TableCell>
-                        <TableCell>Department name</TableCell>
+                        <TableCell>{t('docs.documentName')}</TableCell>
+                        <TableCell>{t('docs.documentNumber')}</TableCell>
+                        <TableCell>{t('common.modified')}</TableCell>
+                        <TableCell>{t('myFile.ownerName')}</TableCell>
+                        <TableCell>{t('myFile.departmentName')}</TableCell>
                         <TableCell align="right"></TableCell>
                     </TableRow>
                 </TableHead>
@@ -58,10 +60,7 @@ const DocumentList = ({
                         <TableRow
                             key={`folder-${folder.id}`}
                             hover
-                            sx={{
-                                cursor: 'pointer',
-                                '& td': { borderBottom: 'none', py: 2 }
-                            }}
+                            sx={{ cursor: 'pointer', '& td': { borderBottom: 'none', py: 2 } }}
                             onDoubleClick={() => onFolderClick?.(folder)}
                         >
                             <TableCell>
@@ -83,32 +82,30 @@ const DocumentList = ({
                     ))}
 
                     {/* Documents */}
-                    {documents.map((doc) => {
-                        return (
-                            <TableRow key={doc.id} hover sx={{ '& td': { borderBottom: 'none', py: 2 } }}>
-                                <TableCell>
-                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                                        {getFileIcon(doc.file_type || doc.type || doc.doc_name || '')}
-                                        <Typography variant="body2" fontWeight={500}>{doc.doc_name}</Typography>
-                                    </Box>
-                                </TableCell>
-                                <TableCell sx={{ color: colors.secondary.text }}>{doc.doc_no || '-'}</TableCell>
-                                <TableCell sx={{ color: colors.secondary.text }}>{formatDate(doc.updated_at)}</TableCell>
-                                <TableCell sx={{ color: colors.secondary.text }}>{doc.registrant_name || '-'}</TableCell>
-                                <TableCell sx={{ color: colors.secondary.text }}>{doc.department_name || '-'}</TableCell>
-                                <TableCell align="right">
-                                    <IconButton size="small" onClick={() => onDetail(doc)}>
-                                        <MoreHorizIcon sx={{ color: colors.secondary.text }} />
-                                    </IconButton>
-                                </TableCell>
-                            </TableRow>
-                        );
-                    })}
+                    {documents.map((doc) => (
+                        <TableRow key={doc.id} hover sx={{ '& td': { borderBottom: 'none', py: 2 } }}>
+                            <TableCell>
+                                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                                    {getFileIcon(doc.file_type || doc.type || doc.doc_name || '')}
+                                    <Typography variant="body2" fontWeight={500}>{doc.doc_name}</Typography>
+                                </Box>
+                            </TableCell>
+                            <TableCell sx={{ color: colors.secondary.text }}>{doc.doc_no || '-'}</TableCell>
+                            <TableCell sx={{ color: colors.secondary.text }}>{formatDate(doc.updated_at)}</TableCell>
+                            <TableCell sx={{ color: colors.secondary.text }}>{doc.registrant_name || '-'}</TableCell>
+                            <TableCell sx={{ color: colors.secondary.text }}>{doc.department_name || '-'}</TableCell>
+                            <TableCell align="right">
+                                <IconButton size="small" onClick={() => onDetail(doc)}>
+                                    <MoreHorizIcon sx={{ color: colors.secondary.text }} />
+                                </IconButton>
+                            </TableCell>
+                        </TableRow>
+                    ))}
 
                     {documents.length === 0 && folders.length === 0 && (
                         <TableRow>
                             <TableCell colSpan={6} align="center" sx={{ py: 3, color: colors.secondary.text }}>
-                                No files or folders
+                                {t('myFile.noFilesOrFolders')}
                             </TableCell>
                         </TableRow>
                     )}

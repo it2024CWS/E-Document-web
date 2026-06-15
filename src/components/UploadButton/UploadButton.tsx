@@ -4,8 +4,10 @@ import { colors } from '@/themes/colors';
 import useMainDrawerControllerContext from '@/layouts/context';
 import { useLocation } from 'react-router-dom';
 import { DOCUMENT_PATH } from '@/routes/config';
+import { useTranslation } from 'react-i18next';
 
 const UploadButton = () => {
+    const { t } = useTranslation();
     const { triggerAddDocument } = useMainDrawerControllerContext();
     const location = useLocation();
     
@@ -42,7 +44,7 @@ const UploadButton = () => {
                 }
             }}
         >
-            Add
+            {t('common.add')}
         </Button>
     );
 };

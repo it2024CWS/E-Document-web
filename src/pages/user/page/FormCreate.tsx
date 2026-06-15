@@ -18,27 +18,28 @@ import TextFieldPassword from '@/components/TextField/TextFieldPassword';
 import TextFieldCustom from '@/components/TextField/TextFieldCustom';
 import InputLabelCustom from '@/components/InputLabelCustom';
 import ProfilePictureUpload from '../components/ProfilePictureUpload';
+import { useTranslation } from 'react-i18next';
 
 const FormCreate = () => {
-  // const mainCtrl = useMainControllerContext();
   const createCtrl = useFormCreateControllerContext();
+  const { t } = useTranslation();
 
   return (
     <Box>
       <BreadcrumbsCustom
         breadcrumbs={[
           {
-            label: 'User management',
+            label: t('nav.userManagement'),
             onClick: createCtrl.handleCancel,
           },
-          { label: createCtrl.isEditMode ? 'Edit user' : 'Create user' },
+          { label: createCtrl.isEditMode ? t('users.editUser') : t('users.createUser') },
         ]}
       />
 
       <Box sx={{ mt: 3 }}>
         <Box sx={{ bgcolor: 'white', borderRadius: radius[2], p: 4 }}>
           <Typography variant="h5" mb={4} textAlign="center">
-            {createCtrl.isEditMode ? 'Edit User' : 'Create New User'}
+            {createCtrl.isEditMode ? t('users.editUser') : t('users.createNewUser')}
           </Typography>
 
           <form onSubmit={createCtrl.handleSubmit}>
@@ -58,7 +59,7 @@ const FormCreate = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldCustom
                   fullWidth
-                  label="Username"
+                  label={t('users.username')}
                   required
                   value={createCtrl.formData.username}
                   onChange={(e) => createCtrl.handleChange('username', e.target.value)}
@@ -68,7 +69,7 @@ const FormCreate = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldCustom
                   fullWidth
-                  label="Email"
+                  label={t('common.email')}
                   required
                   type="email"
                   value={createCtrl.formData.email}
@@ -80,7 +81,7 @@ const FormCreate = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldCustom
                   fullWidth
-                  label="First Name"
+                  label={t('users.firstName')}
                   value={createCtrl.formData.firstname}
                   onChange={(e) => createCtrl.handleChange('firstname', e.target.value)}
                   disabled={createCtrl.loading}
@@ -89,7 +90,7 @@ const FormCreate = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldCustom
                   fullWidth
-                  label="Last Name"
+                  label={t('users.lastName')}
                   value={createCtrl.formData.lastname}
                   onChange={(e) => createCtrl.handleChange('lastname', e.target.value)}
                   disabled={createCtrl.loading}
@@ -98,7 +99,7 @@ const FormCreate = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldCustom
                   fullWidth
-                  label="Nickname"
+                  label={t('users.nickname')}
                   value={createCtrl.formData.nickname}
                   onChange={(e) => createCtrl.handleChange('nickname', e.target.value)}
                   disabled={createCtrl.loading}
@@ -108,7 +109,7 @@ const FormCreate = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldPassword
                   fullWidth
-                  label={createCtrl.isEditMode ? 'Password (leave blank to keep current)' : 'Password'}
+                  label={createCtrl.isEditMode ? t('users.passwordEdit') : t('users.password')}
                   required={!createCtrl.isEditMode}
                   value={createCtrl.formData.password}
                   onChange={(e) => createCtrl.handleChange('password', e.target.value)}
@@ -117,15 +118,15 @@ const FormCreate = () => {
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth>
-                  <InputLabelCustom label="Role" required />
+                  <InputLabelCustom label={t('users.role')} required />
                   <Select
                     value={createCtrl.formData.role_id || ''}
-                    label="Role"
+                    label={t('users.role')}
                     onChange={(e) => createCtrl.handleChange('role_id', e.target.value)}
                     disabled={createCtrl.loading}
                   >
                     <MenuItem value="">
-                      <em>Select Role</em>
+                      <em>{t('users.selectRole')}</em>
                     </MenuItem>
                     {createCtrl.roles.map((role: any) => (
                       <MenuItem key={role.id} value={role.id}>
@@ -138,15 +139,15 @@ const FormCreate = () => {
 
               <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth>
-                  <InputLabelCustom label="Account Status" required />
+                  <InputLabelCustom label={t('users.accountStatus')} required />
                   <Select
                     value={createCtrl.formData.is_active}
-                    label="Account Status"
+                    label={t('users.accountStatus')}
                     onChange={(e) => createCtrl.handleChange('is_active', e.target.value)}
                     disabled={createCtrl.loading}
                   >
-                    <MenuItem value="true">Active</MenuItem>
-                    <MenuItem value="false">Inactive</MenuItem>
+                    <MenuItem value="true">{t('users.active')}</MenuItem>
+                    <MenuItem value="false">{t('users.inactive')}</MenuItem>
                   </Select>
                 </FormControl>
               </Grid>
@@ -154,7 +155,7 @@ const FormCreate = () => {
               <Grid size={{ xs: 12, md: 6 }}>
                 <TextFieldCustom
                   fullWidth
-                  label="Phone"
+                  label={t('common.phone')}
                   value={createCtrl.formData.phone}
                   onChange={(e) => createCtrl.handleChange('phone', e.target.value)}
                   disabled={createCtrl.loading}
@@ -162,15 +163,15 @@ const FormCreate = () => {
               </Grid>
               <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth>
-                  <InputLabel>Department</InputLabel>
+                  <InputLabel>{t('common.department')}</InputLabel>
                   <Select
                     value={createCtrl.formData.department_id || ''}
-                    label="Department"
+                    label={t('common.department')}
                     onChange={(e) => createCtrl.handleChange('department_id', e.target.value)}
                     disabled={createCtrl.loading}
                   >
                     <MenuItem value="">
-                      <em>Select Department</em>
+                      <em>{t('users.selectDepartment')}</em>
                     </MenuItem>
                     {createCtrl.departments.map((dept: any) => (
                       <MenuItem key={dept.id} value={dept.id}>
@@ -183,14 +184,14 @@ const FormCreate = () => {
 
               <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth disabled={!createCtrl.formData.department_id || createCtrl.loading}>
-                  <InputLabel>Sector</InputLabel>
+                  <InputLabel>{t('common.sector')}</InputLabel>
                   <Select
                     value={createCtrl.formData.sector_id || ''}
-                    label="Sector"
+                    label={t('common.sector')}
                     onChange={(e) => createCtrl.handleChange('sector_id', e.target.value)}
                   >
                     <MenuItem value="">
-                      <em>Select Sector</em>
+                      <em>{t('users.selectSector')}</em>
                     </MenuItem>
                     {createCtrl.sectors.map((sector: any) => (
                       <MenuItem key={sector.id} value={sector.id}>
@@ -209,7 +210,7 @@ const FormCreate = () => {
                   onClick={createCtrl.handleCancel}
                   disabled={createCtrl.loading}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   type="submit"
@@ -217,7 +218,7 @@ const FormCreate = () => {
                   startIcon={createCtrl.isEditMode ? <SaveIcon /> : <AddIcon />}
                   disabled={createCtrl.loading}
                 >
-                  {createCtrl.isEditMode ? 'Update' : 'Create'}
+                  {createCtrl.isEditMode ? t('users.update') : t('users.create')}
                 </Button>
               </Grid>
             </Grid>

@@ -28,14 +28,22 @@ const isMenuItemActive = (item: MainMenuItemModel, currentPath: string): boolean
 
 const NestedMenuItem: React.FC<{ item: MainMenuItemModel; currentPath: string; level?: number }> = ({ item, currentPath, level = 0 }) => {
   const navigate = useNavigate();
-  const { open } = useMainDrawerControllerContext();
+  const { open, handleChangeOpen } = useMainDrawerControllerContext();
   const { t } = useTranslation();
   const hasSubMenu = item.subMenu && item.subMenu.length > 0;
   const isActive = isMenuItemActive(item, currentPath);
   const [collapseOpen, setCollapseOpen] = useState(isActive && hasSubMenu);
 
   const handleClick = (path?: string) => {
-    if (hasSubMenu) setCollapseOpen((prev) => !prev);
+    if (hasSubMenu) {
+      if (!open) {
+        // Drawer is collapsed — expand it first, then open submenu
+        handleChangeOpen();
+        setCollapseOpen(true);
+      } else {
+        setCollapseOpen((prev) => !prev);
+      }
+    }
     if (path && !hasSubMenu) navigate(path);
   };
 

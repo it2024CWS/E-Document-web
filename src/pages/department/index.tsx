@@ -1,5 +1,6 @@
 
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
     Box,
     Typography,
@@ -59,6 +60,7 @@ interface DeptDialogProps {
 }
 
 function DeptDialog({ open, onClose, onSave, initial }: DeptDialogProps) {
+    const { t } = useTranslation();
     const [form, setForm] = useState<CreateDepartmentRequest & UpdateDepartmentRequest>({ dept_name: '', description: '' });
     const [saving, setSaving] = useState(false);
 
@@ -88,12 +90,12 @@ function DeptDialog({ open, onClose, onSave, initial }: DeptDialogProps) {
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>{initial ? 'Edit Department' : 'Add Department'}</DialogTitle>
+            <DialogTitle>{initial ? t('dept.editDept') : t('dept.addDept')}</DialogTitle>
             <DialogContent>
                 <TextField
                     autoFocus
                     margin="dense"
-                    label="Department Name *"
+                    label={`${t('dept.deptName')} *`}
                     fullWidth
                     variant="outlined"
                     value={form.dept_name}
@@ -102,7 +104,7 @@ function DeptDialog({ open, onClose, onSave, initial }: DeptDialogProps) {
                 />
                 <TextField
                     margin="dense"
-                    label="Description"
+                    label={t('docs.description')}
                     fullWidth
                     variant="outlined"
                     multiline
@@ -112,9 +114,9 @@ function DeptDialog({ open, onClose, onSave, initial }: DeptDialogProps) {
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} disabled={saving}>Cancel</Button>
+                <Button onClick={onClose} disabled={saving}>{t('common.cancel')}</Button>
                 <Button onClick={handleSave} variant="contained" disabled={saving || !form.dept_name?.trim()}>
-                    {saving ? <CircularProgress size={20} /> : 'Save'}
+                    {saving ? <CircularProgress size={20} /> : t('common.save')}
                 </Button>
             </DialogActions>
         </Dialog>
@@ -131,6 +133,7 @@ interface SectorDialogProps {
 }
 
 function SectorDialog({ open, onClose, onSave, departments, initial }: SectorDialogProps) {
+    const { t } = useTranslation();
     const [form, setForm] = useState<{ name: string; dept_id: string }>({ name: '', dept_id: '' });
     const [saving, setSaving] = useState(false);
 
@@ -161,12 +164,12 @@ function SectorDialog({ open, onClose, onSave, departments, initial }: SectorDia
 
     return (
         <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
-            <DialogTitle>{initial ? 'Edit Sector' : 'Add Sector'}</DialogTitle>
+            <DialogTitle>{initial ? t('dept.editSector') : t('dept.addSector')}</DialogTitle>
             <DialogContent>
                 <FormControl fullWidth margin="dense" sx={{ mb: 2 }}>
-                    <InputLabel>Department *</InputLabel>
+                    <InputLabel>{`${t('common.department')} *`}</InputLabel>
                     <Select
-                        label="Department *"
+                        label={`${t('common.department')} *`}
                         value={form.dept_id}
                         onChange={(e) => setForm({ ...form, dept_id: e.target.value })}
                     >
@@ -177,7 +180,7 @@ function SectorDialog({ open, onClose, onSave, departments, initial }: SectorDia
                 </FormControl>
                 <TextField
                     margin="dense"
-                    label="Sector Name *"
+                    label={`${t('dept.sectorName')} *`}
                     fullWidth
                     variant="outlined"
                     value={form.name}
@@ -185,9 +188,9 @@ function SectorDialog({ open, onClose, onSave, departments, initial }: SectorDia
                 />
             </DialogContent>
             <DialogActions>
-                <Button onClick={onClose} disabled={saving}>Cancel</Button>
+                <Button onClick={onClose} disabled={saving}>{t('common.cancel')}</Button>
                 <Button onClick={handleSave} variant="contained" disabled={saving || !form.name.trim() || !form.dept_id}>
-                    {saving ? <CircularProgress size={20} /> : 'Save'}
+                    {saving ? <CircularProgress size={20} /> : t('common.save')}
                 </Button>
             </DialogActions>
         </Dialog>
@@ -196,6 +199,7 @@ function SectorDialog({ open, onClose, onSave, departments, initial }: SectorDia
 
 // --------------- Main Page ---------------
 const DepartmentPage = () => {
+    const { t } = useTranslation();
     const [tab, setTab] = useState(0);
     const [departments, setDepartments] = useState<DepartmentModel[]>([]);
     const [sectors, setSectors] = useState<SectorModel[]>([]);
@@ -232,12 +236,12 @@ const DepartmentPage = () => {
     const handleOpenEditDept = (dept: DepartmentModel) => { setEditingDept(dept); setDeptDialogOpen(true); };
     const handleDeleteDept = async (id: string) => {
         const result = await Swal.fire({
-            title: 'Delete Department?',
-            text: 'This action cannot be undone.',
+            title: t('dept.deleteDept'),
+            text: t('dept.cannotUndo'),
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'Delete',
+            confirmButtonText: t('common.delete'),
         });
         if (!result.isConfirmed) return;
         try {
@@ -253,12 +257,12 @@ const DepartmentPage = () => {
     const handleOpenEditSector = (sec: SectorModel) => { setEditingSector(sec); setSectorDialogOpen(true); };
     const handleDeleteSector = async (id: string) => {
         const result = await Swal.fire({
-            title: 'Delete Sector?',
-            text: 'This action cannot be undone.',
+            title: t('dept.deleteSector'),
+            text: t('dept.cannotUndo'),
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            confirmButtonText: 'Delete',
+            confirmButtonText: t('common.delete'),
         });
         if (!result.isConfirmed) return;
         try {
@@ -271,28 +275,28 @@ const DepartmentPage = () => {
 
     return (
         <Box>
-            <BreadcrumbsCustom breadcrumbs={[{ label: 'Department Management' }]} />
+            <BreadcrumbsCustom breadcrumbs={[{ label: t('nav.departmentManagement') }]} />
 
             <Box sx={{ mt: 3, mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant="h5">Organization Structure</Typography>
+                <Typography variant="h5">{t('dept.orgStructure')}</Typography>
                 <Box>
                     <Button
                         variant="contained"
                         onClick={tab === 0 ? handleOpenAddDept : handleOpenAddSector}
                         sx={{ mr: 1 }}
                     >
-                        + Add
+                        + {t('common.add')}
                     </Button>
                     <Button startIcon={<RefreshIcon />} variant="outlined" onClick={fetchData}>
-                        Refresh
+                        {t('common.refresh')}
                     </Button>
                 </Box>
             </Box>
 
             <Card>
                 <Tabs value={tab} onChange={(_, v) => setTab(v)} sx={{ borderBottom: 1, borderColor: 'divider' }}>
-                    <Tab label="Departments" />
-                    <Tab label="Sectors" />
+                    <Tab label={t('dept.departments')} />
+                    <Tab label={t('dept.sectors')} />
                 </Tabs>
 
                 {/* --- Departments Tab --- */}
@@ -301,10 +305,10 @@ const DepartmentPage = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>ID</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Description</TableCell>
-                                    <TableCell align="right">Actions</TableCell>
+                                    <TableCell width={60}>{t('common.id')}</TableCell>
+                                    <TableCell>{t('common.name')}</TableCell>
+                                    <TableCell>{t('docs.description')}</TableCell>
+                                    <TableCell align="right">{t('common.actions')}</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -314,20 +318,20 @@ const DepartmentPage = () => {
                                     </TableRow>
                                 ) : departments.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} align="center">No departments found</TableCell>
+                                        <TableCell colSpan={4} align="center">{t('dept.noDepts')}</TableCell>
                                     </TableRow>
-                                ) : departments.map((dept) => (
+                                ) : departments.map((dept, index) => (
                                     <TableRow key={dept.id} hover>
-                                        <TableCell>{dept.id}</TableCell>
+                                        <TableCell>{index + 1}</TableCell>
                                         <TableCell>{dept.dept_name}</TableCell>
                                         <TableCell>{dept.description || '—'}</TableCell>
                                         <TableCell align="right">
-                                            <Tooltip title="Edit">
+                                            <Tooltip title={t('common.edit')}>
                                                 <IconButton size="small" onClick={() => handleOpenEditDept(dept)}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
                                             </Tooltip>
-                                            <Tooltip title="Delete">
+                                            <Tooltip title={t('common.delete')}>
                                                 <IconButton size="small" color="error" onClick={() => handleDeleteDept(dept.id)}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
@@ -346,10 +350,10 @@ const DepartmentPage = () => {
                         <Table>
                             <TableHead>
                                 <TableRow>
-                                    <TableCell>ID</TableCell>
-                                    <TableCell>Name</TableCell>
-                                    <TableCell>Department</TableCell>
-                                    <TableCell align="right">Actions</TableCell>
+                                    <TableCell width={60}>{t('common.id')}</TableCell>
+                                    <TableCell>{t('common.name')}</TableCell>
+                                    <TableCell>{t('common.department')}</TableCell>
+                                    <TableCell align="right">{t('common.actions')}</TableCell>
                                 </TableRow>
                             </TableHead>
                             <TableBody>
@@ -359,20 +363,20 @@ const DepartmentPage = () => {
                                     </TableRow>
                                 ) : sectors.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan={4} align="center">No sectors found</TableCell>
+                                        <TableCell colSpan={4} align="center">{t('dept.noSectors')}</TableCell>
                                     </TableRow>
-                                ) : sectors.map((sec) => (
+                                ) : sectors.map((sec, index) => (
                                     <TableRow key={sec.id} hover>
-                                        <TableCell>{sec.id}</TableCell>
+                                        <TableCell>{index + 1}</TableCell>
                                         <TableCell>{sec.name}</TableCell>
                                         <TableCell>{sec.dept_name || '—'}</TableCell>
                                         <TableCell align="right">
-                                            <Tooltip title="Edit">
+                                            <Tooltip title={t('common.edit')}>
                                                 <IconButton size="small" onClick={() => handleOpenEditSector(sec)}>
                                                     <EditIcon fontSize="small" />
                                                 </IconButton>
                                             </Tooltip>
-                                            <Tooltip title="Delete">
+                                            <Tooltip title={t('common.delete')}>
                                                 <IconButton size="small" color="error" onClick={() => handleDeleteSector(sec.id)}>
                                                     <DeleteIcon fontSize="small" />
                                                 </IconButton>
