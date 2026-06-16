@@ -1,7 +1,6 @@
 
 export interface OutgoingDocModel {
     id: string;
-    outgoing_no: string;
     doc_id: string;
     doc_no: string;
     doc_name: string;
@@ -14,7 +13,6 @@ export interface OutgoingDocModel {
 const mockOutgoingDocs: OutgoingDocModel[] = [
     {
         id: '1',
-        outgoing_no: 'OUT202602130001',
         doc_id: '101',
         doc_no: 'LAL20260210005',
         doc_name: 'Policy Update Q1.pdf',
@@ -25,7 +23,6 @@ const mockOutgoingDocs: OutgoingDocModel[] = [
     },
     {
         id: '2',
-        outgoing_no: 'OUT202602120005',
         doc_id: '102',
         doc_no: 'LAL20260210008',
         doc_name: 'Budget Request.xlsx',
@@ -36,7 +33,6 @@ const mockOutgoingDocs: OutgoingDocModel[] = [
     },
     {
         id: '3',
-        outgoing_no: 'OUT202602110012',
         doc_id: '105',
         doc_no: 'LAL20260205009',
         doc_name: 'Meeting Minutes.docx',

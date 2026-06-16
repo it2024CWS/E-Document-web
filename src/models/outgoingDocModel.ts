@@ -3,13 +3,13 @@ export interface RecipientDepartment {
   department_id?: string;
   dept_name?: string;
   department_name?: string;
-  status?: string;
-  incoming_no?: string;
+  status?: string; // pending|received|approved|rejected|waiting
+  sequence_order?: number;
+  is_current?: boolean;
   received_date?: string;
   approver_date?: string;
   incoming_doc?: {
     id: string;
-    incoming_no: string;
     status: string;
     received_date?: string;
     approver_date?: string;
@@ -26,7 +26,6 @@ export interface StatusCounts {
 
 export interface OutgoingDocModel {
   id: string;
-  outgoing_no: string;
   doc_id?: string;
   doc_no?: string;
   doc_name: string;
@@ -43,4 +42,12 @@ export interface OutgoingDocModel {
   // New fields
   recipients?: RecipientDepartment[];
   status_counts?: StatusCounts;
+
+  // Owner department head approval gate: pending|approved|rejected
+  status?: string;
+
+  // Flow tracking
+  current_department?: string;
+  current_status?: string; // pending|received|rejected|"" (completed)
+  flow_status?: string; // pending_approval|in_progress|completed|rejected
 }

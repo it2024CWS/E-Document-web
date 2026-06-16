@@ -35,4 +35,11 @@ export const outgoingDocService = {
         const response = await axiosInstance.post('/v1/outgoing-docs', data);
         return response.data;
     },
+
+    // Owner department head approves/rejects the outgoing doc. On approval the
+    // sequential recipient flow starts (first recipient's incoming doc is created).
+    approveOutgoingDoc: async (id: string, data: { status: 'approved' | 'rejected'; remark?: string }) => {
+        const response = await axiosInstance.post(`/v1/outgoing-docs/${id}/approve`, data);
+        return response.data;
+    },
 };

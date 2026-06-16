@@ -1,6 +1,5 @@
 export interface IncomingDocModel {
   id: string;
-  incoming_no: string;
   doc_details_id: string;
   doc_no: string;
   doc_name: string;

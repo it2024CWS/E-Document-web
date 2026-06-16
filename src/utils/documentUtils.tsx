@@ -49,6 +49,8 @@ export const getStatusColor = (status: string) => {
 
     // Incoming specific
     if (s === 'received') return { bg: '#E1F5FE', color: '#0288D1' }; // Light Blue
+    if (s === 'waiting') return { bg: '#F0F0F0', color: '#9E9E9E' }; // Gray — step not yet activated
+    if (s === 'pending_approval') return { bg: '#FFF4E5', color: '#B76E00' }; // Orange — awaiting owner head approval
 
     // Legacy / Other
     if (s === 'confidential') return { bg: '#FFF4E5', color: '#B76E00' };

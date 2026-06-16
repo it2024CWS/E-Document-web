@@ -1,7 +1,6 @@
 
 export interface IncomingDocModel {
     id: string;
-    incoming_no: string;
     doc_id: string;
     doc_no: string;
     doc_name: string;
@@ -21,7 +20,6 @@ export interface IncomingDocModel {
 const mockIncomingDocs: IncomingDocModel[] = [
     {
         id: '1',
-        incoming_no: 'IN202602130001',
         doc_id: '101',
         doc_no: 'LAL20260210005',
         doc_name: 'Policy Update Q1.pdf',
@@ -34,7 +32,6 @@ const mockIncomingDocs: IncomingDocModel[] = [
     },
     {
         id: '2',
-        incoming_no: 'IN202602120005',
         doc_id: '102',
         doc_no: 'LAL20260210008',
         doc_name: 'Budget Approval 2026.xlsx',
@@ -48,7 +45,6 @@ const mockIncomingDocs: IncomingDocModel[] = [
     },
     {
         id: '3',
-        incoming_no: 'IN202602110012',
         doc_id: '103',
         doc_no: 'LAL20260205001',
         doc_name: 'Project Alpha Spec.docx',

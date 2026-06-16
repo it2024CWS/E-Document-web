@@ -107,7 +107,7 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
         </Box>
       )
     },
-    { label: t('docs.documentNumber'), content: (doc) => doc.incoming_no || '-' },
+    { label: t('docs.documentNumber'), content: (doc) => doc.doc_no || '-' },
     { label: t('common.date'), content: (doc) => formatDateTime(doc.incoming_date) },
     { label: t('common.sender'), content: (doc) => doc.creator_name || '-' },
     {
@@ -170,7 +170,6 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
 
   const handleExport = () => {
     const dataToExport = filteredDocuments.map((doc) => ({
-      'Incoming No': doc.incoming_no,
       'Document Name': doc.doc_name,
       'Document Number': doc.doc_no,
       Date: formatDateTime(doc.incoming_date),

@@ -83,7 +83,27 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
     finally { setDownloading(false); }
   };
 
-  const recipients: any[] = document?.recipients ?? [];
+  const recipients: any[] = [...(document?.recipients ?? [])].sort(
+    (a, b) => (a.sequence_order ?? 0) - (b.sequence_order ?? 0)
+  );
+  const flowStatus = document?.flow_status;
+  const flowStyle = getStatusColor(
+    flowStatus === 'completed'
+      ? 'approved'
+      : flowStatus === 'rejected'
+      ? 'rejected'
+      : flowStatus === 'pending_approval'
+      ? 'pending_approval'
+      : 'pending'
+  );
+  const flowLabel =
+    flowStatus === 'completed'
+      ? t('docs.flowCompleted')
+      : flowStatus === 'rejected'
+      ? t('docs.flowRejected')
+      : flowStatus === 'pending_approval'
+      ? t('docs.flowPendingApproval')
+      : t('docs.flowInProgress');
   const statusCounts = document?.status_counts ?? {
     total: recipients.length,
     pending: recipients.filter((r: any) => (r.status || r.incoming_doc?.status) === 'pending').length,
@@ -158,11 +178,6 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
                 value={document.doc_no || '-'}
               />
               <InfoItem
-                icon={<TagIcon fontSize="small" />}
-                label={t('docs.outgoingNo')}
-                value={document.outgoing_no || '-'}
-              />
-              <InfoItem
                 icon={<PersonIcon fontSize="small" />}
                 label={t('common.sender')}
                 value={document.creator_name || document.user_name || '-'}
@@ -172,6 +187,38 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
                 label={t('docs.sentDate')}
                 value={formatDateTime(document.created_at)}
               />
+              {flowStatus && (
+                <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                  <Box sx={{ color: 'text.secondary', mt: 0.2, flexShrink: 0 }}>
+                    <GroupsIcon fontSize="small" />
+                  </Box>
+                  <Box>
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.2 }}>
+                      {t('docs.currentLocation')}
+                    </Typography>
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.3 }}>
+                      {flowStatus !== 'completed' && document.current_department && (
+                        <Typography variant="body2" fontWeight={600}>
+                          {document.current_department}
+                        </Typography>
+                      )}
+                      <Chip
+                        label={flowLabel}
+                        size="small"
+                        sx={{
+                          borderRadius: '6px',
+                          bgcolor: flowStyle.bg,
+                          color: flowStyle.color,
+                          fontWeight: 700,
+                          fontSize: '0.7rem',
+                          height: 22,
+                          '& .MuiChip-label': { px: 1 },
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                </Box>
+              )}
             </Box>
 
             <Divider />
@@ -204,8 +251,8 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
                 <Table size="small">
                   <TableHead>
                     <TableRow sx={{ bgcolor: '#F5F7FF' }}>
+                      <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.75rem', width: 48 }} align="center">#</TableCell>
                       <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.75rem' }}>{t('common.department').toUpperCase()}</TableCell>
-                      <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.75rem' }}>{t('docs.incomingNo').toUpperCase()}</TableCell>
                       <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.75rem' }}>{t('docs.receivedDate').toUpperCase()}</TableCell>
                       <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.75rem' }}>{t('docs.approvedDate').toUpperCase()}</TableCell>
                       <TableCell sx={{ fontWeight: 700, color: 'text.secondary', fontSize: '0.75rem' }}>{t('common.status').toUpperCase()}</TableCell>
@@ -219,16 +266,38 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
                         const statusStyle = getStatusColor(status);
                         const receivedDate = incomingDoc?.received_date || recipient.received_date;
                         const approverDate = incomingDoc?.approver_date || recipient.approver_date;
+                        const isCurrent = recipient.is_current;
+                        const seq = recipient.sequence_order ?? idx + 1;
                         return (
                           <TableRow
                             key={recipient.department_id || idx}
-                            sx={{ '&:last-child td': { borderBottom: 0 }, '&:hover': { bgcolor: '#FAFBFF' } }}
+                            sx={{
+                              '&:last-child td': { borderBottom: 0 },
+                              '&:hover': { bgcolor: '#FAFBFF' },
+                              ...(isCurrent && { bgcolor: '#EEF4FF', '&:hover': { bgcolor: '#E4EDFF' } }),
+                            }}
                           >
-                            <TableCell sx={{ fontWeight: 500 }}>
-                              {recipient.department_name || recipient.dept_name || '-'}
+                            <TableCell align="center">
+                              <Box
+                                sx={{
+                                  width: 24,
+                                  height: 24,
+                                  mx: 'auto',
+                                  borderRadius: '50%',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 700,
+                                  bgcolor: isCurrent ? 'primary.main' : '#E0E0E0',
+                                  color: isCurrent ? '#fff' : 'text.secondary',
+                                }}
+                              >
+                                {seq}
+                              </Box>
                             </TableCell>
-                            <TableCell sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>
-                              {incomingDoc?.incoming_no || recipient.incoming_no || '-'}
+                            <TableCell sx={{ fontWeight: isCurrent ? 700 : 500 }}>
+                              {recipient.department_name || recipient.dept_name || '-'}
                             </TableCell>
                             <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
                               {receivedDate
@@ -259,12 +328,12 @@ const DocumentDetailModal = ({ open, onClose, document, loading }: DocumentDetai
                         );
                       })
                     ) : document.incoming_docs && document.incoming_docs.length > 0 ? (
-                      document.incoming_docs.map((inc: any) => {
+                      document.incoming_docs.map((inc: any, idx: number) => {
                         const statusStyle = getStatusColor(inc.status);
                         return (
                           <TableRow key={inc.id} sx={{ '&:last-child td': { borderBottom: 0 }, '&:hover': { bgcolor: '#FAFBFF' } }}>
+                            <TableCell align="center" sx={{ color: 'text.secondary', fontWeight: 700 }}>{idx + 1}</TableCell>
                             <TableCell sx={{ fontWeight: 500 }}>{inc.receiver_name || '-'}</TableCell>
-                            <TableCell sx={{ color: 'text.secondary', fontFamily: 'monospace' }}>{inc.incoming_no || '-'}</TableCell>
                             <TableCell sx={{ color: 'text.secondary', fontSize: '0.8rem' }}>
                               {inc.received_date ? formatDateTime(inc.received_date) : '-'}
                             </TableCell>

@@ -28,6 +28,20 @@ export const documentService = {
     }
   },
 
+  checkDocNo: async (docNo: string): Promise<boolean> => {
+    try {
+      const res = await axiosInstance.get<GetByIdResponse<{ available: boolean }>>(
+        '/v1/documents/check-doc-no',
+        { params: { doc_no: docNo } }
+      );
+      return res.data.data?.available ?? false;
+    } catch (error) {
+      console.error('Check doc_no error', error);
+      // On error, treat as unavailable so the user is blocked rather than allowed to submit a dup
+      return false;
+    }
+  },
+
   getDocumentById: async (id: string): Promise<DocumentModel | null> => {
     try {
       const res = await axiosInstance.get<GetByIdResponse<DocumentModel>>(`/v1/documents/${id}`);

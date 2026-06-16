@@ -101,7 +101,6 @@ const IncomingPage = () => {
 
     const handleExport = () => {
         const dataToExport = filteredDocuments.map(doc => ({
-            'Incoming No': doc.incoming_no,
             'Document Name': doc.doc_name,
             'Document Number': doc.doc_no,
             'Date': formatDate(doc.incoming_date),
@@ -171,7 +170,7 @@ const IncomingPage = () => {
                 <DialogTitle>Receive Document</DialogTitle>
                 <DialogContent sx={{ minWidth: 400, pt: 2 }}>
                     <Typography gutterBottom>
-                        Incoming No: {selectedDoc?.incoming_no}
+                        Document No: {selectedDoc?.doc_no}
                     </Typography>
                     <Typography gutterBottom sx={{ mb: 2 }}>
                         Document: {selectedDoc?.doc_name}
@@ -203,7 +202,7 @@ const IncomingPage = () => {
                 <DialogTitle>Evaluate Document</DialogTitle>
                 <DialogContent sx={{ minWidth: 400, pt: 2 }}>
                     <Typography gutterBottom>
-                        Incoming No: {selectedDoc?.incoming_no}
+                        Document No: {selectedDoc?.doc_no}
                     </Typography>
                     <TextField
                         fullWidth
