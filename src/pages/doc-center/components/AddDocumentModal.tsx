@@ -130,7 +130,7 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
   const docNoHelperText = () => {
     if (docNoStatus === 'taken') return t('docs.docNoTaken');
     if (docNoStatus === 'available') return t('docs.docNoAvailable');
-    return t('docs.docNoRequired');
+    return '';
   };
 
   const docNoEndAdornment =
@@ -189,8 +189,6 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
             <TextField
               fullWidth
               label={t('docs.documentDescription')}
-              multiline
-              rows={3}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder={t('docs.descriptionPlaceholder')}

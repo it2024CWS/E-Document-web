@@ -5,6 +5,8 @@ import DescriptionIcon from '@mui/icons-material/Description';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
 import TableChartIcon from '@mui/icons-material/TableChart';
 import SlideshowIcon from '@mui/icons-material/Slideshow';
+import ImageIcon from '@mui/icons-material/Image';
+import FolderZipIcon from '@mui/icons-material/FolderZip';
 
 export const getFileIcon = (fileOrExt: string) => {
     // If it contains a dot, split it. Otherwise, assume it's an extension like 'pdf' or 'application/pdf'
@@ -15,6 +17,8 @@ export const getFileIcon = (fileOrExt: string) => {
     if (ext?.includes('word') || ['doc', 'docx'].includes(ext || '')) return <DescriptionIcon sx={{ color: colors.secondary.blue1 }} />;
     if (ext?.includes('excel') || ext?.includes('spreadsheet') || ['xls', 'xlsx'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
     if (ext?.includes('powerpoint') || ext?.includes('presentation') || ['ppt', 'pptx'].includes(ext || '')) return <SlideshowIcon sx={{ color: '#D24726' }} />;
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext || '')) return <ImageIcon sx={{ color: '#7C3AED' }} />;
+    if (['rar', 'zip', '7z', 'tar', 'gz'].includes(ext || '')) return <FolderZipIcon sx={{ color: '#92400E' }} />;
 
     return <InsertDriveFileIcon sx={{ color: colors.secondary.gray1 }} />;
 };

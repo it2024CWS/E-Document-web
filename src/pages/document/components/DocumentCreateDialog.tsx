@@ -1,6 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
 import {
     Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
     Button,
     TextField,
     FormControl,
@@ -25,7 +28,7 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 import { docTypeService } from '@/services/docTypeService';
 import { folderService } from '@/services/folderService';
-import { uploadFolder, uploadSingleFile } from '@/services/uploadService';
+import { uploadFolder, uploadSingleFile, FileWithPath } from '@/services/uploadService';
 import Swal from 'sweetalert2';
 import { useTranslation } from 'react-i18next';
 
@@ -37,6 +40,53 @@ interface DocumentCreateDialogProps {
     currentFolderId?: string;
     onSuccess?: () => void;
 }
+
+const readFolderEntry = async (entry: FileSystemEntry, basePath = ''): Promise<FileWithPath[]> => {
+    if (entry.isFile) {
+        return new Promise((resolve, reject) => {
+            (entry as FileSystemFileEntry).file(
+                (f) => resolve([{ file: f, relativePath: basePath + f.name }]),
+                reject
+            );
+        });
+    }
+    if (entry.isDirectory) {
+        const dir = entry as FileSystemDirectoryEntry;
+        const reader = dir.createReader();
+        const allEntries: FileSystemEntry[] = [];
+        await new Promise<void>((resolve, reject) => {
+            const readBatch = () => {
+                reader.readEntries((batch) => {
+                    if (batch.length === 0) resolve();
+                    else { allEntries.push(...batch); readBatch(); }
+                }, reject);
+            };
+            readBatch();
+        });
+        const nested = await Promise.all(
+            allEntries.map((e) => readFolderEntry(e, basePath + dir.name + '/'))
+        );
+        return nested.flat();
+    }
+    return [];
+};
+
+const readDirectoryHandle = async (
+    handle: FileSystemDirectoryHandle,
+    basePath: string
+): Promise<FileWithPath[]> => {
+    const files: FileWithPath[] = [];
+    for await (const [name, entry] of (handle as any).entries()) {
+        if (entry.kind === 'file') {
+            const file = await (entry as FileSystemFileHandle).getFile();
+            files.push({ file, relativePath: basePath + name });
+        } else if (entry.kind === 'directory') {
+            const nested = await readDirectoryHandle(entry as FileSystemDirectoryHandle, basePath + name + '/');
+            files.push(...nested);
+        }
+    }
+    return files;
+};
 
 const formatFileSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
@@ -61,8 +111,12 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
     });
     const [newFolderName, setNewFolderName] = useState('');
 
+    const [folderDragging, setFolderDragging] = useState(false);
+    const [pendingFolderFiles, setPendingFolderFiles] = useState<FileWithPath[]>([]);
+    const [pendingFolderName, setPendingFolderName] = useState('');
+    const [folderConfirmOpen, setFolderConfirmOpen] = useState(false);
+
     const fileInputRef = useRef<HTMLInputElement>(null);
-    const folderInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (open) {
@@ -156,19 +210,43 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
         }
     };
 
-    const handleUploadFolder = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const files = e.target.files;
-        if (!files || files.length === 0) return;
-        setSubmitting(true);
+    const handleFolderDrop = async (e: React.DragEvent) => {
+        e.preventDefault();
+        setFolderDragging(false);
+        const item = e.dataTransfer.items[0];
+        if (!item) return;
+        const entry = item.webkitGetAsEntry();
+        if (!entry?.isDirectory) return;
+        const files = await readFolderEntry(entry);
+        setPendingFolderName(entry.name);
+        setPendingFolderFiles(files);
+        setFolderConfirmOpen(true);
+    };
+
+    const handleClickSelectFolder = async () => {
+        try {
+            const dirHandle = await (window as any).showDirectoryPicker({ mode: 'read' });
+            const files = await readDirectoryHandle(dirHandle, dirHandle.name + '/');
+            setPendingFolderName(dirHandle.name);
+            setPendingFolderFiles(files);
+            setFolderConfirmOpen(true);
+        } catch (err: any) {
+            if (err?.name !== 'AbortError') console.error('Failed to open folder picker', err);
+        }
+    };
+
+    const handleFolderUploadConfirm = () => {
+        setFolderConfirmOpen(false);
+        if (!pendingFolderFiles.length) return;
         onClose();
         Swal.fire({
             title: t('docs.uploadingFolder'),
-            html: `${files.length} files`,
+            html: `${pendingFolderFiles.length} files`,
             allowOutsideClick: false,
             didOpen: () => Swal.showLoading(),
         });
         uploadFolder({
-            files,
+            files: pendingFolderFiles,
             parentFolderId: formData.folder_id,
             onAllComplete: () => {
                 Swal.close();
@@ -180,7 +258,8 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                 Swal.fire('Error', `Failed to upload ${fileName}: ${error.message}`, 'error');
             },
         });
-        setSubmitting(false);
+        setPendingFolderFiles([]);
+        setPendingFolderName('');
     };
 
     const modeCards = [
@@ -203,6 +282,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
     ];
 
     return (
+    <>
         <Dialog
             open={open}
             onClose={onClose}
@@ -476,17 +556,20 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                     </>
                                 ) : (
                                     <Box
-                                        onClick={() => folderInputRef.current?.click()}
+                                        onClick={handleClickSelectFolder}
+                                        onDragOver={(e) => { e.preventDefault(); setFolderDragging(true); }}
+                                        onDragLeave={() => setFolderDragging(false)}
+                                        onDrop={handleFolderDrop}
                                         sx={{
                                             border: '2px dashed',
-                                            borderColor: '#FDE68A',
+                                            borderColor: folderDragging ? '#F59E0B' : '#FDE68A',
                                             borderRadius: 3,
                                             py: 7,
                                             textAlign: 'center',
                                             cursor: 'pointer',
-                                            bgcolor: '#FFFBF0',
-                                            '&:hover': { borderColor: '#F59E0B', bgcolor: '#FFF8E1' },
+                                            bgcolor: folderDragging ? '#FFF8E1' : '#FFFBF0',
                                             transition: 'all 0.2s ease',
+                                            '&:hover': { borderColor: '#F59E0B', bgcolor: '#FFF8E1' },
                                         }}
                                     >
                                         <Box
@@ -504,15 +587,12 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                         >
                                             <DriveFolderUploadRoundedIcon sx={{ fontSize: 38, color: '#F59E0B' }} />
                                         </Box>
-                                        <Typography variant="body1" fontWeight={700}>{t('docs.clickToSelectFolder')}</Typography>
-                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>{t('docs.allFilesWillUpload')}</Typography>
-                                        <input
-                                            ref={folderInputRef}
-                                            type="file"
-                                            {...({ webkitdirectory: '', directory: '' } as any)}
-                                            style={{ display: 'none' }}
-                                            onChange={handleUploadFolder}
-                                        />
+                                        <Typography variant="body1" fontWeight={700}>
+                                            {folderDragging ? t('docs.dropFolderHere') : t('docs.dragFolderHere')}
+                                        </Typography>
+                                        <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                                            {t('docs.allFilesWillUpload')}
+                                        </Typography>
                                     </Box>
                                 )}
                             </Box>
@@ -549,6 +629,27 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                 </>
             )}
         </Dialog>
+
+        {/* Custom folder upload confirm dialog */}
+        <Dialog open={folderConfirmOpen} onClose={() => setFolderConfirmOpen(false)} maxWidth="xs" fullWidth>
+            <DialogTitle sx={{ fontWeight: 700 }}>{t('docs.uploadFolderTitle')}</DialogTitle>
+            <DialogContent>
+                <Typography>
+                    {t('docs.uploadFolderConfirm', { name: pendingFolderName, count: pendingFolderFiles.length })}
+                </Typography>
+            </DialogContent>
+            <DialogActions sx={{ px: 3, pb: 2 }}>
+                <Button onClick={() => setFolderConfirmOpen(false)}>{t('common.cancel')}</Button>
+                <Button
+                    variant="contained"
+                    onClick={handleFolderUploadConfirm}
+                    startIcon={<DriveFolderUploadRoundedIcon />}
+                >
+                    {t('docs.uploadBtn')}
+                </Button>
+            </DialogActions>
+        </Dialog>
+    </>
     );
 };
 

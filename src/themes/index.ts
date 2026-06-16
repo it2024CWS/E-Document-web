@@ -33,6 +33,13 @@ const baseTheme: ThemeOptions = {
         },
       },
     },
+    MuiFormLabel: {
+      styleOverrides: {
+        asterisk: {
+          color: '#d32f2f',
+        },
+      },
+    },
     MuiMenuItem: {
       styleOverrides: {
         root: {

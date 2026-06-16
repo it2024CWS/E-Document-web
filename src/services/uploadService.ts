@@ -77,8 +77,10 @@ export const uploadFile = (options: UploadOptions): tus.Upload => {
     return upload;
 };
 
+export type FileWithPath = { file: File; relativePath: string };
+
 export interface FolderUploadOptions {
-    files: FileList;
+    files: FileList | FileWithPath[];
     parentFolderId?: string;
     onFileProgress?: (fileName: string, progress: UploadProgressInfo) => void;
     onFileComplete?: (fileName: string) => void;
@@ -94,7 +96,9 @@ export const uploadFolder = (options: FolderUploadOptions): void => {
     const { files, parentFolderId, onFileProgress, onFileComplete, onAllComplete, onError } = options;
 
     const CONCURRENCY_LIMIT = 5; // max simultaneous uploads
-    const fileArray = Array.from(files);
+    const fileArray: FileWithPath[] = files instanceof FileList
+        ? Array.from(files).map(f => ({ file: f, relativePath: (f as any).webkitRelativePath || f.name }))
+        : files;
     const totalFiles = fileArray.length;
     let completedCount = 0;
     let startedCount = 0;
@@ -102,8 +106,7 @@ export const uploadFolder = (options: FolderUploadOptions): void => {
     const startNext = () => {
         if (startedCount >= totalFiles) return;
 
-        const file = fileArray[startedCount++];
-        const relativePath = (file as File & { webkitRelativePath?: string }).webkitRelativePath || file.name;
+        const { file, relativePath } = fileArray[startedCount++];
 
         uploadFile({
             file,
@@ -118,7 +121,6 @@ export const uploadFolder = (options: FolderUploadOptions): void => {
                 if (completedCount === totalFiles) {
                     onAllComplete?.();
                 } else {
-                    // Free up the slot and start the next file
                     startNext();
                 }
             },
@@ -128,7 +130,6 @@ export const uploadFolder = (options: FolderUploadOptions): void => {
                 if (completedCount === totalFiles) {
                     onAllComplete?.();
                 } else {
-                    // Still free the slot so remaining files can upload
                     startNext();
                 }
             },

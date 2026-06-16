@@ -191,7 +191,10 @@ const DocCenterPage = () => {
       <AddDocumentModal
         open={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onSuccess={() => { outboundTabRef.current?.refresh(); }}
+        onSuccess={async () => {
+          await new Promise(r => setTimeout(r, 1500));
+          outboundTabRef.current?.refresh();
+        }}
       />
     </Box>
   );
