@@ -1,14 +1,15 @@
 import { JSX } from 'react';
 import GridViewRoundedIcon from '@mui/icons-material/GridViewRounded';
 import FolderOpenRoundedIcon from '@mui/icons-material/FolderOpenRounded';
-import PermMediaRoundedIcon from '@mui/icons-material/PermMediaRounded';
+import FolderSharedRoundedIcon from '@mui/icons-material/FolderSharedRounded';
 import SwapHorizRoundedIcon from '@mui/icons-material/SwapHorizRounded';
 import PeopleAltRoundedIcon from '@mui/icons-material/PeopleAltRounded';
 import AdminPanelSettingsRoundedIcon from '@mui/icons-material/AdminPanelSettingsRounded';
 import CorporateFareRoundedIcon from '@mui/icons-material/CorporateFareRounded';
 import CategoryRoundedIcon from '@mui/icons-material/CategoryRounded';
+import BlockRoundedIcon from '@mui/icons-material/BlockRounded';
 import { colors } from '@/themes/colors';
-import { USER_PATH, DOCUMENT_PATH, DEPARTMENT_PATH, DOCTYPE_PATH, DASHBOARD_PATH, ROLE_PATH, DOC_CENTER_PATH } from '@/routes/config';
+import { USER_PATH, DOCUMENT_PATH, DEPARTMENT_PATH, DOCTYPE_PATH, DASHBOARD_PATH, ROLE_PATH, DOC_CENTER_PATH, REJECTED_DOC_PATH } from '@/routes/config';
 
 export const DRAWER_WIDTH: number = 240;
 export const APP_BAR_HEIGHT: number = 80;
@@ -38,18 +39,23 @@ export const MAIN_MENU_ITEMS: GroupMenuModel[] = [
         icon: <GridViewRoundedIcon sx={iconSx} />,
       },
       {
+        label: 'nav.myFiles',
+        path: DOCUMENT_PATH,
+        icon: <FolderSharedRoundedIcon sx={iconSx} />,
+      },
+      {
         label: 'nav.documentManagement',
         icon: <FolderOpenRoundedIcon sx={iconSx} />,
         subMenu: [
           {
-            label: 'nav.myFiles',
-            path: DOCUMENT_PATH,
-            icon: <PermMediaRoundedIcon sx={iconSx} />,
-          },
-          {
             label: 'nav.documents',
             path: DOC_CENTER_PATH,
             icon: <SwapHorizRoundedIcon sx={iconSx} />,
+          },
+          {
+            label: 'nav.rejectDocuments',
+            path: REJECTED_DOC_PATH,
+            icon: <BlockRoundedIcon sx={iconSx} />,
           },
         ],
       },

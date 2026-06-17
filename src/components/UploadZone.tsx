@@ -1,7 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import { colors } from '@/themes/colors';
 import { radius } from '@/themes/radius';
 
 interface UploadZoneProps {

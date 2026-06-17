@@ -27,6 +27,7 @@ export interface OutboundTabProps {
   docNo?: string;
   startDate?: string;
   endDate?: string;
+  status?: string;
   tabBar?: ReactNode;
 }
 
@@ -34,6 +35,7 @@ const OutboundTab = forwardRef<OutboundTabRef, OutboundTabProps>(({
   docNo = '',
   startDate = '',
   endDate = '',
+  status = '',
   tabBar,
 }, ref) => {
   const { user } = useAuth();
@@ -65,11 +67,11 @@ const OutboundTab = forwardRef<OutboundTabRef, OutboundTabProps>(({
 
   useEffect(() => {
     setPage(0);
-  }, [docNo, startDate, endDate]);
+  }, [docNo, startDate, endDate, status]);
 
   useEffect(() => {
     fetchDocuments();
-  }, [page, rowsPerPage, docNo, startDate, endDate]);
+  }, [page, rowsPerPage, docNo, startDate, endDate, status]);
 
   const fetchDocuments = async () => {
     setLoading(true);
@@ -79,6 +81,7 @@ const OutboundTab = forwardRef<OutboundTabRef, OutboundTabProps>(({
         startDate: startDate || undefined,
         endDate: endDate || undefined,
         docNo: docNo || undefined,
+        status: status || undefined,
       };
       console.log('Fetching outgoing docs with filters:', filters);
       const res = await outgoingDocService.getAllOutgoingDocs(page + 1, rowsPerPage, filters);
@@ -205,6 +208,21 @@ const OutboundTab = forwardRef<OutboundTabRef, OutboundTabProps>(({
       )
     },
     {
+      label: t('common.status'),
+      content: (doc) => {
+        const s = doc.status || 'pending';
+        const style = getStatusColor(s);
+        const label = s === 'pending' ? t('common.pending') : s === 'approved' ? t('common.approved') : t('common.rejected');
+        return (
+          <Chip
+            label={label}
+            size="small"
+            sx={{ borderRadius: '6px', bgcolor: style.bg, color: style.color, fontWeight: 700, fontSize: '0.7rem', height: 22 }}
+          />
+        );
+      }
+    },
+    {
       label: t('docs.currentLocation'),
       content: (doc) => {
         const { dept, status } = getCurrentLocation(doc);
@@ -212,21 +230,35 @@ const OutboundTab = forwardRef<OutboundTabRef, OutboundTabProps>(({
         if (flow === 'pending_approval') {
           const style = getStatusColor('pending_approval');
           return (
-            <Chip
-              label={t('docs.flowPendingApproval')}
-              size="small"
-              sx={{ borderRadius: '6px', bgcolor: style.bg, color: style.color, fontWeight: 700, fontSize: '0.7rem', height: 22 }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {dept && dept !== '-' && (
+                <Typography variant="body2" fontWeight={500} sx={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={dept}>
+                  {dept}
+                </Typography>
+              )}
+              <Chip
+                label={t('docs.flowPendingApproval')}
+                size="small"
+                sx={{ borderRadius: '6px', bgcolor: style.bg, color: style.color, fontWeight: 700, fontSize: '0.7rem', height: 22 }}
+              />
+            </Box>
           );
         }
         if (flow === 'completed') {
           const style = getStatusColor('approved');
           return (
-            <Chip
-              label={t('docs.flowCompleted')}
-              size="small"
-              sx={{ borderRadius: '6px', bgcolor: style.bg, color: style.color, fontWeight: 700, fontSize: '0.7rem', height: 22 }}
-            />
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              {dept && dept !== '-' && (
+                <Typography variant="body2" fontWeight={500} sx={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={dept}>
+                  {dept}
+                </Typography>
+              )}
+              <Chip
+                label={t('docs.flowCompleted')}
+                size="small"
+                sx={{ borderRadius: '6px', bgcolor: style.bg, color: style.color, fontWeight: 700, fontSize: '0.7rem', height: 22 }}
+              />
+            </Box>
           );
         }
         const style = getStatusColor(status);

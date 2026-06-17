@@ -7,6 +7,7 @@ export interface OutgoingDocFilter {
     startDate?: string;
     endDate?: string;
     docNo?: string;
+    status?: string;
 }
 
 export const outgoingDocService = {
@@ -16,6 +17,7 @@ export const outgoingDocService = {
         if (filters?.startDate) params.start_date = filters.startDate;
         if (filters?.endDate) params.end_date = filters.endDate;
         if (filters?.docNo) params.doc_no = filters.docNo;
+        if (filters?.status) params.status = filters.status;
 
         const response = await axiosInstance.get('/v1/outgoing-docs', { params });
         return response.data;

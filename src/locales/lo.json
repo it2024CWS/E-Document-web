@@ -5,11 +5,24 @@
     "documentManagement": "ການຈັດການເອກະສານ",
     "myFiles": "ໄຟລ໌ຂອງຂ້ອຍ",
     "documents": "ເອກະສານ",
+    "rejectDocuments": "ເອກະສານປະຕິເສດ",
     "userManagement": "ການຈັດການຜູ້ໃຊ້",
     "roleManagement": "ການຈັດການສິດທິ",
     "departmentManagement": "ການຈັດການພະແນກ",
     "documentTypes": "ປະເພດເອກະສານ",
     "dataManagement": "ການຈັດການຂໍ້ມູນ"
+  },
+  "reject": {
+    "title": "ເອກະສານທີ່ຖືກປະຕິເສດ",
+    "department": "ພະແນກ",
+    "allDepartments": "ທຸກພະແນກ",
+    "source": "ແຫຼ່ງ",
+    "allSources": "ທຸກແຫຼ່ງ",
+    "inbound": "ເອກະສານຮັບເຂົ້າ",
+    "outbound": "ເອກະສານສົ່ງອອກ",
+    "rejectedBy": "ປະຕິເສດໂດຍ",
+    "rejectionDate": "ວັນທີປະຕິເສດ",
+    "totalRejected": "ລວມທີ່ຖືກປະຕິເສດ"
   },
   "common": {
     "logout": "ອອກຈາກລະບົບ",
@@ -248,6 +261,15 @@
     "username": "ຊື່ຜູ້ໃຊ້",
     "password": "ລະຫັດຜ່ານ",
     "login": "ເຂົ້າສູ່ລະບົບ",
-    "loggingIn": "ກຳລັງເຂົ້າສູ່ລະບົບ..."
+    "loggingIn": "ກຳລັງເຂົ້າສູ່ລະບົບ...",
+    "brand": "ການບິນລາວ",
+    "signIn": "ເຂົ້າສູ່ລະບົບ",
+    "signInSubtitle": "ຍີນດີຕ້ອນຮັບ! ກະລຸນາເຂົ້າສູ່ລະບົບໂດຍໃຊ້ຊື່ຜູ້ໃຊ້ ຫຼື ອີເມວ",
+    "usernameOrEmail": "ຊື່ຜູ້ໃຊ້ ຫຼື ອີເມວ",
+    "keepMeLoggedIn": "ຈົດຈຳການເຂົ້າສູ່ລະບົບ",
+    "usernameOrEmailRequired": "ຕ້ອງລະບຸຊື່ຜູ້ໃຊ້ ຫຼື ອີເມວ",
+    "passwordRequired": "ຕ້ອງລະບຸລະຫັດຜ່ານ",
+    "passwordMinLength": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
+    "loginSuccess": "ເຂົ້າສູ່ລະບົບສຳເລັດ!"
   }
 }

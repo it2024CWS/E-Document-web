@@ -94,8 +94,9 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
     setPage(0);
   };
 
-  const filteredDocuments =
-    filterStatus === 'all' ? documents : documents.filter((doc) => doc.status === filterStatus);
+  const filteredDocuments = documents
+    .filter((doc) => doc.status !== 'rejected')
+    .filter((doc) => filterStatus === 'all' || doc.status === filterStatus);
 
   const columns = useMemo((): Column<IncomingDocModel>[] => [
     {
@@ -232,7 +233,6 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
               <option value="pending">{t('common.pending')}</option>
               <option value="received">{t('common.received')}</option>
               <option value="approved">{t('common.approved')}</option>
-              <option value="rejected">{t('common.rejected')}</option>
             </TextField>
           </Grid>
         </Grid>

@@ -35,11 +35,13 @@ const DocCenterPage = () => {
   const [docNo, setDocNo] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
+  const [status, setStatus] = useState('');
 
   const clearFilters = () => {
     setDocNo('');
     setStartDate('');
     setEndDate('');
+    setStatus('');
   };
 
   useEffect(() => {
@@ -168,6 +170,20 @@ const DocCenterPage = () => {
             slotProps={{ inputLabel: { shrink: true } }}
             sx={{ width: 150 }}
           />
+          <TextField
+            select
+            size="small"
+            label={t('docs.filterByStatus')}
+            value={status}
+            onChange={(e) => setStatus(e.target.value)}
+            slotProps={{ inputLabel: { shrink: true }, select: { native: true } }}
+            sx={{ width: 150 }}
+          >
+            <option value="">{t('docs.allStatuses')}</option>
+            <option value="pending">{t('common.pending')}</option>
+            <option value="approved">{t('common.approved')}</option>
+            <option value="rejected">{t('common.rejected')}</option>
+          </TextField>
           <Button variant="outlined" size="small" onClick={clearFilters}>
             {t('common.clear')}
           </Button>
@@ -184,6 +200,7 @@ const DocCenterPage = () => {
           docNo={docNo}
           startDate={startDate}
           endDate={endDate}
+          status={status}
           tabBar={tabBarSlot}
         />
       </TabPanel>

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { loginService } from '@/services/authService';
 import { UserDataModel } from '@/models/authModel';
 import { getErrorAlert, getSuccessAlert } from '@/utils/functions/sweetAlert/sweetAlert';
@@ -9,6 +10,7 @@ import { useAuth } from '@/contexts/auth';
 const useMainController = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     usernameOrEmail: '',
@@ -27,13 +29,13 @@ const useMainController = () => {
     };
 
     if (!formData.usernameOrEmail.trim()) {
-      newErrors.usernameOrEmail = 'Username or Email is required';
+      newErrors.usernameOrEmail = t('auth.usernameOrEmailRequired');
     }
 
     if (!formData.password.trim()) {
-      newErrors.password = 'Password is required';
+      newErrors.password = t('auth.passwordRequired');
     } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+      newErrors.password = t('auth.passwordMinLength');
     }
 
     setErrors(newErrors);
@@ -64,7 +66,7 @@ const useMainController = () => {
       // Update auth context
       login(userData);
 
-      getSuccessAlert('Login successful!');
+      getSuccessAlert(t('auth.loginSuccess'));
 
       // Redirect to home page
       navigate(DASHBOARD_PATH);
