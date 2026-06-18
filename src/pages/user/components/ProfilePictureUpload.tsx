@@ -1,6 +1,7 @@
 import { Box, Typography } from '@mui/material';
 import { PhotoCamera } from '@mui/icons-material';
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getErrorAlert } from '@/utils/functions/sweetAlert/sweetAlert';
 
 interface ProfilePictureUploadProps {
@@ -11,6 +12,7 @@ interface ProfilePictureUploadProps {
 }
 
 const ProfilePictureUpload = ({ value, onChange, disabled, readOnly }: ProfilePictureUploadProps) => {
+  const { t } = useTranslation();
   const [imagePreview, setImagePreview] = useState<string | null>(
     typeof value === 'string' ? value : null
   );
@@ -43,13 +45,13 @@ const ProfilePictureUpload = ({ value, onChange, disabled, readOnly }: ProfilePi
 
     // Validate file type
     if (!file.type.startsWith('image/')) {
-      getErrorAlert('Please select an image file');
+      getErrorAlert(t('validation.imageOnly'));
       return;
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
-      getErrorAlert('File size must not exceed 5 MB');
+      getErrorAlert(t('validation.fileSizeMax'));
       return;
     }
 
@@ -60,7 +62,7 @@ const ProfilePictureUpload = ({ value, onChange, disabled, readOnly }: ProfilePi
       onChange(file);
     };
     reader.onerror = () => {
-      getErrorAlert('Failed to read file');
+      getErrorAlert(t('validation.fileReadFailed'));
     };
     reader.readAsDataURL(file);
   };

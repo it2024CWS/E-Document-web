@@ -1,3 +1,4 @@
+import { useSearchParams } from 'react-router-dom';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
 import {
   Box,
@@ -18,11 +19,14 @@ import TextFieldPassword from '@/components/TextField/TextFieldPassword';
 import TextFieldCustom from '@/components/TextField/TextFieldCustom';
 import InputLabelCustom from '@/components/InputLabelCustom';
 import ProfilePictureUpload from '../components/ProfilePictureUpload';
+import ResetPasswordModal from '../components/ResetPasswordModal';
 import { useTranslation } from 'react-i18next';
+import LockResetIcon from '@mui/icons-material/LockReset';
 
 const FormCreate = () => {
   const createCtrl = useFormCreateControllerContext();
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
 
   return (
     <Box>
@@ -106,16 +110,18 @@ const FormCreate = () => {
                 />
               </Grid>
 
-              <Grid size={{ xs: 12, md: 6 }}>
-                <TextFieldPassword
-                  fullWidth
-                  label={createCtrl.isEditMode ? t('users.passwordEdit') : t('users.password')}
-                  required={!createCtrl.isEditMode}
-                  value={createCtrl.formData.password}
-                  onChange={(e) => createCtrl.handleChange('password', e.target.value)}
-                  disabled={createCtrl.loading}
-                />
-              </Grid>
+              {!createCtrl.isEditMode && (
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <TextFieldPassword
+                    fullWidth
+                    label={t('users.password')}
+                    required
+                    value={createCtrl.formData.password}
+                    onChange={(e) => createCtrl.handleChange('password', e.target.value)}
+                    disabled={createCtrl.loading}
+                  />
+                </Grid>
+              )}
               <Grid size={{ xs: 12, md: 6 }}>
                 <FormControl fullWidth>
                   <InputLabelCustom label={t('users.role')} required />
@@ -212,6 +218,17 @@ const FormCreate = () => {
                 >
                   {t('common.cancel')}
                 </Button>
+                {createCtrl.isEditMode && (
+                  <Button
+                    variant="outlined"
+                    color="warning"
+                    startIcon={<LockResetIcon />}
+                    onClick={() => createCtrl.setResetPasswordOpen(true)}
+                    disabled={createCtrl.loading}
+                  >
+                    {t('users.resetPassword')}
+                  </Button>
+                )}
                 <Button
                   type="submit"
                   variant="contained"
@@ -225,6 +242,14 @@ const FormCreate = () => {
           </form>
         </Box>
       </Box>
+
+      {createCtrl.isEditMode && (
+        <ResetPasswordModal
+          open={createCtrl.resetPasswordOpen}
+          userId={searchParams.get('id') ?? ''}
+          onClose={() => createCtrl.setResetPasswordOpen(false)}
+        />
+      )}
     </Box>
   );
 };

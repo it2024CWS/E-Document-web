@@ -167,7 +167,7 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
         </Box>
       )
     }
-  ], []);
+  ], [t]);
 
   const handleExport = () => {
     const dataToExport = filteredDocuments.map((doc) => ({

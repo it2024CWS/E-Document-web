@@ -13,18 +13,11 @@ export const folderService = {
       if (search) params.search = search;
 
       const res = await axiosInstance.get<GetAllResponse<FolderModel>>('/v1/folders', { params });
-
-      if (!res?.data?.success) {
-        throw new Error(res?.data?.message || 'Failed to fetch folders');
-      }
-
-      const items = res.data.data.items ?? [];
       return {
-        items: items,
+        items: res.data.data.items ?? [],
         pagination: res.data.pagination,
       };
     } catch (error: any) {
-      console.error('Fetch folders error', error);
       throw error;
     }
   },

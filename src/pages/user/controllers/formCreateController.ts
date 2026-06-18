@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CreateUserRequest } from '@/models/userModel';
 import { DepartmentModel } from '@/models/departmentModel';
 import { SectorModel } from '@/models/sectorModel';
@@ -14,6 +15,7 @@ import useMainControllerContext from '../context';
 
 const useFormCreateController = () => {
   const mainCtrl = useMainControllerContext();
+  const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState<CreateUserRequest & { password?: string }>({
@@ -31,6 +33,7 @@ const useFormCreateController = () => {
     nickname: '',
   });
   const [currentProfilePicture, setCurrentProfilePicture] = useState<string | null>(null);
+  const [resetPasswordOpen, setResetPasswordOpen] = useState(false);
 
   // Master Data States
   const [departments, setDepartments] = useState<DepartmentModel[]>([]);
@@ -158,19 +161,15 @@ const useFormCreateController = () => {
 
       // Validation
       if (!formData.username || !formData.email) {
-        throw new Error('Username and email are required');
+        throw new Error(t('validation.usernameAndEmailRequired'));
       }
 
       if (!formData.role_id) {
-        throw new Error('Role is required');
-      }
-
-      if (formData.department_id && !formData.sector_id) {
-        // Optional: Enforce sector selection if department is selected
+        throw new Error(t('validation.roleRequired'));
       }
 
       if (!isEditMode && !formData.password) {
-        throw new Error('Password is required');
+        throw new Error(t('validation.passwordRequiredForNew'));
       }
 
       // Convert string IDs to numbers for submission if needed, 
@@ -198,12 +197,12 @@ const useFormCreateController = () => {
         }
 
         await updateUserService(userId, submitData);
-        await getSuccessAlert('User updated successfully');
+        await getSuccessAlert(t('validation.userUpdated'));
         mainCtrl.handleChangeForm(FormEnum.DETAIL);
       } else {
         // Create mode
         await createUserService(submitData);
-        await getSuccessAlert('User created successfully');
+        await getSuccessAlert(t('validation.userCreated'));
         searchParams.delete('id');
         setSearchParams(searchParams);
         mainCtrl.handleChangeForm(null!);
@@ -240,6 +239,8 @@ const useFormCreateController = () => {
     departments,
     sectors,
     roles,
+    resetPasswordOpen,
+    setResetPasswordOpen,
     handleChange,
     handleProfilePictureChange,
     handleSubmit,

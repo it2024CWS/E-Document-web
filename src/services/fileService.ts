@@ -89,10 +89,6 @@ export const getUserProfilePictureUrl = async (
         },
     });
 
-    if (!res?.data?.success) {
-        throw new Error(res?.data?.message || 'Failed to get profile picture URL');
-    }
-
     const url = res.data.data.url;
 
     // Cache in sessionStorage - persists during session, clears on browser/tab close

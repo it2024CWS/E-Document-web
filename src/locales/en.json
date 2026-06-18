@@ -4,7 +4,7 @@
     "dashboard": "Dashboard",
     "documentManagement": "Document Management",
     "myFiles": "My Files",
-    "documents": "Documents",
+    "documents": "Inbound-Outbound",
     "rejectDocuments": "Reject Documents",
     "userManagement": "User Management",
     "roleManagement": "Role Management",
@@ -76,7 +76,11 @@
     "id": "No",
     "name": "Name",
     "actions": "Actions",
-    "add": "Add"
+    "add": "Add",
+    "ok": "OK",
+    "success": "Success",
+    "error": "Error",
+    "areYouSure": "Are you sure?"
   },
   "docs": {
     "inbound": "Inbound Documents",
@@ -223,7 +227,11 @@
     "userDetail": "User detail",
     "allUsers": "All Users",
     "createdAt": "Created At",
-    "updatedAt": "Updated At"
+    "updatedAt": "Updated At",
+    "resetPassword": "Reset Password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "passwordResetSuccess": "Password has been reset successfully"
   },
   "roles": {
     "title": "Role Management",
@@ -271,5 +279,48 @@
     "passwordRequired": "Password is required",
     "passwordMinLength": "Password must be at least 6 characters",
     "loginSuccess": "Login successful!"
+  },
+  "validation": {
+    "usernameAndEmailRequired": "Username and email are required",
+    "roleRequired": "Role is required",
+    "passwordRequiredForNew": "Password is required for new users",
+    "passwordRequired": "Password is required",
+    "confirmPasswordRequired": "Please confirm your password",
+    "passwordMismatch": "Passwords do not match",
+    "userCreated": "User created successfully",
+    "userUpdated": "User updated successfully",
+    "imageOnly": "Please select an image file",
+    "fileSizeMax": "File size must not exceed 5 MB",
+    "fileReadFailed": "Failed to read file"
+  },
+  "errors": {
+    "UNKNOWN_ERROR": "An unknown error occurred",
+    "UNAUTHORIZED": "Unauthorized access",
+    "INCORRECT_PASSWORD": "Incorrect password",
+    "INVALID_CREDENTIALS": "Invalid login credentials",
+    "TOKEN_EXPIRED": "Session expired, please log in again",
+    "INVALID_TOKEN": "Invalid token, please log in again",
+    "FORBIDDEN": "You do not have permission to perform this action",
+    "VALIDATION_ERROR": "Validation failed, please check your input",
+    "MISSING_REQUIRED_FIELD": "Please fill in all required fields",
+    "INVALID_INPUT": "Invalid input provided",
+    "INTERNAL_SERVER_ERROR": "An internal server error occurred",
+    "DATABASE_ERROR": "A database error occurred",
+    "CONFIG_NOT_SET": "System configuration is not set",
+    "USER_NOT_FOUND": "User not found",
+    "USER_ALREADY_EXISTS": "Username already exists",
+    "EMAIL_ALREADY_EXISTS": "Email address already exists",
+    "ROLE_NOT_FOUND": "Role not found",
+    "ROLE_ALREADY_EXISTS": "Role name already exists",
+    "PASSWORD_MISMATCH": "Passwords do not match",
+    "ROUTE_ADVANCER_NOT_CONFIGURED": "Document routing system is not configured",
+    "STEP_CREATOR_NOT_CONFIGURED": "Document step creator is not configured",
+    "INCOMING_DOC_CREATE_FAILED": "Failed to create incoming document",
+    "ROUTE_ATTACH_FAILED": "Failed to attach document to route",
+    "INVALID_FILE_PATH": "Invalid file path",
+    "DOC_NO_REQUIRED": "Document number is required",
+    "DOC_NO_ALREADY_EXISTS": "Document number already exists",
+    "TRANSACTION_BEGIN_FAILED": "Failed to start database transaction",
+    "TRANSACTION_COMMIT_FAILED": "Failed to save database transaction"
   }
 }

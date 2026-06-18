@@ -13,17 +13,11 @@ export const docTypeService = {
       if (search) params.search = search;
 
       const res = await axiosInstance.get<GetAllResponse<DocTypeModel>>('/v1/doctypes', { params });
-      
-      if (!res?.data?.success) {
-        throw new Error(res?.data?.message || 'Failed to fetch doctypes');
-      }
-
       return {
         items: res.data.data.items ?? [],
         pagination: res.data.pagination,
       };
     } catch (error: any) {
-      console.error('Fetch doctypes error', error);
       throw error;
     }
   },

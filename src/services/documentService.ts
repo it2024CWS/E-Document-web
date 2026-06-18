@@ -13,17 +13,11 @@ export const documentService = {
       if (search) params.search = search;
 
       const res = await axiosInstance.get<GetAllResponse<DocumentModel>>('/v1/documents', { params });
-      
-      if (!res?.data?.success) {
-        throw new Error(res?.data?.message || 'Failed to fetch documents');
-      }
-
       return {
         items: res.data.data.items ?? [],
         pagination: res.data.pagination,
       };
     } catch (error) {
-      console.error('Fetch documents error', error);
       return { items: [], pagination: null! };
     }
   },

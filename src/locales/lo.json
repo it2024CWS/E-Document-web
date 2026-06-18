@@ -4,7 +4,7 @@
     "dashboard": "ໜ້າຫຼັກ",
     "documentManagement": "ການຈັດການເອກະສານ",
     "myFiles": "ໄຟລ໌ຂອງຂ້ອຍ",
-    "documents": "ເອກະສານ",
+    "documents": "ຂາເຂົ້າ-ຂາອອກ",
     "rejectDocuments": "ເອກະສານປະຕິເສດ",
     "userManagement": "ການຈັດການຜູ້ໃຊ້",
     "roleManagement": "ການຈັດການສິດທິ",
@@ -76,7 +76,11 @@
     "id": "ລຳດັບ",
     "name": "ຊື່",
     "actions": "ດຳເນີນການ",
-    "add": "ເພີ່ມ"
+    "add": "ເພີ່ມ",
+    "ok": "ຕົກລົງ",
+    "success": "ສຳເລັດ",
+    "error": "ຂໍ້ຜິດພາດ",
+    "areYouSure": "ທ່ານແນ່ໃຈ ຫຼື ບໍ່?"
   },
   "docs": {
     "inbound": "ເອກະສານຂາເຂົ້າ",
@@ -223,7 +227,11 @@
     "userDetail": "ລາຍລະອຽດຜູ້ໃຊ້",
     "allUsers": "ຜູ້ໃຊ້ທັງໝົດ",
     "createdAt": "ສ້າງວັນທີ",
-    "updatedAt": "ວັນທີອັບເດດ"
+    "updatedAt": "ວັນທີອັບເດດ",
+    "resetPassword": "ຕັ້ງລະຫັດຜ່ານໃໝ່",
+    "newPassword": "ລະຫັດຜ່ານໃໝ່",
+    "confirmPassword": "ຢືນຢັນລະຫັດຜ່ານ",
+    "passwordResetSuccess": "ຕັ້ງລະຫັດຜ່ານໃໝ່ສຳເລັດ"
   },
   "roles": {
     "title": "ການຈັດການສິດທິ",
@@ -271,5 +279,48 @@
     "passwordRequired": "ຕ້ອງລະບຸລະຫັດຜ່ານ",
     "passwordMinLength": "ລະຫັດຜ່ານຕ້ອງມີຢ່າງໜ້ອຍ 6 ຕົວອັກສອນ",
     "loginSuccess": "ເຂົ້າສູ່ລະບົບສຳເລັດ!"
+  },
+  "validation": {
+    "usernameAndEmailRequired": "ຕ້ອງລະບຸຊື່ຜູ້ໃຊ້ ແລະ ອີເມວ",
+    "roleRequired": "ຕ້ອງເລືອກສິດທິ",
+    "passwordRequiredForNew": "ຕ້ອງລະບຸລະຫັດຜ່ານສຳລັບຜູ້ໃຊ້ໃໝ່",
+    "passwordRequired": "ຕ້ອງລະບຸລະຫັດຜ່ານ",
+    "confirmPasswordRequired": "ກະລຸນາຢືນຢັນລະຫັດຜ່ານ",
+    "passwordMismatch": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
+    "userCreated": "ສ້າງຜູ້ໃຊ້ສຳເລັດ",
+    "userUpdated": "ອັບເດດຜູ້ໃຊ້ສຳເລັດ",
+    "imageOnly": "ກະລຸນາເລືອກໄຟລ໌ຮູບພາບ",
+    "fileSizeMax": "ຂະໜາດໄຟລ໌ຕ້ອງບໍ່ເກີນ 5 MB",
+    "fileReadFailed": "ອ່ານໄຟລ໌ລົ້ມເຫຼວ"
+  },
+  "errors": {
+    "UNKNOWN_ERROR": "ເກີດຂໍ້ຜິດພາດທີ່ບໍ່ຮູ້ຈັກ",
+    "UNAUTHORIZED": "ບໍ່ໄດ້ຮັບອະນຸຍາດໃຫ້ເຂົ້າເຖິງ",
+    "INCORRECT_PASSWORD": "ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ",
+    "INVALID_CREDENTIALS": "ຂໍ້ມູນການເຂົ້າສູ່ລະບົບບໍ່ຖືກຕ້ອງ",
+    "TOKEN_EXPIRED": "ເຊດຊັນໝົດອາຍຸ ກະລຸນາເຂົ້າສູ່ລະບົບໃໝ່",
+    "INVALID_TOKEN": "Token ບໍ່ຖືກຕ້ອງ ກະລຸນາເຂົ້າສູ່ລະບົບໃໝ່",
+    "FORBIDDEN": "ທ່ານບໍ່ມີສິດໃນການດຳເນີນການນີ້",
+    "VALIDATION_ERROR": "ຂໍ້ມູນບໍ່ຖືກຕ້ອງ ກະລຸນາກວດສອບຂໍ້ມູນ",
+    "MISSING_REQUIRED_FIELD": "ກະລຸນາຕື່ມຂໍ້ມູນທີ່ຈຳເປັນໃຫ້ຄົບ",
+    "INVALID_INPUT": "ຂໍ້ມູນທີ່ປ້ອນເຂົ້າບໍ່ຖືກຕ້ອງ",
+    "INTERNAL_SERVER_ERROR": "ເກີດຂໍ້ຜິດພາດພາຍໃນລະບົບ",
+    "DATABASE_ERROR": "ເກີດຂໍ້ຜິດພາດຂອງຖານຂໍ້ມູນ",
+    "CONFIG_NOT_SET": "ຄ່າການຕັ້ງຄ່າລະບົບຍັງບໍ່ໄດ້ກຳນົດ",
+    "USER_NOT_FOUND": "ບໍ່ພົບຜູ້ໃຊ້",
+    "USER_ALREADY_EXISTS": "ຊື່ຜູ້ໃຊ້ນີ້ຖືກໃຊ້ແລ້ວ",
+    "EMAIL_ALREADY_EXISTS": "ອີເມວນີ້ຖືກໃຊ້ແລ້ວ",
+    "ROLE_NOT_FOUND": "ບໍ່ພົບສິດທິ",
+    "ROLE_ALREADY_EXISTS": "ຊື່ສິດທິນີ້ຖືກໃຊ້ແລ້ວ",
+    "PASSWORD_MISMATCH": "ລະຫັດຜ່ານບໍ່ຕົງກັນ",
+    "ROUTE_ADVANCER_NOT_CONFIGURED": "ລະບົບສາຍສົ່ງເອກະສານຍັງບໍ່ໄດ້ຕັ້ງຄ່າ",
+    "STEP_CREATOR_NOT_CONFIGURED": "ຕົວສ້າງຂັ້ນຕອນຍັງບໍ່ໄດ້ຕັ້ງຄ່າ",
+    "INCOMING_DOC_CREATE_FAILED": "ສ້າງເອກະສານຂາເຂົ້າລົ້ມເຫຼວ",
+    "ROUTE_ATTACH_FAILED": "ເຊື່ອມຕໍ່ເອກະສານກັບສາຍສົ່ງລົ້ມເຫຼວ",
+    "INVALID_FILE_PATH": "ທີ່ຢູ່ໄຟລ໌ບໍ່ຖືກຕ້ອງ",
+    "DOC_NO_REQUIRED": "ຕ້ອງລະບຸເລກທີເອກະສານ",
+    "DOC_NO_ALREADY_EXISTS": "ເລກທີເອກະສານນີ້ຖືກໃຊ້ແລ້ວ",
+    "TRANSACTION_BEGIN_FAILED": "ເລີ່ມການດຳເນີນການຖານຂໍ້ມູນລົ້ມເຫຼວ",
+    "TRANSACTION_COMMIT_FAILED": "ບັນທຶກການດຳເນີນການຖານຂໍ້ມູນລົ້ມເຫຼວ"
   }
 }

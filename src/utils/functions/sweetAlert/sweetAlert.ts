@@ -5,6 +5,7 @@ import { getErrorMessage } from './errorMessage';
 import { colors } from '@/themes/colors';
 import { AUTH_DATA_STORAGE, AUTH_TOKEN_STORAGE, AUTH_USER_DATA } from '@/utils/constants/localStorage';
 import { ERROR_CODES } from '@/utils/constants/errorCodes';
+import i18next from 'i18next';
 
 interface ConfirmAlertProps {
   onSubmit?: () => Promise<{ message: string } | void>;
@@ -15,8 +16,7 @@ interface ConfirmAlertProps {
   confirmButtonText?: string;
 }
 
-const isLanguageExist = localStorage.getItem('Language');
-const isEnglish = !isLanguageExist ? true : isLanguageExist === 'en';
+const t = (key: string) => i18next.t(key);
 
 const defaultCustomClass = {
   popup: 'swal2-custom-popup',
@@ -25,36 +25,33 @@ const defaultCustomClass = {
 
 export const getErrorAlert = async (error: unknown | string, onSubmit?: () => void): Promise<void> => {
   const typedError = error as ErrorModel;
-  
-  // Check for unauthorized status or error_code
-  const isUnauthorized = 
+
+  const isUnauthorized =
     (typeof error === 'string' && (error === 'Unauthorized' || error.toLowerCase().includes('unauthorized'))) ||
     (typeof typedError !== 'string' && (
-      typedError?.response?.status === 401 || 
+      typedError?.response?.status === 401 ||
       typedError?.response?.data?.error_code === ERROR_CODES.UNAUTHORIZED ||
       typedError?.response?.data?.error_code === ERROR_CODES.TOKEN_EXPIRED ||
       typedError?.message === 'Unauthorized'
     ));
 
   const result = await Swal.fire({
-    ...(typeof typedError !== 'string' && typedError?.response?.status && { title: 'Error' }),
+    title: t('common.error'),
     text: typeof typedError === 'string' ? typedError : getErrorMessage(error),
     icon: 'error',
-    confirmButtonText: isEnglish ? 'OK' : 'ຕົກລົງ',
+    confirmButtonText: t('common.ok'),
     confirmButtonColor: colors.primary.main,
     customClass: defaultCustomClass,
   });
 
   if (result.isConfirmed) {
     if (isUnauthorized) {
-      // Clear session data and redirect to login
       localStorage.removeItem(AUTH_TOKEN_STORAGE);
       localStorage.removeItem(AUTH_DATA_STORAGE);
       localStorage.removeItem(AUTH_USER_DATA);
       window.location.href = '/login';
       return;
     }
-    
     if (onSubmit) {
       onSubmit();
     }
@@ -63,10 +60,10 @@ export const getErrorAlert = async (error: unknown | string, onSubmit?: () => vo
 
 export const getSuccessAlert = async (message?: string): Promise<void> => {
   await Swal.fire({
-    title: isEnglish ? 'Success' : 'ສຳເລັດ',
+    title: t('common.success'),
     icon: 'success',
     html: message || null!,
-    confirmButtonText: isEnglish ? 'OK' : 'ຕົກລົງ',
+    confirmButtonText: t('common.ok'),
     confirmButtonColor: 'green',
     customClass: defaultCustomClass,
   });
@@ -75,9 +72,10 @@ export const getSuccessAlert = async (message?: string): Promise<void> => {
 const handleConfirmSubmit = async (onSubmit: () => Promise<{ message: string } | void>, successMessage?: string) => {
   const res = await onSubmit();
   await Swal.fire({
-    title: isEnglish ? 'Success' : 'ສຳເລັດ',
+    title: t('common.success'),
     icon: 'success',
     html: res?.message || successMessage ? `${res?.message ?? successMessage}` : null!,
+    confirmButtonText: t('common.ok'),
     confirmButtonColor: 'green',
     customClass: defaultCustomClass,
   });
@@ -92,14 +90,14 @@ export const getConfirmAlert = async ({
   confirmButtonText,
 }: ConfirmAlertProps = {}): Promise<void> => {
   const result = await Swal.fire({
-    title: title ?? (isEnglish ? 'Are you sure' : 'ທ່ານແນ່ໃຈ ຫຼື ບໍ່'),
+    title: title ?? t('common.areYouSure'),
     icon: 'info',
     showCancelButton: true,
-    confirmButtonText: confirmButtonText ?? (isEnglish ? 'OK' : 'ຕົກລົງ'),
+    confirmButtonText: confirmButtonText ?? t('common.ok'),
     confirmButtonColor: colors.primary.main,
     cancelButtonColor: '#D3D3D3',
     html: description ? `${description}` : null!,
-    cancelButtonText: isEnglish ? 'Cancel' : 'ຍົກເລີກ',
+    cancelButtonText: t('common.cancel'),
     customClass: {
       ...defaultCustomClass,
       cancelButton: 'custom-cancel-button',

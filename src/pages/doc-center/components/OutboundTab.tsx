@@ -306,7 +306,7 @@ const OutboundTab = forwardRef<OutboundTabRef, OutboundTabProps>(({
         </Box>
       )
     }
-  ], [canApprove]);
+  ], [t, canApprove]);
 
   return (
     <Box>
