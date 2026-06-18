@@ -214,7 +214,7 @@ const RejectedDocumentPage = () => {
               label={t('reject.department')}
               value={deptId}
               onChange={(e) => { setDeptId(e.target.value); setPage(0); }}
-              SelectProps={{ native: true }}
+              slotProps={{ inputLabel: { shrink: true }, select: { native: true } }}
             >
               <option value="">{t('reject.allDepartments')}</option>
               {departments.map((d) => (
@@ -228,7 +228,7 @@ const RejectedDocumentPage = () => {
               label={t('reject.source')}
               value={source}
               onChange={(e) => setSource(e.target.value as 'all' | 'inbound' | 'outbound')}
-              SelectProps={{ native: true }}
+              slotProps={{ inputLabel: { shrink: true }, select: { native: true } }}
             >
               <option value="all">{t('reject.allSources')}</option>
               <option value="inbound">{t('reject.inbound')}</option>

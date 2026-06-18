@@ -47,6 +47,7 @@ export const uploadFile = (options: UploadOptions): tus.Upload => {
     const upload = new tus.Upload(file, {
         endpoint: TUS_ENDPOINT,
         retryDelays: [0, 3000, 5000, 10000, 20000],
+        removeFingerprintOnSuccess: true,
         metadata,
         onBeforeRequest: (req) => {
             // Enable credentials to send cookies with requests
@@ -55,6 +56,7 @@ export const uploadFile = (options: UploadOptions): tus.Upload => {
         },
         onError: (error) => {
             console.error('Upload error:', error);
+            upload.abort(true).catch(() => {});
             onError?.(error);
         },
         onProgress: (bytesUploaded, bytesTotal) => {
