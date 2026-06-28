@@ -26,11 +26,10 @@ import {
 import RefreshIcon from '@mui/icons-material/Refresh';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import BreadcrumbsCustom from '@/components/BreadcrumbsCustom';
 import { roleService } from '@/services/roleService';
-import { RoleModel, CreateRoleRequest, UpdateRoleRequest } from '@/models/roleModel';
+import { RoleModel, UpdateRoleRequest } from '@/models/roleModel';
 import Swal from 'sweetalert2';
 
 const RolePage = () => {
@@ -45,10 +44,10 @@ const RolePage = () => {
     const [search, setSearch] = useState('');
     const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-    // Dialog state
+    // Dialog state (edit-only; roles are a static system list)
     const [openDialog, setOpenDialog] = useState(false);
     const [editingRole, setEditingRole] = useState<RoleModel | null>(null);
-    const [formData, setFormData] = useState<CreateRoleRequest>({ role_name: '', description: '' });
+    const [formData, setFormData] = useState<UpdateRoleRequest>({ role_name: '', description: '' });
     const [saving, setSaving] = useState(false);
 
     const fetchData = useCallback(async (currentPage: number, limit: number, q: string) => {
@@ -77,12 +76,6 @@ const RolePage = () => {
         }, 500);
     };
 
-    const handleOpenAdd = () => {
-        setEditingRole(null);
-        setFormData({ role_name: '', description: '' });
-        setOpenDialog(true);
-    };
-
     const handleOpenEdit = (role: RoleModel) => {
         setEditingRole(role);
         setFormData({ role_name: role.role_name, description: role.description || '' });
@@ -95,14 +88,10 @@ const RolePage = () => {
     };
 
     const handleSave = async () => {
-        if (!formData.role_name?.trim()) return;
+        if (!editingRole || !formData.role_name?.trim()) return;
         setSaving(true);
         try {
-            if (editingRole) {
-                await roleService.updateRole(editingRole.id, formData as UpdateRoleRequest);
-            } else {
-                await roleService.createRole(formData);
-            }
+            await roleService.updateRole(editingRole.id, formData);
             handleCloseDialog();
             fetchData(page, rowsPerPage, search);
         } catch (err: any) {
@@ -155,13 +144,6 @@ const RolePage = () => {
                         }}
                         sx={{ width: 220 }}
                     />
-                    <Button
-                        variant="contained"
-                        startIcon={<AddIcon />}
-                        onClick={handleOpenAdd}
-                    >
-                        {t('roles.addRole')}
-                    </Button>
                     <Button
                         startIcon={<RefreshIcon />}
                         variant="outlined"
@@ -238,7 +220,7 @@ const RolePage = () => {
             {/* Add / Edit Dialog */}
             <Dialog open={openDialog} onClose={handleCloseDialog} fullWidth maxWidth="sm">
                 <DialogTitle>
-                    {editingRole ? t('common.edit') + ' ' + t('roles.roleName') : t('roles.addRole')}
+                    {t('common.edit') + ' ' + t('roles.roleName')}
                 </DialogTitle>
                 <DialogContent>
                     <TextField
@@ -271,7 +253,7 @@ const RolePage = () => {
                         variant="contained"
                         disabled={saving || !formData.role_name?.trim()}
                     >
-                        {saving ? <CircularProgress size={20} /> : editingRole ? t('users.update') : t('common.save')}
+                        {saving ? <CircularProgress size={20} /> : t('users.update')}
                     </Button>
                 </DialogActions>
             </Dialog>

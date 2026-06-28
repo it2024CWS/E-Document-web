@@ -181,7 +181,10 @@
     "update": "ອັບເດດ",
     "fillRequiredFields": "ກະລຸນາຕື່ມຂໍ້ມູນທີ່ຈຳເປັນ",
     "updateFailed": "ອັບເດດລົ້ມເຫຼວ ກະລຸນາລອງໃໝ່",
-    "description": "ຄຳອະທິບາຍ"
+    "description": "ຄຳອະທິບາຍ",
+    "unsupportedFileType": "ປະເພດໄຟລ໌ບໍ່ຮອງຮັບ. ອະນຸຍາດ: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV ແລະ ຮູບພາບ (JPG, PNG, GIF, WEBP, BMP, SVG).",
+    "someFilesSkipped": "ບາງໄຟລ໌ຖືກຂ້າມ",
+    "someFilesSkippedDesc": "{{count}} ໄຟລ໌ທີ່ບໍ່ຮອງຮັບບໍ່ໄດ້ຖືກອັບໂຫຼດ."
   },
   "myFile": {
     "allDocuments": "ເອກະສານທັງໝົດ",
@@ -318,6 +321,7 @@
     "INCOMING_DOC_CREATE_FAILED": "ສ້າງເອກະສານຂາເຂົ້າລົ້ມເຫຼວ",
     "ROUTE_ATTACH_FAILED": "ເຊື່ອມຕໍ່ເອກະສານກັບສາຍສົ່ງລົ້ມເຫຼວ",
     "INVALID_FILE_PATH": "ທີ່ຢູ່ໄຟລ໌ບໍ່ຖືກຕ້ອງ",
+    "UNSUPPORTED_FILE_TYPE": "ປະເພດໄຟລ໌ບໍ່ຮອງຮັບ. ອະນຸຍາດ: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV ແລະ ຮູບພາບ.",
     "DOC_NO_REQUIRED": "ຕ້ອງລະບຸເລກທີເອກະສານ",
     "DOC_NO_ALREADY_EXISTS": "ເລກທີເອກະສານນີ້ຖືກໃຊ້ແລ້ວ",
     "TRANSACTION_BEGIN_FAILED": "ເລີ່ມການດຳເນີນການຖານຂໍ້ມູນລົ້ມເຫຼວ",

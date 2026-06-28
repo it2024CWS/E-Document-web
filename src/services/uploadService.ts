@@ -2,6 +2,27 @@ import * as tus from 'tus-js-client';
 
 const TUS_ENDPOINT = `${import.meta.env.VITE_BASE_URL}/v1/upload/files`;
 
+/**
+ * Whitelist of file extensions accepted by the document upload pipeline.
+ * Must stay in sync with backend `storage.AllowedDocumentExtensions`.
+ */
+export const ALLOWED_UPLOAD_EXTENSIONS = [
+    '.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp', '.svg',
+    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx', '.txt', '.csv',
+    '.zip', '.rar',
+] as const;
+
+/** Value for an `<input type="file" accept="...">` attribute. */
+export const UPLOAD_ACCEPT_ATTR = ALLOWED_UPLOAD_EXTENSIONS.join(',');
+
+/** Returns true when `fileName`'s extension is in the upload whitelist. */
+export const isAllowedUploadFile = (fileName: string): boolean => {
+    const dot = fileName.lastIndexOf('.');
+    if (dot < 0) return false;
+    const ext = fileName.slice(dot).toLowerCase();
+    return (ALLOWED_UPLOAD_EXTENSIONS as readonly string[]).includes(ext);
+};
+
 export interface UploadProgressInfo {
     bytesUploaded: number;
     bytesTotal: number;

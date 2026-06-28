@@ -181,7 +181,10 @@
     "update": "Update",
     "fillRequiredFields": "Please fill all required fields",
     "updateFailed": "Update failed. Please try again.",
-    "description": "Description"
+    "description": "Description",
+    "unsupportedFileType": "Unsupported file type. Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, and images (JPG, PNG, GIF, WEBP, BMP, SVG).",
+    "someFilesSkipped": "Some files were skipped",
+    "someFilesSkippedDesc": "{{count}} unsupported file(s) were not uploaded."
   },
   "myFile": {
     "allDocuments": "All Documents",
@@ -318,6 +321,7 @@
     "INCOMING_DOC_CREATE_FAILED": "Failed to create incoming document",
     "ROUTE_ATTACH_FAILED": "Failed to attach document to route",
     "INVALID_FILE_PATH": "Invalid file path",
+    "UNSUPPORTED_FILE_TYPE": "Unsupported file type. Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, and images.",
     "DOC_NO_REQUIRED": "Document number is required",
     "DOC_NO_ALREADY_EXISTS": "Document number already exists",
     "TRANSACTION_BEGIN_FAILED": "Failed to start database transaction",

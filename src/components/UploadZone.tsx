@@ -2,14 +2,16 @@ import { Box, Typography } from '@mui/material';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { radius } from '@/themes/radius';
+import { UPLOAD_ACCEPT_ATTR } from '@/services/uploadService';
 
 interface UploadZoneProps {
   file: File | null;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   id?: string;
+  accept?: string;
 }
 
-const UploadZone = ({ file, onFileChange, id = 'file-upload' }: UploadZoneProps) => {
+const UploadZone = ({ file, onFileChange, id = 'file-upload', accept = UPLOAD_ACCEPT_ATTR }: UploadZoneProps) => {
   return (
     <Box
       sx={{
@@ -27,7 +29,7 @@ const UploadZone = ({ file, onFileChange, id = 'file-upload' }: UploadZoneProps)
       }}
       onClick={() => document.getElementById(id)?.click()}
     >
-      <input id={id} type="file" hidden onChange={onFileChange} />
+      <input id={id} type="file" hidden accept={accept} onChange={onFileChange} />
 
       <Box
         sx={{

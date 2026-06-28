@@ -13,7 +13,8 @@ import {
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import UploadZone from '@/components/UploadZone';
 import DepartmentSequenceSelect from './DepartmentSequenceSelect';
-import { uploadSingleFile } from '@/services/uploadService';
+import { uploadSingleFile, isAllowedUploadFile } from '@/services/uploadService';
+import Swal from 'sweetalert2';
 import { departmentService } from '@/services/departmentService';
 import { documentService } from '@/services/documentService';
 import { DepartmentModel } from '@/models/departmentModel';
@@ -81,9 +82,14 @@ const AddDocumentModal = ({ open, onClose, onSuccess }: AddDocumentModalProps) =
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files.length > 0) {
-      setFile(e.target.files[0]);
+    const selected = e.target.files?.[0];
+    if (!selected) return;
+    if (!isAllowedUploadFile(selected.name)) {
+      Swal.fire(t('common.error'), t('docs.unsupportedFileType'), 'error');
+      e.target.value = '';
+      return;
     }
+    setFile(selected);
   };
 
   const docNoError = docNoStatus === 'taken';

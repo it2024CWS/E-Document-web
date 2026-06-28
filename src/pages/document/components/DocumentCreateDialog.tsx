@@ -28,7 +28,7 @@ import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import FolderRoundedIcon from '@mui/icons-material/FolderRounded';
 import { docTypeService } from '@/services/docTypeService';
 import { folderService } from '@/services/folderService';
-import { uploadFolder, uploadSingleFile, FileWithPath } from '@/services/uploadService';
+import { uploadFolder, uploadSingleFile, FileWithPath, UPLOAD_ACCEPT_ATTR, isAllowedUploadFile } from '@/services/uploadService';
 import Swal from 'sweetalert2';
 import { useTranslation } from 'react-i18next';
 
@@ -149,8 +149,13 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
     const handleChange = (field: string, value: any) =>
         setFormData(prev => ({ ...prev, [field]: value }));
 
-    const handleFileSelect = (file: File) =>
+    const handleFileSelect = (file: File) => {
+        if (!isAllowedUploadFile(file.name)) {
+            Swal.fire(t('common.error'), t('docs.unsupportedFileType'), 'error');
+            return;
+        }
         setFormData(prev => ({ ...prev, file }));
+    };
 
     const handleDrop = (e: React.DragEvent) => {
         e.preventDefault();
@@ -210,6 +215,27 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
         }
     };
 
+    const acceptFolderFiles = (files: FileWithPath[], folderName: string) => {
+        const accepted = files.filter(f => isAllowedUploadFile(f.file.name));
+        const skipped = files.length - accepted.length;
+        if (accepted.length === 0) {
+            Swal.fire(t('common.error'), t('docs.unsupportedFileType'), 'error');
+            return;
+        }
+        if (skipped > 0) {
+            Swal.fire({
+                icon: 'warning',
+                title: t('docs.someFilesSkipped'),
+                text: t('docs.someFilesSkippedDesc', { count: skipped }),
+                timer: 2500,
+                showConfirmButton: false,
+            });
+        }
+        setPendingFolderName(folderName);
+        setPendingFolderFiles(accepted);
+        setFolderConfirmOpen(true);
+    };
+
     const handleFolderDrop = async (e: React.DragEvent) => {
         e.preventDefault();
         setFolderDragging(false);
@@ -218,18 +244,14 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
         const entry = item.webkitGetAsEntry();
         if (!entry?.isDirectory) return;
         const files = await readFolderEntry(entry);
-        setPendingFolderName(entry.name);
-        setPendingFolderFiles(files);
-        setFolderConfirmOpen(true);
+        acceptFolderFiles(files, entry.name);
     };
 
     const handleClickSelectFolder = async () => {
         try {
             const dirHandle = await (window as any).showDirectoryPicker({ mode: 'read' });
             const files = await readDirectoryHandle(dirHandle, dirHandle.name + '/');
-            setPendingFolderName(dirHandle.name);
-            setPendingFolderFiles(files);
-            setFolderConfirmOpen(true);
+            acceptFolderFiles(files, dirHandle.name);
         } catch (err: any) {
             if (err?.name !== 'AbortError') console.error('Failed to open folder picker', err);
         }
@@ -288,7 +310,17 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
             onClose={onClose}
             maxWidth="md"
             fullWidth
-            slotProps={{ paper: { sx: { borderRadius: 3, overflow: 'hidden' } } }}
+            slotProps={{
+                paper: {
+                    sx: {
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                        maxHeight: 'calc(100vh - 64px)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                    },
+                },
+            }}
         >
             {/* Header */}
             <Box sx={{ px: 3, pt: 3, pb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -309,6 +341,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                 </Box>
             ) : (
                 <>
+                    <Box sx={{ flex: 1, overflowY: 'auto' }}>
                     {/* Mode selector cards */}
                     <Box sx={{ display: 'flex', gap: 2, px: 3, pt: 3 }}>
                         {modeCards.map((card) => {
@@ -399,7 +432,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                                 <DeleteOutlineRoundedIcon />
                                             </IconButton>
                                         </Box>
-                                        <input ref={fileInputRef} type="file" hidden onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
+                                        <input ref={fileInputRef} type="file" hidden accept={UPLOAD_ACCEPT_ATTR} onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])} />
                                     </Box>
                                 ) : (
                                     <Box
@@ -444,6 +477,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                                             ref={fileInputRef}
                                             type="file"
                                             hidden
+                                            accept={UPLOAD_ACCEPT_ATTR}
                                             onChange={(e) => e.target.files?.[0] && handleFileSelect(e.target.files[0])}
                                         />
                                     </Box>
@@ -599,10 +633,12 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
                         )}
                     </Box>
 
+                    </Box>
+
                     <Divider />
 
                     {/* Actions */}
-                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, px: 3, py: 2 }}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1, px: 3, py: 2, flexShrink: 0 }}>
                         <Button variant="outlined" onClick={onClose} disabled={submitting}>
                             {t('common.cancel')}
                         </Button>
