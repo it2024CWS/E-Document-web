@@ -1,7 +1,8 @@
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { ReactNode } from 'react';
 import { useAuth } from '@/contexts/auth';
 import { LOGIN_PATH } from '@/routes/config';
+import { getAccessiblePathsForRole, getDefaultPathForRole } from '@/enums/userRoleEnum';
 import { Box, CircularProgress } from '@mui/material';
 
 interface ProtectedRouteProps {
@@ -9,7 +10,8 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
+  const location = useLocation();
 
   if (loading) {
     return (
@@ -28,6 +30,11 @@ const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
 
   if (!isAuthenticated) {
     return <Navigate to={LOGIN_PATH} replace />;
+  }
+
+  const allowed = getAccessiblePathsForRole(user?.role_name);
+  if (!allowed.includes(location.pathname)) {
+    return <Navigate to={getDefaultPathForRole(user?.role_name)} replace />;
   }
 
   return <>{children}</>;

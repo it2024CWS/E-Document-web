@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, ReactNode, forwardRef, useImperativeHandle } from 'react';
+import { useState, useEffect, useMemo, useCallback, ReactNode, forwardRef, useImperativeHandle } from 'react';
 import {
   Box,
   Card,
@@ -18,6 +18,7 @@ import {
   MenuItem,
   ListItemIcon,
   ListItemText,
+  Alert,
 } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -25,14 +26,19 @@ import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import DownloadIcon from '@mui/icons-material/Download';
 import AssignmentTurnedInIcon from '@mui/icons-material/AssignmentTurnedIn';
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz';
+import QrCodeScannerIcon from '@mui/icons-material/QrCodeScanner';
 import { incomingDocService } from '@/services/incomingDocService';
 import { IncomingDocModel } from '@/models/incomingDocModel';
+import { useBarcodeScan } from '@/hooks/useBarcodeScan';
+import Swal from 'sweetalert2';
 import DataTable, { Column } from '@/components/Table/DataTable';
 import { exportToCSV } from '@/utils/exportUtils';
 import { formatDateTime } from '@/utils/dateUtils';
 import { getFileIcon, getStatusColor, downloadDocument } from '@/utils/documentUtils';
 import { colors } from '@/themes/colors';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/auth';
+import { canReceiveDocument, canApproveOrRejectDocument } from '@/enums/userRoleEnum';
 
 export interface InboundTabRef {
   refresh: () => void;
@@ -45,6 +51,9 @@ interface InboundTabProps {
 
 const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const showReceive = canReceiveDocument(user?.role_name);
+  const showApprove = canApproveOrRejectDocument(user?.role_name);
   const [documents, setDocuments] = useState<IncomingDocModel[]>([]);
   const [loading, setLoading] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -57,6 +66,60 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null);
   const [menuDoc, setMenuDoc] = useState<IncomingDocModel | null>(null);
+
+  // Barcode scan state
+  const [scanActive, setScanActive] = useState(false);
+  const [scanLoading, setScanLoading] = useState(false);
+  const [scanDoc, setScanDoc] = useState<IncomingDocModel | null>(null);
+  const [scanDialogOpen, setScanDialogOpen] = useState(false);
+  const [scanRemark, setScanRemark] = useState('');
+  const [lastScan, setLastScan] = useState<string | null>(null);
+
+  // Auto-clear lastScan feedback after 4 seconds
+  useEffect(() => {
+    if (!lastScan) return;
+    const t = setTimeout(() => setLastScan(null), 4000);
+    return () => clearTimeout(t);
+  }, [lastScan]);
+
+  // Barcode scan handler
+  const handleBarcodeScan = useCallback(async (docNo: string) => {
+    setLastScan(docNo);
+    setScanLoading(true);
+    try {
+      const res = await incomingDocService.getByDocNo(docNo);
+      const doc = res.data as IncomingDocModel;
+      if (!doc) {
+        Swal.fire({ icon: 'warning', title: 'Not Found', text: `No incoming document for "${docNo}"`, timer: 2500, showConfirmButton: false });
+        return;
+      }
+      setScanDoc(doc);
+      setScanRemark('');
+      setScanDialogOpen(true);
+    } catch {
+      Swal.fire({ icon: 'error', title: 'Not Found', text: `No incoming document found for "${docNo}"`, timer: 2500, showConfirmButton: false });
+    } finally {
+      setScanLoading(false);
+    }
+  }, []);
+
+  useBarcodeScan({ onScan: handleBarcodeScan, enabled: scanActive && !scanDialogOpen });
+
+  const handleScanReceiveSubmit = async () => {
+    if (!scanDoc) return;
+    setActionLoading(true);
+    try {
+      await incomingDocService.receiveDocument(scanDoc.id, { remark: scanRemark });
+      setScanDialogOpen(false);
+      setScanDoc(null);
+      fetchDocuments();
+      Swal.fire({ icon: 'success', title: t('docs.receiveDocument'), text: `${scanDoc.doc_no}`, timer: 2000, showConfirmButton: false });
+    } catch (err: any) {
+      Swal.fire('Error', err?.response?.data?.message || 'Failed to receive document', 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  };
 
   // Pagination state
   const [page, setPage] = useState(0);
@@ -136,7 +199,7 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
       align: 'right',
       content: (doc) => (
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-          {doc.status === 'pending' && (
+          {doc.status === 'pending' && showReceive && (
             <Tooltip title={t('docs.receiveDocument')}>
               <IconButton
                 size="small"
@@ -147,7 +210,7 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
               </IconButton>
             </Tooltip>
           )}
-          {doc.status === 'received' && (
+          {doc.status === 'received' && showApprove && (
             <Tooltip title={t('docs.evaluateDocument')}>
               <IconButton
                 size="small"
@@ -167,7 +230,7 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
         </Box>
       )
     }
-  ], [t]);
+  ], [t, showReceive, showApprove]);
 
   const handleExport = () => {
     const dataToExport = filteredDocuments.map((doc) => ({
@@ -235,7 +298,32 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
               <option value="approved">{t('common.approved')}</option>
             </TextField>
           </Grid>
+          {showReceive && (
+            <Grid size={{ xs: 12, md: 'auto' }}>
+              <Chip
+                icon={scanLoading ? <CircularProgress size={14} /> : <QrCodeScannerIcon />}
+                label={scanActive ? t('docs.scanActive') : t('docs.scanOff')}
+                color={scanActive ? 'success' : 'default'}
+                variant={scanActive ? 'filled' : 'outlined'}
+                onClick={() => setScanActive(v => !v)}
+                clickable
+                sx={{ fontWeight: 600, px: 0.5 }}
+              />
+            </Grid>
+          )}
         </Grid>
+        {showReceive && scanActive && (
+          <Alert
+            severity={lastScan ? 'success' : 'info'}
+            icon={scanLoading ? <CircularProgress size={18} /> : <QrCodeScannerIcon />}
+            sx={{ mt: 1.5, transition: 'all 0.3s' }}
+          >
+            {lastScan
+              ? <><strong>✅ Scanner Ready</strong> — ສະແກນໄດ້: <strong>{lastScan}</strong></>
+              : t('docs.scanBannerHint')
+            }
+          </Alert>
+        )}
       </Card>
 
       {tabBar}
@@ -277,6 +365,54 @@ const InboundTab = forwardRef<InboundTabRef, InboundTabProps>(({ tabBar }, ref) 
           <ListItemText>{t('common.download')}</ListItemText>
         </MenuItem>
       </Menu>
+
+      {/* Barcode Scan — Receive Dialog */}
+      <Dialog open={scanDialogOpen} onClose={() => setScanDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <QrCodeScannerIcon color="primary" />
+          {t('docs.receiveDocument')}
+        </DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          {scanDoc && (
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2" color="text.secondary">{t('docs.documentNumber')}</Typography>
+              <Typography variant="subtitle1" fontWeight={700}>{scanDoc.doc_no}</Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{t('docs.documentName')}</Typography>
+              <Typography variant="subtitle1">{scanDoc.doc_name}</Typography>
+              {scanDoc.creator_name && (
+                <>
+                  <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>{t('common.sender')}</Typography>
+                  <Typography variant="subtitle1">{scanDoc.creator_name}</Typography>
+                </>
+              )}
+              {scanDoc.status !== 'pending' && (
+                <Alert severity="warning" sx={{ mt: 2 }}>
+                  {t('docs.cannotReceiveStatus', { status: scanDoc.status })}
+                </Alert>
+              )}
+            </Box>
+          )}
+          <TextField
+            fullWidth multiline rows={3}
+            label={t('docs.remarkOptional')}
+            value={scanRemark}
+            onChange={(e) => setScanRemark(e.target.value)}
+            disabled={scanDoc?.status !== 'pending'}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setScanDialogOpen(false)}>{t('common.cancel')}</Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleScanReceiveSubmit}
+            disabled={actionLoading || scanDoc?.status !== 'pending'}
+            startIcon={actionLoading ? <CircularProgress size={18} /> : <CheckCircleIcon />}
+          >
+            {t('docs.confirmReceive')}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Receive Dialog */}
       <Dialog open={receiveDialogOpen} onClose={() => setReceiveDialogOpen(false)}>

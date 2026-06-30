@@ -33,4 +33,9 @@ export const incomingDocService = {
         const response = await axiosInstance.post(`/v1/incoming-docs/${id}/approve`, data);
         return response.data;
     },
+
+    getByDocNo: async (docNo: string) => {
+        const response = await axiosInstance.get(`/v1/incoming-docs/doc-no/${encodeURIComponent(docNo)}`);
+        return response.data;
+    },
 };

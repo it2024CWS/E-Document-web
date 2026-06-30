@@ -9,6 +9,8 @@ import { getFileIcon, getStatusColor } from '@/utils/documentUtils';
 import { formatDateTime } from '@/utils/dateUtils';
 import DataTable, { Column } from '@/components/Table/DataTable';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/auth';
+import { canReceiveDocument, canApproveOrRejectDocument } from '@/enums/userRoleEnum';
 
 interface IncomingDocumentListProps {
     documents: IncomingDocModel[];
@@ -16,10 +18,14 @@ interface IncomingDocumentListProps {
     onReceive: (doc: IncomingDocModel) => void;
     onApprove: (doc: IncomingDocModel) => void;
     onViewDetail: (doc: IncomingDocModel) => void;
+    readOnly?: boolean;
 }
 
-const IncomingDocumentList = ({ documents, loading, onReceive, onApprove, onViewDetail }: IncomingDocumentListProps) => {
+const IncomingDocumentList = ({ documents, loading, onReceive, onApprove, onViewDetail, readOnly = false }: IncomingDocumentListProps) => {
     const { t } = useTranslation();
+    const { user } = useAuth();
+    const showReceive = canReceiveDocument(user?.role_name);
+    const showApprove = canApproveOrRejectDocument(user?.role_name);
 
     const columns = useMemo((): Column<IncomingDocModel>[] => [
         {
@@ -54,12 +60,12 @@ const IncomingDocumentList = ({ documents, loading, onReceive, onApprove, onView
                 );
             },
         },
-        {
+        ...(!readOnly ? [{
             label: '',
-            align: 'right',
-            content: (doc) => (
+            align: 'right' as const,
+            content: (doc: IncomingDocModel) => (
                 <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-                    {doc.status === 'pending' && (
+                    {doc.status === 'pending' && showReceive && (
                         <Tooltip title={t('docs.receiveDocument')}>
                             <IconButton
                                 size="small"
@@ -70,7 +76,7 @@ const IncomingDocumentList = ({ documents, loading, onReceive, onApprove, onView
                             </IconButton>
                         </Tooltip>
                     )}
-                    {doc.status === 'received' && (
+                    {doc.status === 'received' && showApprove && (
                         <Tooltip title={t('common.approveReject')}>
                             <IconButton
                                 size="small"
@@ -86,8 +92,8 @@ const IncomingDocumentList = ({ documents, loading, onReceive, onApprove, onView
                     </IconButton>
                 </Box>
             ),
-        },
-    ], [t, onReceive, onApprove, onViewDetail]);
+        }] : []),
+    ], [t, onReceive, onApprove, onViewDetail, readOnly, showReceive, showApprove]);
 
     return (
         <DataTable

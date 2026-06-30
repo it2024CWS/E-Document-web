@@ -1,5 +1,6 @@
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import Swal from 'sweetalert2';
 import { DocumentModel } from '@/models/documentModel';
 import { folderService } from '@/services/folderService';
@@ -7,6 +8,7 @@ import { FolderModel } from '@/models/folderModel';
 import { documentService } from '../../../services/documentService';
 
 const useDocumentController = () => {
+    const { t } = useTranslation();
     const [documents, setDocuments] = useState<DocumentModel[]>([]);
     const [folders, setFolders] = useState<FolderModel[]>([]);
     const [selectedFolder, setSelectedFolder] = useState<FolderModel | null>(null);
@@ -175,16 +177,19 @@ const useDocumentController = () => {
 
         const isFolder = !(item as DocumentModel).doc_no;
 
+        const itemName = isFolder
+            ? (item as FolderModel).folder_name
+            : (item as DocumentModel).doc_name;
+
         const confirmed = await Swal.fire({
-            title: `Delete ${isFolder ? 'Folder' : 'Document'}?`,
-            text: `Are you sure you want to delete "${isFolder
-                ? (item as FolderModel).folder_name
-                : (item as DocumentModel).doc_name}"? This action cannot be undone.`,
+            title: t(isFolder ? 'docs.deleteFolderTitle' : 'docs.deleteDocumentTitle'),
+            text: t('docs.deleteItemConfirm', { name: itemName }),
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'Delete',
+            confirmButtonText: t('docs.deleteBtn'),
+            cancelButtonText: t('common.cancel'),
         });
 
         if (!confirmed.isConfirmed) return;
@@ -199,10 +204,10 @@ const useDocumentController = () => {
                 await refreshDocuments();
             }
             handleCloseDetail();
-            Swal.fire('Deleted!', `${isFolder ? 'Folder' : 'Document'} has been deleted.`, 'success');
+            Swal.fire(t('docs.deleted'), t(isFolder ? 'docs.folderDeleted' : 'docs.documentDeleted'), 'success');
         } catch (error) {
             console.error('Failed to delete item', error);
-            Swal.fire('Error', 'Failed to delete. Please try again.', 'error');
+            Swal.fire(t('common.error'), t('docs.deleteFailed'), 'error');
         } finally {
             setLoading(false);
         }

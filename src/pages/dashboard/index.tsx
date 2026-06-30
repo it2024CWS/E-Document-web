@@ -109,6 +109,7 @@ const DashboardPage = () => {
                                 onReceive={() => { }}
                                 onApprove={() => { }}
                                 onViewDetail={handleViewIncoming}
+                                readOnly
                             />
                         </Card>
 
@@ -120,6 +121,7 @@ const DashboardPage = () => {
                                 documents={stats.recentOutgoing}
                                 loading={false}
                                 onViewDetail={handleViewOutgoing}
+                                readOnly
                             />
                         </Card>
                     </Box>

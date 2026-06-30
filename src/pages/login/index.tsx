@@ -17,7 +17,7 @@ import { colors } from '@/themes/colors';
 import TextFieldPassword from '@/components/TextField/TextFieldPassword';
 import LanguageSwitcher from '@/components/LanguageSwitcher';
 import LAOALSY_LOGO from '@/assets/logo/LAOALSY.webp';
-import LOGIN_BANNER from '@/assets/banner/Login_image.png';
+import LOGIN_BANNER from '@/assets/banner/Login_image.jpg';
 
 const Content = () => {
   const ctrl = useMainControllerContext();

@@ -10,6 +10,8 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '@/contexts/auth';
 import { LOGIN_PATH } from '@/routes/config';
 import UploadButton from '@/components/UploadButton';
+import { useMemo } from 'react';
+import { getMenuPathsForRole } from '@/enums/userRoleEnum';
 
 const drawerWidth = DRAWER_WIDTH;
 
@@ -45,11 +47,11 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
     },
     ...(open && {
       ...openedMixin(theme),
-      '& .MuiDrawer-paper': openedMixin(theme),
+      '& .MuiDrawer-paper': { ...openedMixin(theme), borderRadius: 0 },
     }),
     ...(!open && {
       ...closedMixin(theme),
-      '& .MuiDrawer-paper': closedMixin(theme),
+      '& .MuiDrawer-paper': { ...closedMixin(theme), borderRadius: 0 },
     }),
   })
 );
@@ -58,8 +60,26 @@ const MainDrawer = ({ open }: { open?: boolean }) => {
   const location = useLocation();
   const currentPath = location.pathname;
   const navigate = useNavigate();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const { t } = useTranslation();
+
+  const filteredMenu = useMemo(() => {
+    const allowed = new Set(getMenuPathsForRole(user?.role_name));
+    return MAIN_MENU_ITEMS
+      .map(group => ({
+        ...group,
+        menu: group.menu
+          .map(item => {
+            if (item.subMenu) {
+              const sub = item.subMenu.filter(s => !s.path || allowed.has(s.path));
+              return sub.length ? { ...item, subMenu: sub } : null;
+            }
+            return !item.path || allowed.has(item.path) ? item : null;
+          })
+          .filter((x): x is NonNullable<typeof x> => x !== null),
+      }))
+      .filter(group => group.menu.length > 0);
+  }, [user?.role_name]);
 
   const handleLogout = async () => {
     await logout();
@@ -108,7 +128,7 @@ const MainDrawer = ({ open }: { open?: boolean }) => {
 
         {/* Menu Items */}
         <List sx={{ flex: 1, overflowY: 'auto' }}>
-          {MAIN_MENU_ITEMS.map((item: GroupMenuModel) => {
+          {filteredMenu.map((item: GroupMenuModel) => {
             return <ListMenuItem key={item.label} menu={item} currentPath={currentPath} />;
           })}
         </List>

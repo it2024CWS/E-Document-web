@@ -15,7 +15,7 @@ export const getFileIcon = (fileOrExt: string) => {
     // Also handle MIME types roughly
     if (ext?.includes('pdf')) return <PictureAsPdfIcon sx={{ color: colors.accent.red }} />;
     if (ext?.includes('word') || ['doc', 'docx'].includes(ext || '')) return <DescriptionIcon sx={{ color: colors.secondary.blue1 }} />;
-    if (ext?.includes('excel') || ext?.includes('spreadsheet') || ['xls', 'xlsx'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
+    if (ext?.includes('excel') || ext?.includes('spreadsheet') || ['xls', 'xlsx', 'csv'].includes(ext || '')) return <TableChartIcon sx={{ color: colors.accent.green }} />;
     if (ext?.includes('powerpoint') || ext?.includes('presentation') || ['ppt', 'pptx'].includes(ext || '')) return <SlideshowIcon sx={{ color: '#D24726' }} />;
     if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg'].includes(ext || '')) return <ImageIcon sx={{ color: '#7C3AED' }} />;
     if (['rar', 'zip', '7z', 'tar', 'gz'].includes(ext || '')) return <FolderZipIcon sx={{ color: '#92400E' }} />;

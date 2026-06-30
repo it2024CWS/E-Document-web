@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { loginService } from '@/services/authService';
 import { UserDataModel } from '@/models/authModel';
 import { getErrorAlert, getSuccessAlert } from '@/utils/functions/sweetAlert/sweetAlert';
-import { DASHBOARD_PATH } from '@/routes/config';
 import { useAuth } from '@/contexts/auth';
+import { getDefaultPathForRole } from '@/enums/userRoleEnum';
 
 const useMainController = () => {
   const navigate = useNavigate();
@@ -68,8 +68,8 @@ const useMainController = () => {
 
       getSuccessAlert(t('auth.loginSuccess'));
 
-      // Redirect to home page
-      navigate(DASHBOARD_PATH);
+      // Redirect to default page for role
+      navigate(getDefaultPathForRole(userData.role_name));
     } catch (error: any) {
       getErrorAlert(error);
     } finally {

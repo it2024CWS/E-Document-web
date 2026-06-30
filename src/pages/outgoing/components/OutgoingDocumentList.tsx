@@ -12,9 +12,10 @@ interface OutgoingDocumentListProps {
     documents: OutgoingDocModel[];
     loading?: boolean;
     onViewDetail: (doc: OutgoingDocModel) => void;
+    readOnly?: boolean;
 }
 
-const OutgoingDocumentList = ({ documents, loading, onViewDetail }: OutgoingDocumentListProps) => {
+const OutgoingDocumentList = ({ documents, loading, onViewDetail, readOnly = false }: OutgoingDocumentListProps) => {
     const { t } = useTranslation();
 
     const columns = useMemo((): Column<OutgoingDocModel>[] => [
@@ -30,16 +31,16 @@ const OutgoingDocumentList = ({ documents, loading, onViewDetail }: OutgoingDocu
         { label: t('docs.documentNumber'), content: (doc) => doc.doc_no || '-' },
         { label: t('common.date'), content: (doc) => formatDateTime(doc.created_at) },
         { label: t('common.sender'), content: (doc) => doc.user_name || '-' },
-        {
+        ...(!readOnly ? [{
             label: '',
-            align: 'right',
-            content: (doc) => (
+            align: 'right' as const,
+            content: (doc: OutgoingDocModel) => (
                 <IconButton size="small" onClick={() => onViewDetail(doc)}>
                     <MoreHorizIcon sx={{ color: colors.secondary.text }} />
                 </IconButton>
             ),
-        },
-    ], [t, onViewDetail]);
+        }] : []),
+    ], [t, onViewDetail, readOnly]);
 
     return (
         <DataTable

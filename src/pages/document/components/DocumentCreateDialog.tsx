@@ -169,21 +169,31 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
             Swal.fire(t('common.cancel'), t('docs.pleaseSelectFile'), 'warning');
             return;
         }
+        // Capture refs before onClose() triggers parent re-render
+        const file = formData.file;
+        const parentFolderId = formData.folder_id || undefined;
         setSubmitting(true);
         onClose();
         Swal.fire({
             title: t('docs.uploadingFile'),
-            html: `<b>${formData.file.name}</b>`,
+            html: `<b>${file.name}</b>`,
             allowOutsideClick: false,
+            showConfirmButton: false,
             didOpen: () => Swal.showLoading(),
         });
         try {
             await uploadSingleFile({
-                file: formData.file,
-                relativePath: formData.file.name,
-                parentFolderId: formData.folder_id || undefined,
+                file,
+                relativePath: file.name,
+                parentFolderId,
                 onProgress: (p) => {
-                    Swal.update({ html: `<b>${formData.file!.name}</b> — ${p.percentage}%` });
+                    // Direct DOM update avoids Swal.update() which resets the loading state
+                    const container = Swal.getHtmlContainer();
+                    if (container) {
+                        container.innerHTML = p.percentage < 100
+                            ? `<b>${file.name}</b> — ${p.percentage}%`
+                            : `<b>${file.name}</b>`;
+                    }
                 },
             });
             Swal.close();
@@ -265,6 +275,7 @@ const DocumentCreateDialog = ({ open, onClose, onSubmit: _onSubmit, folders, cur
             title: t('docs.uploadingFolder'),
             html: `${pendingFolderFiles.length} files`,
             allowOutsideClick: false,
+            showConfirmButton: false,
             didOpen: () => Swal.showLoading(),
         });
         uploadFolder({

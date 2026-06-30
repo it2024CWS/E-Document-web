@@ -184,7 +184,19 @@
     "description": "Description",
     "unsupportedFileType": "Unsupported file type. Allowed: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV, and images (JPG, PNG, GIF, WEBP, BMP, SVG).",
     "someFilesSkipped": "Some files were skipped",
-    "someFilesSkippedDesc": "{{count}} unsupported file(s) were not uploaded."
+    "someFilesSkippedDesc": "{{count}} unsupported file(s) were not uploaded.",
+    "scanActive": "Scan Active",
+    "scanOff": "Scan Off",
+    "scanBannerHint": "Barcode scanner active — scan a document barcode to receive it automatically",
+    "cannotReceiveStatus": "This document is already {{status}} and cannot be received again.",
+    "deleteFolderTitle": "Delete Folder?",
+    "deleteDocumentTitle": "Delete Document?",
+    "deleteItemConfirm": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+    "deleteBtn": "Delete",
+    "deleted": "Deleted!",
+    "folderDeleted": "Folder has been deleted.",
+    "documentDeleted": "Document has been deleted.",
+    "deleteFailed": "Failed to delete. Please try again."
   },
   "myFile": {
     "allDocuments": "All Documents",

@@ -22,11 +22,19 @@ import ProfilePictureUpload from '../components/ProfilePictureUpload';
 import ResetPasswordModal from '../components/ResetPasswordModal';
 import { useTranslation } from 'react-i18next';
 import LockResetIcon from '@mui/icons-material/LockReset';
+import { useAuth } from '@/contexts/auth';
+import { canEditOwnRoleDeptSector } from '@/enums/userRoleEnum';
 
 const FormCreate = () => {
   const createCtrl = useFormCreateControllerContext();
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const { user: currentUser } = useAuth();
+  const editingId = searchParams.get('id');
+  const restrictSelfEdit =
+    createCtrl.isEditMode &&
+    editingId === currentUser?.id &&
+    !canEditOwnRoleDeptSector(currentUser?.role_name);
 
   return (
     <Box>
@@ -129,7 +137,7 @@ const FormCreate = () => {
                     value={createCtrl.formData.role_id || ''}
                     label={t('users.role')}
                     onChange={(e) => createCtrl.handleChange('role_id', e.target.value)}
-                    disabled={createCtrl.loading}
+                    disabled={createCtrl.loading || restrictSelfEdit}
                   >
                     <MenuItem value="">
                       <em>{t('users.selectRole')}</em>
@@ -174,7 +182,7 @@ const FormCreate = () => {
                     value={createCtrl.formData.department_id || ''}
                     label={t('common.department')}
                     onChange={(e) => createCtrl.handleChange('department_id', e.target.value)}
-                    disabled={createCtrl.loading}
+                    disabled={createCtrl.loading || restrictSelfEdit}
                   >
                     <MenuItem value="">
                       <em>{t('users.selectDepartment')}</em>
@@ -189,7 +197,7 @@ const FormCreate = () => {
               </Grid>
 
               <Grid size={{ xs: 12, md: 6 }}>
-                <FormControl fullWidth disabled={!createCtrl.formData.department_id || createCtrl.loading}>
+                <FormControl fullWidth disabled={!createCtrl.formData.department_id || createCtrl.loading || restrictSelfEdit}>
                   <InputLabel>{t('common.sector')}</InputLabel>
                   <Select
                     value={createCtrl.formData.sector_id || ''}

@@ -184,7 +184,19 @@
     "description": "ຄຳອະທິບາຍ",
     "unsupportedFileType": "ປະເພດໄຟລ໌ບໍ່ຮອງຮັບ. ອະນຸຍາດ: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, CSV ແລະ ຮູບພາບ (JPG, PNG, GIF, WEBP, BMP, SVG).",
     "someFilesSkipped": "ບາງໄຟລ໌ຖືກຂ້າມ",
-    "someFilesSkippedDesc": "{{count}} ໄຟລ໌ທີ່ບໍ່ຮອງຮັບບໍ່ໄດ້ຖືກອັບໂຫຼດ."
+    "someFilesSkippedDesc": "{{count}} ໄຟລ໌ທີ່ບໍ່ຮອງຮັບບໍ່ໄດ້ຖືກອັບໂຫຼດ.",
+    "scanActive": "ສະແກນໃຊ້ງານ",
+    "scanOff": "ສະແກນປິດ",
+    "scanBannerHint": "ເຄື່ອງສະແກນ Barcode ໃຊ້ງານຢູ່ — ສະແກນ Barcode ເພື່ອຮັບເອກະສານອັດຕະໂນມັດ",
+    "cannotReceiveStatus": "ເອກະສານນີ້ມີສະຖານະ {{status}} ແລ້ວ ບໍ່ສາມາດຮັບໄດ້ອີກ.",
+    "deleteFolderTitle": "ລຶບໂຟລເດີ?",
+    "deleteDocumentTitle": "ລຶບເອກະສານ?",
+    "deleteItemConfirm": "ທ່ານແນ່ໃຈບໍ່ວ່າຈະລຶບ \"{{name}}\"? ການກະທຳນີ້ບໍ່ສາມາດຍ້ອນກັບໄດ້.",
+    "deleteBtn": "ລຶບ",
+    "deleted": "ລຶບສຳເລັດ!",
+    "folderDeleted": "ໂຟລເດີຖືກລຶບແລ້ວ.",
+    "documentDeleted": "ເອກະສານຖືກລຶບແລ້ວ.",
+    "deleteFailed": "ລຶບລົ້ມເຫຼວ ກະລຸນາລອງໃໝ່."
   },
   "myFile": {
     "allDocuments": "ເອກະສານທັງໝົດ",

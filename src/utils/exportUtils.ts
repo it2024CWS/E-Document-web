@@ -22,8 +22,8 @@ export const exportToCSV = (data: any[], filename: string) => {
         }).join(','))
     ].join('\n');
 
-    // Create a Blob and trigger download
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    // ﻿ = UTF-8 BOM — tells Excel to open as UTF-8 (required for Lao/Thai characters)
+    const blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
 
     // Create a link to the file
